@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "stellantis-app",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "stellantis-comm-ai", "-l", "3456"],
+      "port": 3456
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommGen AI — Stellantis Communication Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Nav -->
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#243B80"/><path d="M7 14L14 7L21 14L14 21L7 14Z" fill="#4FC3F7"/><circle cx="14" cy="14" r="3" fill="#fff"/></svg>
+                <span class="logo-text">CommGen <span class="logo-ai">AI</span></span>
+            </div>
+            <span class="env-badge">Stellantis Internal</span>
+        </div>
+        <nav class="top-nav">
+            <a href="#" class="active">Generator</a>
+            <a href="#">History</a>
+            <a href="#">Templates</a>
+            <a href="#">Settings</a>
+        </nav>
+        <div class="top-bar-right">
+            <span class="user-avatar">MC</span>
+            <span class="user-name">M. Chenafi</span>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- STEP 1: Upload Panel -->
+        <section id="step-upload" class="step active-step">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <h2>Upload Documents</h2>
+                    <p class="step-desc">Upload your Functional Specification and Communication Template</p>
+                </div>
+            </div>
+
+            <div class="upload-grid">
+                <div class="upload-card" id="upload-spec">
+                    <div class="upload-icon spec-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="4" width="22" height="30" rx="3" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/><path d="M12 14h10M12 18h10M12 22h6" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/><rect x="16" y="8" width="14" height="18" rx="2" fill="#fff" stroke="#1976D2" stroke-width="1.5"/></svg>
+                    </div>
+                    <h3>Functional Specification</h3>
+                    <p>DFS / CAP / PNR document</p>
+                    <div class="upload-dropzone" id="dropzone-spec">
+                        <input type="file" id="file-spec" accept=".docx,.pdf,.doc" hidden>
+                        <button class="btn btn-outline" onclick="document.getElementById('file-spec').click()">Choose File</button>
+                        <span class="drop-text">or drag & drop here</span>
+                    </div>
+                    <div class="upload-status" id="status-spec"></div>
+                </div>
+
+                <div class="upload-card" id="upload-template">
+                    <div class="upload-icon template-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="4" width="28" height="32" rx="3" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/><path d="M12 12h16M12 17h16M12 22h10" stroke="#E65100" stroke-width="1.5" stroke-linecap="round"/><rect x="24" y="24" width="10" height="10" rx="5" fill="#E65100"/><path d="M29 27v4M27 29h4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <h3>Communication Template</h3>
+                    <p>Basket Communication reference</p>
+                    <div class="upload-dropzone" id="dropzone-template">
+                        <input type="file" id="file-template" accept=".docx,.pdf,.doc" hidden>
+                        <button class="btn btn-outline" onclick="document.getElementById('file-template').click()">Choose File</button>
+                        <span class="drop-text">or drag & drop here</span>
+                    </div>
+                    <div class="upload-status" id="status-template"></div>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-primary btn-lg" id="btn-analyze" disabled>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Analyze Documents
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 2: Analysis / Detection -->
+        <section id="step-analysis" class="step">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <h2>Document Analysis</h2>
+                    <p class="step-desc">AI is analyzing your documents and detecting template structure</p>
+                </div>
+            </div>
+
+            <div class="analysis-progress" id="analysis-progress">
+                <div class="progress-item" id="prog-parse">
+                    <div class="prog-icon pending"></div>
+                    <div class="prog-content">
+                        <span class="prog-label">Parsing documents...</span>
+                        <div class="prog-bar"><div class="prog-fill"></div></div>
+                    </div>
+                </div>
+                <div class="progress-item" id="prog-template">
+                    <div class="prog-icon pending"></div>
+                    <div class="prog-content">
+                        <span class="prog-label">Detecting template structure...</span>
+                        <div class="prog-bar"><div class="prog-fill"></div></div>
+                    </div>
+                </div>
+                <div class="progress-item" id="prog-extract">
+                    <div class="prog-icon pending"></div>
+                    <div class="prog-content">
+                        <span class="prog-label">Extracting business rules & requirements...</span>
+                        <div class="prog-bar"><div class="prog-fill"></div></div>
+                    </div>
+                </div>
+                <div class="progress-item" id="prog-acronym">
+                    <div class="prog-icon pending"></div>
+                    <div class="prog-content">
+                        <span class="prog-label">Scanning acronyms & terminology...</span>
+                        <div class="prog-bar"><div class="prog-fill"></div></div>
+                    </div>
+                </div>
+                <div class="progress-item" id="prog-validate">
+                    <div class="prog-icon pending"></div>
+                    <div class="prog-content">
+                        <span class="prog-label">Running validation checks...</span>
+                        <div class="prog-bar"><div class="prog-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Detection Card -->
+            <div class="detection-card" id="detection-card" style="display:none;">
+                <div class="detection-header">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M7 11l3 3 5-5" stroke="#388E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Template Detected: <strong>Basket 7.20 Communication EN</strong></span>
+                </div>
+                <div class="detection-sections">
+                    <span class="tag tag-green">Header</span>
+                    <span class="tag tag-green">Context / Introduction</span>
+                    <span class="tag tag-green">Evolutions</span>
+                    <span class="tag tag-green">Bug Fixes Table</span>
+                    <span class="tag tag-green">Deployment Info</span>
+                    <span class="tag tag-green">Important Instructions</span>
+                </div>
+                <div class="detection-spec">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span>Spec Detected: <strong>CAP-37495 / PNR-10279 — AllureCare Program V4.0</strong></span>
+                </div>
+            </div>
+
+            <div class="step-actions" id="analysis-actions" style="display:none;">
+                <button class="btn btn-primary btn-lg" id="btn-generate">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L2 9l7 7 7-7L9 2z" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="9" cy="9" r="2" fill="currentColor"/></svg>
+                    Generate Communication
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: Generation + Validation Dashboard -->
+        <section id="step-dashboard" class="step">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div>
+                    <h2>Generated Output</h2>
+                    <p class="step-desc">Review the generated communication, test plan, and validation reports</p>
+                </div>
+            </div>
+
+            <!-- Quality Score Bar -->
+            <div class="score-bar" id="score-bar">
+                <div class="score-ring">
+                    <svg viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="#e0e0e0" stroke-width="6"/>
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="#43A047" stroke-width="6" stroke-dasharray="213.6" stroke-dashoffset="21.36" stroke-linecap="round" transform="rotate(-90 40 40)" id="score-circle"/>
+                    </svg>
+                    <span class="score-value" id="score-value">90</span>
+                </div>
+                <div class="score-details">
+                    <h3>Quality Score</h3>
+                    <div class="score-criteria">
+                        <div class="criteria-row"><span>Template Compliance</span><div class="criteria-bar"><div class="criteria-fill" style="width:95%"></div></div><span>95%</span></div>
+                        <div class="criteria-row"><span>Spec Completeness</span><div class="criteria-bar"><div class="criteria-fill" style="width:88%"></div></div><span>88%</span></div>
+                        <div class="criteria-row"><span>Consistency</span><div class="criteria-bar"><div class="criteria-fill" style="width:92%"></div></div><span>92%</span></div>
+                        <div class="criteria-row"><span>Clarity & Readability</span><div class="criteria-bar"><div class="criteria-fill" style="width:90%"></div></div><span>90%</span></div>
+                        <div class="criteria-row"><span>No Ambiguity</span><div class="criteria-bar"><div class="criteria-fill" style="width:85%"></div></div><span>85%</span></div>
+                    </div>
+                </div>
+                <div class="validation-badges">
+                    <div class="badge badge-pass">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Template Alignment
+                    </div>
+                    <div class="badge badge-pass">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Structure Match
+                    </div>
+                    <div class="badge badge-warn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.5"/><path d="M8 5v3M8 10h.01" stroke="#F9A825" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Acronym Check
+                    </div>
+                    <div class="badge badge-pass">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Functional Consistency
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="comm">Communication</button>
+                <button class="tab" data-tab="validation">Validation Report</button>
+                <button class="tab" data-tab="acronyms">Acronyms</button>
+                <button class="tab" data-tab="testplan">Test Plan</button>
+                <button class="tab" data-tab="knowhow">Know-how</button>
+            </div>
+
+            <!-- Tab: Communication -->
+            <div class="tab-panel active" id="panel-comm">
+                <div class="comm-toolbar">
+                    <button class="btn btn-sm btn-outline" id="btn-copy-comm">Copy</button>
+                    <button class="btn btn-sm btn-outline" id="btn-export-comm">Export .docx</button>
+                    <button class="btn btn-sm btn-outline" id="btn-pdf-comm">Export .pdf</button>
+                </div>
+                <div class="comm-document" id="comm-output">
+                    <!-- Generated Communication inserted here by JS -->
+                </div>
+            </div>
+
+            <!-- Tab: Validation Report -->
+            <div class="tab-panel" id="panel-validation">
+                <div class="validation-report" id="validation-output"></div>
+            </div>
+
+            <!-- Tab: Acronyms -->
+            <div class="tab-panel" id="panel-acronyms">
+                <div class="acronyms-content" id="acronyms-output"></div>
+            </div>
+
+            <!-- Tab: Test Plan -->
+            <div class="tab-panel" id="panel-testplan">
+                <div class="testplan-toolbar">
+                    <button class="btn btn-sm btn-outline" id="btn-export-tp">Export Test Plan</button>
+                </div>
+                <div class="testplan-content" id="testplan-output"></div>
+            </div>
+
+            <!-- Tab: Know-how -->
+            <div class="tab-panel" id="panel-knowhow">
+                <div class="knowhow-content" id="knowhow-output"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <span>CommGen AI v1.0 — Stellantis Aftersales Digital Tools</span>
+        <span>Powered by AI | Internal Use Only</span>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
