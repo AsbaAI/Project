@@ -1,9 +1,10 @@
-// ===== CommGen AI v3.0 — Stellantis Communication Generator =====
+// ===== CommGen AI v4.0 — Stellantis Communication Generator =====
 
 let selectedTemplateMode = 'upload'; // 'upload' or 'library'
 let selectedLibraryTemplate = null;
 let currentLang = 'en';
 let commOriginalHTML = '';
+let detectedLocale = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initUpload();
@@ -11,25 +12,40 @@ document.addEventListener('DOMContentLoaded', () => {
     initTemplateGallery();
     initTabs();
     initNavigation();
+    initApprovalWorkflow();
+    initTemplateBuilder();
+    initAnalytics();
+    detectLocale();
 });
 
 // ===== NAVIGATION =====
 function initNavigation() {
+    const pages = ['templates', 'approvals', 'builder', 'analytics'];
     document.querySelectorAll('.top-nav a').forEach(a => {
         a.addEventListener('click', (e) => {
             e.preventDefault();
             const target = a.dataset.nav;
-            if (target === 'templates') {
-                showTemplatesPage();
+            // Hide all pages and steps
+            pages.forEach(p => {
+                const el = document.getElementById('page-' + p);
+                if (el) el.style.display = 'none';
+            });
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active-step'));
+            document.querySelectorAll('.top-nav a').forEach(n => n.classList.remove('active'));
+            a.classList.add('active');
+
+            if (pages.includes(target)) {
+                document.getElementById('page-' + target).style.display = 'block';
             } else if (target === 'generator') {
-                hideTemplatesPage();
+                document.getElementById('step-upload').classList.add('active-step');
             }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
 }
 
 function showTemplatesPage() {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active-step'));
+    hideAllPages();
     document.getElementById('page-templates').style.display = 'block';
     document.querySelectorAll('.top-nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('[data-nav="templates"]').classList.add('active');
@@ -37,11 +53,19 @@ function showTemplatesPage() {
 }
 
 function hideTemplatesPage() {
-    document.getElementById('page-templates').style.display = 'none';
+    hideAllPages();
     document.getElementById('step-upload').classList.add('active-step');
     document.querySelectorAll('.top-nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('[data-nav="generator"]').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideAllPages() {
+    ['templates', 'approvals', 'builder', 'analytics'].forEach(p => {
+        const el = document.getElementById('page-' + p);
+        if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active-step'));
 }
 
 // ===== TEMPLATE OPTIONS (Upload vs Library) =====
@@ -1187,4 +1211,313 @@ ul{padding-left:18px}li{margin-bottom:4px}
         const a = document.createElement('a'); a.href = url; a.download = 'AllureCare_TestPlan.html'; a.click();
         URL.revokeObjectURL(url);
     });
+}
+
+// ===== APPROVAL WORKFLOW =====
+function initApprovalWorkflow() {
+    // Priority pills
+    document.querySelectorAll('.wf-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.wf-pill').forEach(p => p.classList.remove('wf-pill-active'));
+            pill.classList.add('wf-pill-active');
+        });
+    });
+
+    // Submit for review
+    const btnSubmit = document.getElementById('btn-submit-review');
+    if (btnSubmit) {
+        btnSubmit.addEventListener('click', () => {
+            const reviewer = document.getElementById('wf-reviewer');
+            const reviewerName = reviewer.options[reviewer.selectedIndex].text;
+            const comments = document.getElementById('wf-comments').value;
+            const priority = document.querySelector('.wf-pill.wf-pill-active')?.dataset.priority || 'medium';
+
+            // Add to history
+            const historyEl = document.getElementById('wf-history');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString(detectedLocale || 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+            const newItem = document.createElement('div');
+            newItem.className = 'wf-history-item';
+            newItem.innerHTML = `
+                <div class="wf-status wf-status-pending">Pending</div>
+                <div class="wf-history-info">
+                    <strong>Basket 7.20 — AllureCare BrandCare Integration</strong>
+                    <span>Submitted to ${reviewerName} — ${dateStr}</span>
+                </div>
+                <div class="wf-history-meta">
+                    <span class="wf-badge wf-badge-orange">Priority: ${priority}</span>
+                    <span class="wf-time">Just now</span>
+                </div>
+            `;
+            historyEl.insertBefore(newItem, historyEl.firstChild);
+
+            // Update pipeline
+            document.querySelectorAll('.wf-connector')[0].classList.add('wf-done');
+
+            // Send notification email via mailto
+            const subject = encodeURIComponent(`[CommGen AI] Review Request — Basket 7.20 AllureCare Communication — Priority: ${priority}`);
+            const body = encodeURIComponent(
+                `Dear ${reviewerName.split('—')[0].trim()},\n\n` +
+                `A communication has been submitted for your review on CommGen AI.\n\n` +
+                `Communication: Basket 7.20 — AllureCare BrandCare Integration\n` +
+                `Submitted by: M. Chenafi (AFFI/PS/TS/NSS)\n` +
+                `Priority: ${priority.toUpperCase()}\n` +
+                (comments ? `\nComments: ${comments}\n` : '') +
+                `\nPlease review and approve/reject in the CommGen AI platform.\n\n` +
+                `Best regards,\nCommGen AI — Stellantis`
+            );
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+
+            // Visual feedback
+            btnSubmit.textContent = 'Submitted!';
+            btnSubmit.disabled = true;
+            setTimeout(() => {
+                btnSubmit.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Submit for Review';
+                btnSubmit.disabled = false;
+            }, 3000);
+        });
+    }
+
+    // Save draft
+    const btnDraft = document.getElementById('btn-save-draft');
+    if (btnDraft) {
+        btnDraft.addEventListener('click', () => {
+            btnDraft.textContent = 'Draft Saved!';
+            setTimeout(() => btnDraft.textContent = 'Save as Draft', 2000);
+        });
+    }
+}
+
+// ===== TEMPLATE BUILDER =====
+function initTemplateBuilder() {
+    const canvas = document.getElementById('builder-canvas');
+    if (!canvas) return;
+
+    // Delete block buttons
+    canvas.addEventListener('click', (e) => {
+        if (e.target.classList.contains('canvas-block-delete')) {
+            e.target.closest('.canvas-block').remove();
+        }
+    });
+
+    // Drag and drop from sidebar to canvas
+    const blockItems = document.querySelectorAll('.block-item');
+    blockItems.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', item.dataset.block);
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+    });
+
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        canvas.classList.add('drag-over');
+    });
+
+    canvas.addEventListener('dragleave', () => {
+        canvas.classList.remove('drag-over');
+    });
+
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        canvas.classList.remove('drag-over');
+        const blockType = e.dataTransfer.getData('text/plain');
+        if (blockType) {
+            addCanvasBlock(blockType);
+        }
+    });
+
+    // Drag reorder within canvas
+    let draggedBlock = null;
+    canvas.addEventListener('mousedown', (e) => {
+        const block = e.target.closest('.canvas-block');
+        if (block && e.target.closest('.canvas-block-handle')) {
+            draggedBlock = block;
+            block.classList.add('dragging');
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (draggedBlock) {
+            draggedBlock.classList.remove('dragging');
+            draggedBlock = null;
+        }
+    });
+
+    // Variable chips — click to copy
+    document.querySelectorAll('.var-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const varText = '{{' + chip.dataset.var + '}}';
+            navigator.clipboard.writeText(varText).then(() => {
+                const orig = chip.textContent;
+                chip.textContent = 'Copied!';
+                setTimeout(() => chip.textContent = orig, 1500);
+            });
+        });
+    });
+
+    // Save template
+    const btnSave = document.getElementById('btn-builder-save');
+    if (btnSave) {
+        btnSave.addEventListener('click', () => {
+            const name = document.getElementById('builder-name').value || 'Unnamed Template';
+            const blocks = Array.from(canvas.querySelectorAll('.canvas-block')).map(b => b.dataset.type);
+            const template = { name, blocks, savedAt: new Date().toISOString() };
+
+            // Save to localStorage
+            const saved = JSON.parse(localStorage.getItem('commgen_templates') || '[]');
+            saved.push(template);
+            localStorage.setItem('commgen_templates', JSON.stringify(saved));
+
+            btnSave.textContent = 'Saved!';
+            setTimeout(() => btnSave.textContent = 'Save Template', 2000);
+        });
+    }
+
+    // Preview
+    const btnPreview = document.getElementById('btn-builder-preview');
+    if (btnPreview) {
+        btnPreview.addEventListener('click', () => {
+            const blocks = canvas.querySelectorAll('.canvas-block');
+            let previewHTML = '<h3 style="color:#1B2A4A;">Template Preview</h3><hr style="margin:12px 0;">';
+            blocks.forEach(b => {
+                const type = b.dataset.type;
+                const content = b.querySelector('.cb-preview')?.innerHTML || type;
+                previewHTML += `<div style="margin:12px 0;padding:8px;border-left:3px solid #1976D2;">${content}</div>`;
+            });
+            const win = window.open('', '_blank', 'width=700,height=500');
+            win.document.write(`<!DOCTYPE html><html><head><title>Template Preview</title><style>body{font-family:Segoe UI,sans-serif;padding:30px;color:#333;}</style></head><body>${previewHTML}</body></html>`);
+        });
+    }
+}
+
+function addCanvasBlock(type) {
+    const canvas = document.getElementById('builder-canvas');
+    const dropzone = document.getElementById('canvas-dropzone');
+
+    const blockLabels = {
+        'header': 'Header Block',
+        'sender-receiver': 'Sender / Receiver',
+        'evolutions': 'Evolutions',
+        'bugfixes': 'Bug Fixes Table',
+        'training': 'Training Box',
+        'warning': 'Warning Box',
+        'deployment': 'Deployment Info',
+        'freetext': 'Free Text',
+        'image': 'Image / Screenshot',
+        'conditional': 'Conditional Section'
+    };
+
+    const blockPreviews = {
+        'header': '<div style="background:#1B2A4A;color:#fff;padding:6px 10px;border-radius:3px;font-size:.7rem;">STELLANTIS — {{basketVersion}}</div>',
+        'sender-receiver': '<div style="background:#f5f5f5;padding:6px 10px;border-left:3px solid #1B2A4A;font-size:.7rem;">From: {{senderName}}<br>To: All subsidiaries</div>',
+        'evolutions': '<div style="font-size:.7rem;"><strong style="color:#1B2A4A;">Evolutions</strong><br>• Auto-generated from DFS</div>',
+        'bugfixes': '<div style="font-size:.68rem;border:1px solid #e0e0e0;padding:4px;border-radius:2px;">Bug Fixes Table (5 columns)</div>',
+        'training': '<div style="background:#E3F2FD;padding:6px 10px;border-left:3px solid #1976D2;font-size:.7rem;">Training information block</div>',
+        'warning': '<div style="background:#FFF3E0;padding:6px 10px;border-left:3px solid #E65100;font-size:.7rem;">Important warning block</div>',
+        'deployment': '<div style="font-size:.7rem;">Deployment: App, Scope, Availability, Systems</div>',
+        'freetext': '<div contenteditable="true" style="font-size:.7rem;border:1px dashed #ccc;padding:6px;min-height:30px;" placeholder="Type your text here...">Click to edit text...</div>',
+        'image': '<div style="background:#f5f5f5;padding:10px;text-align:center;font-size:.68rem;color:#999;border:1px dashed #ccc;">Image / Screenshot placeholder</div>',
+        'conditional': '<div style="font-size:.68rem;border:1px solid #6A1B9A;padding:6px;border-radius:3px;background:#F3E5F5;">IF {{brand}} = "Peugeot" THEN show this section</div>'
+    };
+
+    const block = document.createElement('div');
+    block.className = 'canvas-block';
+    block.dataset.type = type;
+    block.innerHTML = `
+        <div class="canvas-block-handle">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="1" fill="#999"/><circle cx="3" cy="6" r="1" fill="#999"/><circle cx="3" cy="9" r="1" fill="#999"/><circle cx="7" cy="3" r="1" fill="#999"/><circle cx="7" cy="6" r="1" fill="#999"/><circle cx="7" cy="9" r="1" fill="#999"/></svg>
+        </div>
+        <div class="canvas-block-content">
+            <div class="cb-label">${blockLabels[type] || type}</div>
+            <div class="cb-preview">${blockPreviews[type] || ''}</div>
+        </div>
+        <button class="canvas-block-delete" title="Remove block">&times;</button>
+    `;
+
+    canvas.insertBefore(block, dropzone);
+
+    // Show config for conditional blocks
+    if (type === 'conditional') {
+        document.getElementById('builder-config').style.display = 'block';
+    }
+}
+
+// ===== ANALYTICS =====
+function initAnalytics() {
+    // Animate bar chart on page show
+    const observer = new MutationObserver(() => {
+        const page = document.getElementById('page-analytics');
+        if (page && page.style.display !== 'none') {
+            animateBarChart();
+        }
+    });
+
+    const analyticsPage = document.getElementById('page-analytics');
+    if (analyticsPage) {
+        observer.observe(analyticsPage, { attributes: true, attributeFilter: ['style'] });
+    }
+}
+
+function animateBarChart() {
+    document.querySelectorAll('.bar-fill').forEach(bar => {
+        const targetWidth = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => { bar.style.width = targetWidth; }, 100);
+    });
+}
+
+// ===== LOCALE DETECTION =====
+function detectLocale() {
+    const lang = navigator.language || navigator.userLanguage || 'en-US';
+    detectedLocale = lang;
+
+    const localeMap = {
+        'fr': { name: 'France (fr-FR)', dateFmt: 'DD/MM/YYYY', currency: 'EUR' },
+        'de': { name: 'Germany (de-DE)', dateFmt: 'DD.MM.YYYY', currency: 'EUR' },
+        'it': { name: 'Italy (it-IT)', dateFmt: 'DD/MM/YYYY', currency: 'EUR' },
+        'es': { name: 'Spain (es-ES)', dateFmt: 'DD/MM/YYYY', currency: 'EUR' },
+        'pt': { name: 'Portugal (pt-PT)', dateFmt: 'DD/MM/YYYY', currency: 'EUR' },
+        'nl': { name: 'Netherlands (nl-NL)', dateFmt: 'DD-MM-YYYY', currency: 'EUR' },
+        'pl': { name: 'Poland (pl-PL)', dateFmt: 'DD.MM.YYYY', currency: 'PLN' },
+        'en': { name: 'United Kingdom (en-GB)', dateFmt: 'DD/MM/YYYY', currency: 'GBP' },
+    };
+
+    const langCode = lang.substring(0, 2);
+    const locale = localeMap[langCode] || { name: `${lang}`, dateFmt: 'MM/DD/YYYY', currency: 'USD' };
+
+    const detectedEl = document.getElementById('locale-detected');
+    const dateFmtEl = document.getElementById('locale-date-fmt');
+    const currencyEl = document.getElementById('locale-currency');
+
+    if (detectedEl) detectedEl.textContent = locale.name;
+    if (dateFmtEl) dateFmtEl.textContent = locale.dateFmt;
+    if (currencyEl) currencyEl.textContent = locale.currency;
+
+    // Also set the language selector to match detected locale
+    const selectLang = document.getElementById('select-lang');
+    if (selectLang && selectLang.querySelector(`option[value="${langCode}"]`)) {
+        selectLang.value = langCode;
+    }
+
+    // Change locale button
+    const btnLocale = document.getElementById('btn-change-locale');
+    if (btnLocale) {
+        btnLocale.addEventListener('click', () => {
+            // Cycle through locales
+            const keys = Object.keys(localeMap);
+            const currentIdx = keys.indexOf(langCode);
+            const nextIdx = (currentIdx + 1) % keys.length;
+            const nextLang = keys[nextIdx];
+            const nextLocale = localeMap[nextLang];
+
+            if (detectedEl) detectedEl.textContent = nextLocale.name;
+            if (dateFmtEl) dateFmtEl.textContent = nextLocale.dateFmt;
+            if (currencyEl) currencyEl.textContent = nextLocale.currency;
+
+            detectedLocale = nextLang;
+        });
+    }
 }

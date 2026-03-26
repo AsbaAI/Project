@@ -18,8 +18,10 @@
         </div>
         <nav class="top-nav">
             <a href="#" class="active" data-nav="generator">Generator</a>
-            <a href="#" data-nav="history">History</a>
+            <a href="#" data-nav="approvals">Approvals</a>
             <a href="#" data-nav="templates" id="nav-templates">Templates</a>
+            <a href="#" data-nav="builder">Template Builder</a>
+            <a href="#" data-nav="analytics">Analytics</a>
             <a href="#" data-nav="settings">Settings</a>
         </nav>
         <div class="top-bar-right">
@@ -504,10 +506,561 @@
                 <div class="knowhow-content" id="knowhow-output"></div>
             </div>
         </section>
+        <!-- ============================================= -->
+        <!-- APPROVAL WORKFLOW PAGE                        -->
+        <!-- ============================================= -->
+        <section id="page-approvals" class="page" style="display:none;">
+            <div class="step-header">
+                <div class="step-number" style="background:#2E7D32;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L2 10l8 8 8-8L10 2z" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div>
+                    <h2>Approval Workflow</h2>
+                    <p class="step-desc">Submit communications for review, track approvals, and manage the validation pipeline</p>
+                </div>
+            </div>
+
+            <!-- Workflow Pipeline -->
+            <div class="wf-pipeline">
+                <div class="wf-stage wf-active">
+                    <div class="wf-stage-icon"><span>1</span></div>
+                    <div class="wf-stage-label">Draft</div>
+                </div>
+                <div class="wf-connector wf-done"></div>
+                <div class="wf-stage wf-active">
+                    <div class="wf-stage-icon"><span>2</span></div>
+                    <div class="wf-stage-label">Review</div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-stage">
+                    <div class="wf-stage-icon"><span>3</span></div>
+                    <div class="wf-stage-label">Approved</div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-stage">
+                    <div class="wf-stage-icon"><span>4</span></div>
+                    <div class="wf-stage-label">Distributed</div>
+                </div>
+            </div>
+
+            <!-- Submit for Review -->
+            <div class="wf-card">
+                <h4>Submit for Review</h4>
+                <div class="wf-form">
+                    <div class="wf-form-row">
+                        <label>Communication</label>
+                        <select class="wf-select" id="wf-comm-select">
+                            <option>AllureCare BrandCare Integration — Basket 7.20 (EN)</option>
+                            <option>AllureCare BrandCare Integration — Basket 7.20 (FR)</option>
+                        </select>
+                    </div>
+                    <div class="wf-form-row">
+                        <label>Reviewer / Manager</label>
+                        <select class="wf-select" id="wf-reviewer">
+                            <option value="jdupont">J. Dupont — Aftersales Manager</option>
+                            <option value="mmartin">M. Martin — Communication Lead</option>
+                            <option value="pgarcia">P. Garcia — Quality Manager</option>
+                        </select>
+                    </div>
+                    <div class="wf-form-row">
+                        <label>Priority</label>
+                        <div class="wf-priority-pills">
+                            <button class="wf-pill" data-priority="low">Low</button>
+                            <button class="wf-pill wf-pill-active" data-priority="medium">Medium</button>
+                            <button class="wf-pill" data-priority="high">High</button>
+                            <button class="wf-pill" data-priority="urgent">Urgent</button>
+                        </div>
+                    </div>
+                    <div class="wf-form-row">
+                        <label>Comments / Instructions</label>
+                        <textarea class="wf-textarea" id="wf-comments" placeholder="Add any notes for the reviewer..."></textarea>
+                    </div>
+                    <div class="wf-form-actions">
+                        <button class="btn btn-primary" id="btn-submit-review">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Submit for Review
+                        </button>
+                        <button class="btn btn-outline" id="btn-save-draft">Save as Draft</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approval History -->
+            <div class="wf-card">
+                <h4>Approval History</h4>
+                <div class="wf-history" id="wf-history">
+                    <div class="wf-history-item">
+                        <div class="wf-status wf-status-approved">Approved</div>
+                        <div class="wf-history-info">
+                            <strong>Basket 7.19 — CEM Integration Communication</strong>
+                            <span>Reviewed by J. Dupont — March 10, 2026</span>
+                        </div>
+                        <div class="wf-history-meta">
+                            <span class="wf-badge wf-badge-green">Score: 94%</span>
+                            <span class="wf-time">2 days review</span>
+                        </div>
+                    </div>
+                    <div class="wf-history-item">
+                        <div class="wf-status wf-status-rejected">Rejected</div>
+                        <div class="wf-history-info">
+                            <strong>Basket 7.18 — VIN Resolution Update</strong>
+                            <span>Reviewed by M. Martin — Feb 22, 2026</span>
+                        </div>
+                        <div class="wf-history-meta">
+                            <span class="wf-badge wf-badge-red">Acronyms missing</span>
+                            <span class="wf-time">1 day review</span>
+                        </div>
+                    </div>
+                    <div class="wf-history-item">
+                        <div class="wf-status wf-status-approved">Approved</div>
+                        <div class="wf-history-info">
+                            <strong>Basket 7.17 — SAGAI Contract Display</strong>
+                            <span>Reviewed by P. Garcia — Feb 5, 2026</span>
+                        </div>
+                        <div class="wf-history-meta">
+                            <span class="wf-badge wf-badge-green">Score: 91%</span>
+                            <span class="wf-time">3 days review</span>
+                        </div>
+                    </div>
+                    <div class="wf-history-item">
+                        <div class="wf-status wf-status-pending">Pending</div>
+                        <div class="wf-history-info">
+                            <strong>Basket 7.20 — AllureCare BrandCare Integration</strong>
+                            <span>Submitted to J. Dupont — March 26, 2026</span>
+                        </div>
+                        <div class="wf-history-meta">
+                            <span class="wf-badge wf-badge-orange">In Review</span>
+                            <span class="wf-time">Today</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Notifications Config -->
+            <div class="wf-card">
+                <h4>Notification Settings</h4>
+                <div class="wf-notif-grid">
+                    <label class="wf-toggle-row">
+                        <input type="checkbox" checked> <span>Email on submission</span>
+                    </label>
+                    <label class="wf-toggle-row">
+                        <input type="checkbox" checked> <span>Email on approval / rejection</span>
+                    </label>
+                    <label class="wf-toggle-row">
+                        <input type="checkbox"> <span>Daily digest for pending reviews</span>
+                    </label>
+                    <label class="wf-toggle-row">
+                        <input type="checkbox" checked> <span>Notify stakeholders on distribution</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================= -->
+        <!-- TEMPLATE BUILDER PAGE                         -->
+        <!-- ============================================= -->
+        <section id="page-builder" class="page" style="display:none;">
+            <div class="step-header">
+                <div class="step-number" style="background:#6A1B9A;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M7 7h6M7 10h4M7 13h5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </div>
+                <div>
+                    <h2>Template Builder</h2>
+                    <p class="step-desc">Create custom templates with drag-and-drop blocks, variables, and conditional sections</p>
+                </div>
+            </div>
+
+            <div class="builder-layout">
+                <!-- Left: Block Library -->
+                <div class="builder-sidebar">
+                    <h4>Blocks Library</h4>
+                    <p class="builder-hint">Drag blocks to the canvas to build your template</p>
+                    <div class="block-list" id="block-list">
+                        <div class="block-item" draggable="true" data-block="header">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="4" rx="1" fill="#1B2A4A"/><rect x="2" y="8" width="8" height="2" rx="1" fill="#BDBDBD"/></svg>
+                            <span>Header Block</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="sender-receiver">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="#1976D2" stroke-width="1.2"/><path d="M5 6h6M5 9h4" stroke="#1976D2" stroke-width="1" stroke-linecap="round"/></svg>
+                            <span>Sender / Receiver</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="evolutions">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="5" cy="8" r="2" fill="#388E3C"/><path d="M8 8h6" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <span>Evolutions</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="bugfixes">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="1" fill="none" stroke="#E65100" stroke-width="1.2"/><path d="M2 7h12" stroke="#E65100" stroke-width="1"/></svg>
+                            <span>Bug Fixes Table</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="training">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="#E3F2FD" stroke="#1976D2" stroke-width="1"/></svg>
+                            <span>Training Box</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="warning">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="#FFF3E0" stroke="#E65100" stroke-width="1"/></svg>
+                            <span>Warning Box</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="deployment">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="5" cy="5" r="2" fill="#1976D2"/><circle cx="11" cy="5" r="2" fill="#1976D2"/><circle cx="8" cy="11" r="2" fill="#1976D2"/><path d="M5 7v2l3 2M11 7v2l-3 2" stroke="#1976D2" stroke-width=".8"/></svg>
+                            <span>Deployment Info</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="freetext">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4h8M4 7h6M4 10h7M4 13h5" stroke="#757575" stroke-width="1.2" stroke-linecap="round"/></svg>
+                            <span>Free Text</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="image">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="#757575" stroke-width="1.2"/><circle cx="6" cy="7" r="1.5" fill="#BDBDBD"/><path d="M2 11l4-3 3 2 3-2 2 3" stroke="#BDBDBD" stroke-width="1"/></svg>
+                            <span>Image / Screenshot</span>
+                        </div>
+                        <div class="block-item" draggable="true" data-block="conditional">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v4M5 6l3 3 3-3" stroke="#6A1B9A" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="10" width="5" height="4" rx="1" fill="#E8F5E9"/><rect x="9" y="10" width="5" height="4" rx="1" fill="#FFEBEE"/></svg>
+                            <span>Conditional Section</span>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top:20px;">Variables</h4>
+                    <div class="var-list" id="var-list">
+                        <div class="var-chip" data-var="dealershipName">{{dealershipName}}</div>
+                        <div class="var-chip" data-var="deploymentDate">{{deploymentDate}}</div>
+                        <div class="var-chip" data-var="basketVersion">{{basketVersion}}</div>
+                        <div class="var-chip" data-var="senderName">{{senderName}}</div>
+                        <div class="var-chip" data-var="senderDept">{{senderDept}}</div>
+                        <div class="var-chip" data-var="country">{{country}}</div>
+                        <div class="var-chip" data-var="brand">{{brand}}</div>
+                        <div class="var-chip" data-var="refCAP">{{refCAP}}</div>
+                        <div class="var-chip" data-var="refPNR">{{refPNR}}</div>
+                        <div class="var-chip" data-var="currentDate">{{currentDate}}</div>
+                    </div>
+                </div>
+
+                <!-- Right: Canvas -->
+                <div class="builder-canvas-wrapper">
+                    <div class="builder-toolbar">
+                        <input type="text" class="builder-name-input" id="builder-name" placeholder="Template Name..." value="My Custom Template">
+                        <div class="builder-toolbar-actions">
+                            <button class="btn btn-sm btn-outline" id="btn-builder-preview">Preview</button>
+                            <button class="btn btn-sm btn-primary" id="btn-builder-save">Save Template</button>
+                        </div>
+                    </div>
+                    <div class="builder-canvas" id="builder-canvas">
+                        <!-- Pre-loaded blocks -->
+                        <div class="canvas-block" data-type="header">
+                            <div class="canvas-block-handle">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="1" fill="#999"/><circle cx="3" cy="6" r="1" fill="#999"/><circle cx="3" cy="9" r="1" fill="#999"/><circle cx="7" cy="3" r="1" fill="#999"/><circle cx="7" cy="6" r="1" fill="#999"/><circle cx="7" cy="9" r="1" fill="#999"/></svg>
+                            </div>
+                            <div class="canvas-block-content">
+                                <div class="cb-label">Header Block</div>
+                                <div class="cb-preview" style="background:#1B2A4A;color:#fff;padding:8px 12px;border-radius:4px;font-size:.75rem;">
+                                    STELLANTIS — {{basketVersion}} — {{refCAP}}
+                                </div>
+                            </div>
+                            <button class="canvas-block-delete" title="Remove block">&times;</button>
+                        </div>
+                        <div class="canvas-block" data-type="sender-receiver">
+                            <div class="canvas-block-handle">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="1" fill="#999"/><circle cx="3" cy="6" r="1" fill="#999"/><circle cx="3" cy="9" r="1" fill="#999"/><circle cx="7" cy="3" r="1" fill="#999"/><circle cx="7" cy="6" r="1" fill="#999"/><circle cx="7" cy="9" r="1" fill="#999"/></svg>
+                            </div>
+                            <div class="canvas-block-content">
+                                <div class="cb-label">Sender / Receiver</div>
+                                <div class="cb-preview" style="background:#f5f5f5;padding:8px 12px;border-left:3px solid #1B2A4A;font-size:.72rem;">
+                                    From: {{senderName}} — {{senderDept}}<br>To: All subsidiaries — {{country}}
+                                </div>
+                            </div>
+                            <button class="canvas-block-delete" title="Remove block">&times;</button>
+                        </div>
+                        <div class="canvas-block" data-type="evolutions">
+                            <div class="canvas-block-handle">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="1" fill="#999"/><circle cx="3" cy="6" r="1" fill="#999"/><circle cx="3" cy="9" r="1" fill="#999"/><circle cx="7" cy="3" r="1" fill="#999"/><circle cx="7" cy="6" r="1" fill="#999"/><circle cx="7" cy="9" r="1" fill="#999"/></svg>
+                            </div>
+                            <div class="canvas-block-content">
+                                <div class="cb-label">Evolutions</div>
+                                <div class="cb-preview" style="font-size:.72rem;color:#616161;">
+                                    <strong style="color:#1B2A4A;">Evolutions</strong><br>
+                                    • Feature descriptions auto-generated from DFS<br>
+                                    • Bullet points for each business rule
+                                </div>
+                            </div>
+                            <button class="canvas-block-delete" title="Remove block">&times;</button>
+                        </div>
+                        <div class="canvas-block" data-type="bugfixes">
+                            <div class="canvas-block-handle">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="1" fill="#999"/><circle cx="3" cy="6" r="1" fill="#999"/><circle cx="3" cy="9" r="1" fill="#999"/><circle cx="7" cy="3" r="1" fill="#999"/><circle cx="7" cy="6" r="1" fill="#999"/><circle cx="7" cy="9" r="1" fill="#999"/></svg>
+                            </div>
+                            <div class="canvas-block-content">
+                                <div class="cb-label">Bug Fixes Table</div>
+                                <div class="cb-preview" style="font-size:.7rem;">
+                                    <div style="display:flex;gap:4px;margin-bottom:4px;">
+                                        <span style="background:#1B2A4A;color:#fff;padding:2px 6px;border-radius:2px;font-size:.6rem;">Description</span>
+                                        <span style="background:#1B2A4A;color:#fff;padding:2px 6px;border-radius:2px;font-size:.6rem;">Detection</span>
+                                        <span style="background:#1B2A4A;color:#fff;padding:2px 6px;border-radius:2px;font-size:.6rem;">Tickets</span>
+                                    </div>
+                                    <div style="border:1px solid #e0e0e0;height:20px;border-radius:2px;"></div>
+                                </div>
+                            </div>
+                            <button class="canvas-block-delete" title="Remove block">&times;</button>
+                        </div>
+                        <!-- Drop zone indicator -->
+                        <div class="canvas-dropzone" id="canvas-dropzone">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#BDBDBD" stroke-width="2" stroke-linecap="round"/></svg>
+                            <span>Drop blocks here or drag to reorder</span>
+                        </div>
+                    </div>
+
+                    <!-- Conditional Section Config (shown when conditional block selected) -->
+                    <div class="builder-config" id="builder-config" style="display:none;">
+                        <h5>Conditional Section Configuration</h5>
+                        <div class="config-row">
+                            <label>Show this section when:</label>
+                            <select class="wf-select">
+                                <option>{{brand}} equals "Peugeot"</option>
+                                <option>{{brand}} equals "Citroën"</option>
+                                <option>{{country}} is in G10 list</option>
+                                <option>Bug fixes count > 0</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================= -->
+        <!-- ANALYTICS DASHBOARD PAGE                      -->
+        <!-- ============================================= -->
+        <section id="page-analytics" class="page" style="display:none;">
+            <div class="step-header">
+                <div class="step-number" style="background:#0D47A1;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="10" width="3" height="7" rx="1" fill="#fff"/><rect x="8.5" y="6" width="3" height="11" rx="1" fill="#fff"/><rect x="14" y="3" width="3" height="14" rx="1" fill="#fff"/></svg>
+                </div>
+                <div>
+                    <h2>Analytics Dashboard</h2>
+                    <p class="step-desc">Track usage metrics, template performance, approval rates, and compliance</p>
+                </div>
+            </div>
+
+            <!-- KPI Cards Row -->
+            <div class="analytics-kpis">
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:#E3F2FD;color:#1976D2;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpi-total">147</span>
+                        <span class="kpi-label">Total Communications</span>
+                    </div>
+                    <span class="kpi-trend kpi-up">+12% this month</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:#E8F5E9;color:#388E3C;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpi-approved">89%</span>
+                        <span class="kpi-label">Approval Rate</span>
+                    </div>
+                    <span class="kpi-trend kpi-up">+3% vs last month</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:#FFF3E0;color:#E65100;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpi-avg-time">4.2 min</span>
+                        <span class="kpi-label">Avg Generation Time</span>
+                    </div>
+                    <span class="kpi-trend kpi-down">-18% faster</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:#F3E5F5;color:#6A1B9A;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 110 16 8 8 0 010-16z" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpi-compliance">94%</span>
+                        <span class="kpi-label">Compliance Score</span>
+                    </div>
+                    <span class="kpi-trend kpi-up">+5% improvement</span>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="analytics-charts">
+                <!-- Monthly Generation Chart -->
+                <div class="chart-card">
+                    <h4>Communications Generated per Month</h4>
+                    <div class="bar-chart" id="chart-monthly">
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Oct</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:45%;background:#1976D2;"></div></div>
+                            <span class="bar-value">9</span>
+                        </div>
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Nov</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:60%;background:#1976D2;"></div></div>
+                            <span class="bar-value">12</span>
+                        </div>
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Dec</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:35%;background:#1976D2;"></div></div>
+                            <span class="bar-value">7</span>
+                        </div>
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Jan</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:75%;background:#1976D2;"></div></div>
+                            <span class="bar-value">15</span>
+                        </div>
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Feb</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:85%;background:#1976D2;"></div></div>
+                            <span class="bar-value">17</span>
+                        </div>
+                        <div class="bar-chart-row">
+                            <span class="bar-label">Mar</span>
+                            <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#1976D2,#43A047);"></div></div>
+                            <span class="bar-value">20</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Usage -->
+                <div class="chart-card">
+                    <h4>Most Used Templates</h4>
+                    <div class="donut-stats">
+                        <div class="donut-chart">
+                            <svg viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#E0E0E0" stroke-width="16"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#1B2A4A" stroke-width="16" stroke-dasharray="141 173" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#1976D2" stroke-width="16" stroke-dasharray="75 239" stroke-dashoffset="-141" transform="rotate(-90 60 60)"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#43A047" stroke-width="16" stroke-dasharray="47 267" stroke-dashoffset="-216" transform="rotate(-90 60 60)"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#E65100" stroke-width="16" stroke-dasharray="28 286" stroke-dashoffset="-263" transform="rotate(-90 60 60)"/>
+                            </svg>
+                            <span class="donut-center">6<br><small>templates</small></span>
+                        </div>
+                        <div class="donut-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background:#1B2A4A;"></span>Basket Comm <strong>45%</strong></div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#1976D2;"></span>Country Note <strong>24%</strong></div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#43A047;"></span>Release Note <strong>15%</strong></div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#E65100;"></span>Technical Bulletin <strong>9%</strong></div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#E0E0E0;"></span>Others <strong>7%</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Top Users + Compliance -->
+            <div class="analytics-charts">
+                <div class="chart-card">
+                    <h4>Top Users</h4>
+                    <div class="top-users-list">
+                        <div class="top-user-row">
+                            <span class="top-user-rank">1</span>
+                            <span class="top-user-avatar" style="background:#4FC3F7;">MC</span>
+                            <div class="top-user-info">
+                                <strong>M. Chenafi</strong>
+                                <span>AFFI/PS/TS/NSS</span>
+                            </div>
+                            <span class="top-user-count">34 comms</span>
+                        </div>
+                        <div class="top-user-row">
+                            <span class="top-user-rank">2</span>
+                            <span class="top-user-avatar" style="background:#81C784;">JD</span>
+                            <div class="top-user-info">
+                                <strong>J. Dupont</strong>
+                                <span>AFFI/PS/QM</span>
+                            </div>
+                            <span class="top-user-count">28 comms</span>
+                        </div>
+                        <div class="top-user-row">
+                            <span class="top-user-rank">3</span>
+                            <span class="top-user-avatar" style="background:#FFB74D;">PG</span>
+                            <div class="top-user-info">
+                                <strong>P. Garcia</strong>
+                                <span>AFFI/PS/CL</span>
+                            </div>
+                            <span class="top-user-count">22 comms</span>
+                        </div>
+                        <div class="top-user-row">
+                            <span class="top-user-rank">4</span>
+                            <span class="top-user-avatar" style="background:#CE93D8;">MM</span>
+                            <div class="top-user-info">
+                                <strong>M. Martin</strong>
+                                <span>AFFI/PS/TS</span>
+                            </div>
+                            <span class="top-user-count">18 comms</span>
+                        </div>
+                        <div class="top-user-row">
+                            <span class="top-user-rank">5</span>
+                            <span class="top-user-avatar" style="background:#EF9A9A;">SB</span>
+                            <div class="top-user-info">
+                                <strong>S. Bernard</strong>
+                                <span>AFFI/PS/WS</span>
+                            </div>
+                            <span class="top-user-count">15 comms</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h4>Compliance Metrics</h4>
+                    <div class="compliance-grid">
+                        <div class="compliance-item">
+                            <div class="compliance-ring">
+                                <svg viewBox="0 0 60 60">
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#E0E0E0" stroke-width="5"/>
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#43A047" stroke-width="5" stroke-dasharray="138" stroke-dashoffset="13.8" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                                </svg>
+                                <span>92%</span>
+                            </div>
+                            <small>All Required Fields</small>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-ring">
+                                <svg viewBox="0 0 60 60">
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#E0E0E0" stroke-width="5"/>
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#1976D2" stroke-width="5" stroke-dasharray="138" stroke-dashoffset="20.7" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                                </svg>
+                                <span>85%</span>
+                            </div>
+                            <small>Acronyms Defined</small>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-ring">
+                                <svg viewBox="0 0 60 60">
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#E0E0E0" stroke-width="5"/>
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#F9A825" stroke-width="5" stroke-dasharray="138" stroke-dashoffset="27.6" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                                </svg>
+                                <span>80%</span>
+                            </div>
+                            <small>Template Match</small>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-ring">
+                                <svg viewBox="0 0 60 60">
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#E0E0E0" stroke-width="5"/>
+                                    <circle cx="30" cy="30" r="24" fill="none" stroke="#6A1B9A" stroke-width="5" stroke-dasharray="138" stroke-dashoffset="6.9" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                                </svg>
+                                <span>95%</span>
+                            </div>
+                            <small>Naming Consistency</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Locale Detection Banner -->
+            <div class="locale-banner" id="locale-banner">
+                <div class="locale-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#1976D2" stroke-width="1.5"/><ellipse cx="10" cy="10" rx="4" ry="8" stroke="#1976D2" stroke-width="1"/><path d="M2.5 7h15M2.5 13h15" stroke="#1976D2" stroke-width=".8"/></svg>
+                </div>
+                <div class="locale-info">
+                    <strong>Auto-Detected Locale: <span id="locale-detected">France (fr-FR)</span></strong>
+                    <span>Date format: <span id="locale-date-fmt">DD/MM/YYYY</span> — Currency: <span id="locale-currency">EUR</span> — Text direction: LTR</span>
+                </div>
+                <button class="btn btn-sm btn-outline" id="btn-change-locale">Change</button>
+            </div>
+        </section>
+
     </main>
 
     <footer class="app-footer">
-        <span>CommGen AI v3.0 — Stellantis Aftersales Digital Tools</span>
+        <span>CommGen AI v4.0 — Stellantis Aftersales Digital Tools</span>
         <span>Powered by AI | Internal Use Only</span>
     </footer>
 
