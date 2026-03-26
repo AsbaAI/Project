@@ -17,10 +17,10 @@
             <span class="env-badge">Stellantis Internal</span>
         </div>
         <nav class="top-nav">
-            <a href="#" class="active">Generator</a>
-            <a href="#">History</a>
-            <a href="#">Templates</a>
-            <a href="#">Settings</a>
+            <a href="#" class="active" data-nav="generator">Generator</a>
+            <a href="#" data-nav="history">History</a>
+            <a href="#" data-nav="templates" id="nav-templates">Templates</a>
+            <a href="#" data-nav="settings">Settings</a>
         </nav>
         <div class="top-bar-right">
             <span class="user-avatar">MC</span>
@@ -29,23 +29,204 @@
     </header>
 
     <main class="app-container">
-        <!-- STEP 1: Upload Panel -->
+
+        <!-- ============================================= -->
+        <!-- TEMPLATE GALLERY PAGE (hidden by default)     -->
+        <!-- ============================================= -->
+        <section id="page-templates" class="page" style="display:none;">
+            <div class="step-header">
+                <div class="step-number" style="background:#E65100;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#fff"/><rect x="11" y="2" width="7" height="7" rx="1.5" fill="#fff"/><rect x="2" y="11" width="7" height="7" rx="1.5" fill="#fff"/><rect x="11" y="11" width="7" height="7" rx="1.5" fill="#fff" opacity=".5"/></svg>
+                </div>
+                <div>
+                    <h2>Communication Templates</h2>
+                    <p class="step-desc">Select a pre-built template to use for your communication generation</p>
+                </div>
+            </div>
+
+            <div class="template-gallery" id="template-gallery">
+                <!-- Template Card 1 -->
+                <div class="tpl-card" data-tpl="basket-720">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header"></div>
+                            <div class="tpl-mock-bar" style="background:#1B2A4A;"></div>
+                            <div class="tpl-mock-line w80"></div>
+                            <div class="tpl-mock-line w60"></div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title"></div>
+                                <div class="tpl-mock-line w90"></div>
+                                <div class="tpl-mock-line w70"></div>
+                                <div class="tpl-mock-line w85"></div>
+                            </div>
+                            <div class="tpl-mock-table">
+                                <div class="tpl-mock-row"></div>
+                                <div class="tpl-mock-row"></div>
+                                <div class="tpl-mock-row"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Basket Communication</h4>
+                        <p>Standard Basket release note template with Evolutions, Bug Fixes table, and Deployment info.</p>
+                        <span class="tag tag-green">Recommended</span>
+                    </div>
+                </div>
+
+                <!-- Template Card 2 -->
+                <div class="tpl-card" data-tpl="country-note">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header" style="background:#0D47A1;"></div>
+                            <div class="tpl-mock-bar" style="background:#1565C0;"></div>
+                            <div class="tpl-mock-line w70"></div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#1565C0;"></div>
+                                <div class="tpl-mock-line w80"></div>
+                                <div class="tpl-mock-line w60"></div>
+                            </div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#1565C0;"></div>
+                                <div class="tpl-mock-line w90"></div>
+                                <div class="tpl-mock-line w75"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Country Note</h4>
+                        <p>Official country-level communication with header block, key points summary, and action items.</p>
+                    </div>
+                </div>
+
+                <!-- Template Card 3 -->
+                <div class="tpl-card" data-tpl="tech-bulletin">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header" style="background:#E65100;"></div>
+                            <div class="tpl-mock-line w90"></div>
+                            <div class="tpl-mock-line w60"></div>
+                            <div class="tpl-mock-table" style="border-color:#E65100;">
+                                <div class="tpl-mock-row" style="background:#FFF3E0;"></div>
+                                <div class="tpl-mock-row"></div>
+                                <div class="tpl-mock-row" style="background:#FFF3E0;"></div>
+                                <div class="tpl-mock-row"></div>
+                            </div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#E65100;"></div>
+                                <div class="tpl-mock-line w80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Technical Bulletin</h4>
+                        <p>Technical-focused template with detailed tables, system impact analysis, and integration notes.</p>
+                    </div>
+                </div>
+
+                <!-- Template Card 4 -->
+                <div class="tpl-card" data-tpl="release-note">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header" style="background:#2E7D32;"></div>
+                            <div class="tpl-mock-bar" style="background:#43A047;"></div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-line w70"></div>
+                                <div class="tpl-mock-line w85"></div>
+                            </div>
+                            <div class="tpl-mock-chips">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#2E7D32;"></div>
+                                <div class="tpl-mock-line w90"></div>
+                                <div class="tpl-mock-line w65"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Release Note</h4>
+                        <p>Software release note format with version tags, changelogs, and deployment timeline.</p>
+                    </div>
+                </div>
+
+                <!-- Template Card 5 -->
+                <div class="tpl-card" data-tpl="training-comm">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header" style="background:#6A1B9A;"></div>
+                            <div class="tpl-mock-line w80"></div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#6A1B9A;"></div>
+                                <div class="tpl-mock-steps">
+                                    <div class="tpl-mock-step">1</div>
+                                    <div class="tpl-mock-step">2</div>
+                                    <div class="tpl-mock-step">3</div>
+                                </div>
+                                <div class="tpl-mock-line w75"></div>
+                            </div>
+                            <div class="tpl-mock-bar" style="background:#6A1B9A;height:6px;"></div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Training Communication</h4>
+                        <p>User training-oriented template with step-by-step guides, screenshots placeholders, and tips.</p>
+                    </div>
+                </div>
+
+                <!-- Template Card 6 -->
+                <div class="tpl-card" data-tpl="warranty-alert">
+                    <div class="tpl-preview">
+                        <div class="tpl-mock">
+                            <div class="tpl-mock-header" style="background:#C62828;"></div>
+                            <div class="tpl-mock-alert"></div>
+                            <div class="tpl-mock-line w90"></div>
+                            <div class="tpl-mock-line w70"></div>
+                            <div class="tpl-mock-section">
+                                <div class="tpl-mock-title" style="background:#C62828;"></div>
+                                <div class="tpl-mock-line w85"></div>
+                                <div class="tpl-mock-line w60"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tpl-info">
+                        <h4>Warranty Alert</h4>
+                        <p>Urgent warranty programme communication with alert banners, deadlines, and compliance checklists.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected template indicator -->
+            <div class="tpl-selected-bar" id="tpl-selected-bar" style="display:none;">
+                <div class="tpl-selected-info">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="#388E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Selected: <strong id="tpl-selected-name"></strong></span>
+                </div>
+                <button class="btn btn-primary" id="btn-use-template">
+                    Use This Template
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================= -->
+        <!-- STEP 1: Upload Panel                          -->
+        <!-- ============================================= -->
         <section id="step-upload" class="step active-step">
             <div class="step-header">
                 <div class="step-number">1</div>
                 <div>
                     <h2>Upload Documents</h2>
-                    <p class="step-desc">Upload your Functional Specification and Communication Template</p>
+                    <p class="step-desc">Upload your Functional Specification and choose a Communication Template</p>
                 </div>
             </div>
 
             <div class="upload-grid">
+                <!-- LEFT: Spec Upload -->
                 <div class="upload-card" id="upload-spec">
                     <div class="upload-icon spec-icon">
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="4" width="22" height="30" rx="3" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/><path d="M12 14h10M12 18h10M12 22h6" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/><rect x="16" y="8" width="14" height="18" rx="2" fill="#fff" stroke="#1976D2" stroke-width="1.5"/></svg>
                     </div>
                     <h3>Functional Specification</h3>
-                    <p>DFS / CAP / PNR document</p>
+                    <p>DFS / CAP / PNR document (.docx)</p>
                     <div class="upload-dropzone" id="dropzone-spec">
                         <input type="file" id="file-spec" accept=".docx,.pdf,.doc" hidden>
                         <button class="btn btn-outline" onclick="document.getElementById('file-spec').click()">Choose File</button>
@@ -54,17 +235,55 @@
                     <div class="upload-status" id="status-spec"></div>
                 </div>
 
+                <!-- RIGHT: Template — Upload OR Choose -->
                 <div class="upload-card" id="upload-template">
                     <div class="upload-icon template-icon">
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="4" width="28" height="32" rx="3" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/><path d="M12 12h16M12 17h16M12 22h10" stroke="#E65100" stroke-width="1.5" stroke-linecap="round"/><rect x="24" y="24" width="10" height="10" rx="5" fill="#E65100"/><path d="M29 27v4M27 29h4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
                     </div>
                     <h3>Communication Template</h3>
-                    <p>Basket Communication reference</p>
+                    <p>Upload your own Word file or select from library</p>
+
+                    <!-- Two options -->
+                    <div class="template-options">
+                        <div class="template-option" id="opt-upload-word">
+                            <div class="opt-radio selected">
+                                <div class="opt-dot"></div>
+                            </div>
+                            <div class="opt-content">
+                                <strong>Upload Word File</strong>
+                                <span>Upload .docx — images, graphs & formatting preserved</span>
+                            </div>
+                        </div>
+                        <div class="template-option" id="opt-choose-library">
+                            <div class="opt-radio">
+                                <div class="opt-dot"></div>
+                            </div>
+                            <div class="opt-content">
+                                <strong>Choose from Library</strong>
+                                <span>Select a pre-built Stellantis template</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload zone (shown when "Upload Word File" selected) -->
                     <div class="upload-dropzone" id="dropzone-template">
-                        <input type="file" id="file-template" accept=".docx,.pdf,.doc" hidden>
-                        <button class="btn btn-outline" onclick="document.getElementById('file-template').click()">Choose File</button>
+                        <input type="file" id="file-template" accept=".docx,.doc" hidden>
+                        <button class="btn btn-outline" onclick="document.getElementById('file-template').click()">Choose .docx File</button>
                         <span class="drop-text">or drag & drop here</span>
                     </div>
+
+                    <!-- Template library button (shown when "Choose from Library" selected) -->
+                    <div class="library-btn-zone" id="library-btn-zone" style="display:none;">
+                        <button class="btn btn-primary" id="btn-open-library">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="10" y="2" width="6" height="6" rx="1" fill="currentColor"/><rect x="2" y="10" width="6" height="6" rx="1" fill="currentColor"/><rect x="10" y="10" width="6" height="6" rx="1" fill="currentColor" opacity=".4"/></svg>
+                            Browse Templates
+                        </button>
+                        <div class="library-selected" id="library-selected" style="display:none;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <span id="library-selected-name"></span>
+                        </div>
+                    </div>
+
                     <div class="upload-status" id="status-template"></div>
                 </div>
             </div>
@@ -77,7 +296,9 @@
             </div>
         </section>
 
-        <!-- STEP 2: Analysis / Detection -->
+        <!-- ============================================= -->
+        <!-- STEP 2: Analysis / Detection                  -->
+        <!-- ============================================= -->
         <section id="step-analysis" class="step">
             <div class="step-header">
                 <div class="step-number">2</div>
@@ -98,7 +319,7 @@
                 <div class="progress-item" id="prog-template">
                     <div class="prog-icon pending"></div>
                     <div class="prog-content">
-                        <span class="prog-label">Detecting template structure...</span>
+                        <span class="prog-label">Detecting template structure & preserving formatting...</span>
                         <div class="prog-bar"><div class="prog-fill"></div></div>
                     </div>
                 </div>
@@ -129,7 +350,7 @@
             <div class="detection-card" id="detection-card" style="display:none;">
                 <div class="detection-header">
                     <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" fill="#E8F5E9" stroke="#388E3C" stroke-width="1.5"/><path d="M7 11l3 3 5-5" stroke="#388E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Template Detected: <strong>Basket 7.20 Communication EN</strong></span>
+                    <span>Template Detected: <strong id="detected-tpl-name">Basket 7.20 Communication EN</strong></span>
                 </div>
                 <div class="detection-sections">
                     <span class="tag tag-green">Header</span>
@@ -138,6 +359,10 @@
                     <span class="tag tag-green">Bug Fixes Table</span>
                     <span class="tag tag-green">Deployment Info</span>
                     <span class="tag tag-green">Important Instructions</span>
+                </div>
+                <div class="detection-format" id="detection-format" style="display:none;">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2" fill="#E3F2FD" stroke="#1976D2" stroke-width="1.5"/><path d="M6 7h6M6 9h4M6 11h5" stroke="#1976D2" stroke-width="1" stroke-linecap="round"/></svg>
+                    <span>Word Format: <strong>Images, graphs & formatting preserved</strong> — output will be generated as .docx</span>
                 </div>
                 <div class="detection-spec">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -153,7 +378,9 @@
             </div>
         </section>
 
-        <!-- STEP 3: Generation + Validation Dashboard -->
+        <!-- ============================================= -->
+        <!-- STEP 3: Dashboard                             -->
+        <!-- ============================================= -->
         <section id="step-dashboard" class="step">
             <div class="step-header">
                 <div class="step-number">3</div>
@@ -215,8 +442,35 @@
             <div class="tab-panel active" id="panel-comm">
                 <div class="comm-toolbar">
                     <button class="btn btn-sm btn-outline" id="btn-copy-comm">Copy</button>
-                    <button class="btn btn-sm btn-outline" id="btn-export-comm">Export .docx</button>
+                    <button class="btn btn-sm btn-outline btn-docx" id="btn-export-comm">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 5h4M5 7h4M5 9h2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+                        Export .docx
+                    </button>
                     <button class="btn btn-sm btn-outline" id="btn-pdf-comm">Export .pdf</button>
+
+                    <!-- Language Selector -->
+                    <div class="lang-separator"></div>
+                    <div class="lang-selector" id="lang-selector">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><ellipse cx="8" cy="8" rx="3.5" ry="7" stroke="currentColor" stroke-width="1"/><path d="M1.5 6h13M1.5 10h13" stroke="currentColor" stroke-width=".8"/></svg>
+                        <select id="select-lang">
+                            <option value="en" selected>English</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="it">Italiano</option>
+                            <option value="es">Español</option>
+                            <option value="pt">Português</option>
+                            <option value="nl">Nederlands</option>
+                            <option value="pl">Polski</option>
+                        </select>
+                        <button class="btn btn-sm btn-translate" id="btn-translate">
+                            Translate
+                        </button>
+                    </div>
+                </div>
+                <!-- Translation notice -->
+                <div class="translation-notice" id="translation-notice" style="display:none;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E3F2FD" stroke="#1976D2" stroke-width="1.2"/><path d="M8 5v3M8 10h.01" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span>Translated to <strong id="translated-lang-name"></strong>. <a href="#" id="btn-back-original">Back to original (English)</a></span>
                 </div>
                 <div class="comm-document" id="comm-output">
                     <!-- Generated Communication inserted here by JS -->
@@ -249,7 +503,7 @@
     </main>
 
     <footer class="app-footer">
-        <span>CommGen AI v1.0 — Stellantis Aftersales Digital Tools</span>
+        <span>CommGen AI v2.0 — Stellantis Aftersales Digital Tools</span>
         <span>Powered by AI | Internal Use Only</span>
     </footer>
 
