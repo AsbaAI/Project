@@ -385,13 +385,131 @@ body { font-family: var(--font); background: var(--gray-100); color: var(--gray-
 }
 .comm-document td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
 .comm-document tr:hover td { background: var(--gray-50); }
-/* Word-like image placeholders in communication */
-.comm-document .word-image-placeholder {
-    background: var(--gray-50); border: 2px dashed var(--gray-300);
-    border-radius: var(--radius); padding: 24px; text-align: center;
-    margin: 16px 0; color: var(--gray-500); font-size: .82rem;
+/* Stellantis Header Banner in Communication */
+.comm-stellantis-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #1B2A4A 0%, #243B80 100%);
+    color: #fff; padding: 16px 24px; border-radius: var(--radius);
+    margin-bottom: 20px;
 }
-.comm-document .word-image-placeholder svg { margin-bottom: 6px; }
+.comm-banner-left { display: flex; align-items: center; gap: 14px; }
+.comm-banner-title { display: flex; flex-direction: column; }
+.comm-banner-brand { font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; }
+.comm-banner-sub { font-size: .72rem; opacity: .7; margin-top: 2px; }
+.comm-banner-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.comm-banner-ref { font-size: .72rem; opacity: .7; }
+.comm-banner-version { background: #4FC3F7; color: #1B2A4A; padding: 3px 12px; border-radius: 12px; font-size: .72rem; font-weight: 700; }
+
+/* 8YW Programme Badge */
+.comm-programme-badge {
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(90deg, #E3F2FD, #E8F5E9);
+    border: 1px solid #BBDEFB; border-radius: var(--radius);
+    padding: 16px 20px; margin: 16px 0;
+}
+.programme-icon { flex-shrink: 0; }
+.programme-info strong { display: block; font-size: .95rem; color: var(--navy); margin-bottom: 8px; }
+.programme-brands { display: flex; gap: 8px; flex-wrap: wrap; }
+.brand-chip {
+    padding: 4px 12px; border-radius: 14px; font-size: .7rem; font-weight: 700;
+}
+.brand-chip.peugeot { background: #1B2A4A; color: #fff; }
+.brand-chip.citroen { background: #C62828; color: #fff; }
+.brand-chip.ds { background: #212121; color: #fff; }
+.brand-chip.opel { background: #F9A825; color: #212121; }
+
+/* DMS Transfer Screenshot Visual */
+.comm-screenshot {
+    background: var(--white); border: 1px solid var(--gray-300);
+    border-radius: var(--radius); overflow: hidden; margin: 20px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+.screenshot-titlebar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; background: var(--gray-200);
+}
+.screenshot-dot { width: 10px; height: 10px; border-radius: 50%; }
+.screenshot-dot.red { background: #FF5F56; }
+.screenshot-dot.yellow { background: #FFBD2E; }
+.screenshot-dot.green { background: #27C93F; }
+.screenshot-title { font-size: .72rem; color: var(--gray-600); margin-left: 8px; font-weight: 500; }
+.screenshot-body { padding: 14px; }
+.screenshot-toolbar {
+    display: flex; gap: 16px; align-items: center;
+    padding: 8px 12px; background: var(--gray-50); border-radius: 4px;
+    margin-bottom: 12px; font-size: .75rem;
+}
+.stb-item { color: var(--gray-600); font-weight: 500; }
+.stb-eligible { background: var(--green-light); color: var(--green); padding: 2px 10px; border-radius: 10px; font-weight: 700; font-size: .7rem; }
+.screenshot-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.screenshot-table th {
+    background: var(--navy); color: var(--white);
+    padding: 8px 10px; text-align: left; font-weight: 600; font-size: .72rem;
+}
+.screenshot-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-200); }
+.screenshot-table .col-bc { background: rgba(56,142,60,.05); text-align: center; }
+.screenshot-table th.col-bc { background: #2E7D32; }
+.stb-ok { color: var(--green); font-weight: 600; font-size: .72rem; }
+.stb-na { color: var(--gray-400); font-size: .72rem; }
+.row-disabled td { opacity: .5; }
+.screenshot-action { padding: 10px 0; text-align: right; }
+.screenshot-btn {
+    background: var(--navy); color: white; border: none;
+    padding: 8px 18px; border-radius: 6px; font-size: .78rem;
+    font-weight: 600; cursor: pointer;
+}
+.screenshot-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Bug Fixes Table (Basket template format) */
+.bugfix-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: .82rem; }
+.bugfix-table th {
+    background: var(--navy); color: var(--white);
+    padding: 10px 12px; text-align: left; font-weight: 600;
+}
+.bugfix-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+.bugfix-table tr:hover td { background: var(--gray-50); }
+.bugfix-table code { background: var(--gray-100); padding: 2px 6px; border-radius: 3px; font-size: .78rem; color: var(--blue); }
+
+/* Architecture Diagram */
+.comm-architecture {
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 24px; margin: 20px 0;
+}
+.comm-architecture h5 { text-align: center; color: var(--navy); font-size: .9rem; margin-bottom: 20px; }
+.arch-flow {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 20px; flex-wrap: wrap;
+}
+.arch-node {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 20px; border-radius: var(--radius);
+    background: var(--white); border: 2px solid var(--gray-300);
+    min-width: 110px; text-align: center;
+}
+.arch-node span { font-weight: 700; font-size: .85rem; color: var(--navy); }
+.arch-node small { font-size: .68rem; color: var(--gray-500); }
+.arch-panier { border-color: var(--navy); }
+.arch-hub { border-color: #0D47A1; }
+.arch-dmbr { border-color: var(--orange); }
+.arch-arrow { flex-shrink: 0; }
+.arch-secondary {
+    display: flex; justify-content: center; gap: 24px;
+    border-top: 1px dashed var(--gray-300); padding-top: 16px;
+}
+.arch-secondary-node {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 14px; background: var(--white);
+    border: 1px solid var(--gray-300); border-radius: 6px;
+}
+.arch-sec-label { font-weight: 700; font-size: .78rem; color: var(--blue); }
+.arch-secondary-node small { font-size: .65rem; color: var(--gray-500); }
+
+/* Send by Email button */
+.btn-email {
+    background: #0078D4; color: white; border: none;
+    padding: 6px 14px; font-size: .8rem; border-radius: 6px;
+}
+.btn-email:hover { background: #106EBE; }
 
 /* ===== VALIDATION REPORT ===== */
 .validation-report h4 { color: var(--navy); margin: 20px 0 10px; font-size: 1rem; }

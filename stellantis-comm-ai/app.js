@@ -1,4 +1,4 @@
-// ===== CommGen AI v2.0 — Stellantis Communication Generator =====
+// ===== CommGen AI v3.0 — Stellantis Communication Generator =====
 
 let selectedTemplateMode = 'upload'; // 'upload' or 'library'
 let selectedLibraryTemplate = null;
@@ -258,8 +258,23 @@ function renderCommunication() {
 function getCommunicationHTML(lang) {
     const t = translations[lang] || translations['en'];
     return `
+<!-- Stellantis Header Banner -->
+<div class="comm-stellantis-banner">
+    <div class="comm-banner-left">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><polygon points="18,2 34,18 18,34 2,18" fill="#1B2A4A"/><polygon points="18,8 28,18 18,28 8,18" fill="#4FC3F7"/><circle cx="18" cy="18" r="4" fill="#fff"/></svg>
+        <div class="comm-banner-title">
+            <span class="comm-banner-brand">STELLANTIS</span>
+            <span class="comm-banner-sub">Aftersales &amp; Services — Service Box</span>
+        </div>
+    </div>
+    <div class="comm-banner-right">
+        <span class="comm-banner-ref">REF: CAP-37495 / PNR-10279</span>
+        <span class="comm-banner-version">Basket 7.20</span>
+    </div>
+</div>
+
 <div class="comm-header-block">
-    <p><strong>${t.countryNote}</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poissy, ${t.date}</p>
+    <p><strong>${t.countryNote}</strong><span style="float:right">Poissy, ${t.date}</span></p>
     <p><strong>${t.sender}</strong></p>
     <p>${t.from}: AFFI/PS/TS/NSS</p>
     <p><strong>${t.receivers}</strong></p>
@@ -268,9 +283,24 @@ function getCommunicationHTML(lang) {
     <p><strong>${t.subject}:</strong> Service Box – Basket, ${t.allureCareIntegration}</p>
 </div>
 
-<div class="word-image-placeholder">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#BDBDBD" stroke-width="2"/><circle cx="12" cy="13" r="3" stroke="#BDBDBD" stroke-width="1.5"/><path d="M4 22l6-6 4 4 4-4 10 10" stroke="#BDBDBD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <br>${t.stellantisLogo}
+<!-- 8YW Programme Badge -->
+<div class="comm-programme-badge">
+    <div class="programme-icon">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="20" fill="#1B2A4A"/>
+            <text x="22" y="18" text-anchor="middle" fill="#4FC3F7" font-size="14" font-weight="800">8</text>
+            <text x="22" y="30" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">YW</text>
+        </svg>
+    </div>
+    <div class="programme-info">
+        <strong>8-Year Warranty Programme</strong>
+        <div class="programme-brands">
+            <span class="brand-chip peugeot">Peugeot Care</span>
+            <span class="brand-chip citroen">Citro\u00ebn We Care</span>
+            <span class="brand-chip ds">DS Serenity</span>
+            <span class="brand-chip opel">Opel 8Y</span>
+        </div>
+    </div>
 </div>
 
 <h4>${t.importantInfo}</h4>
@@ -305,9 +335,58 @@ function getCommunicationHTML(lang) {
     <li><strong>${t.transferBCF}:</strong> ${t.transferBCFDesc}</li>
 </ul>
 
-<div class="word-image-placeholder">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="2" y="6" width="28" height="20" rx="3" stroke="#BDBDBD" stroke-width="2"/><path d="M8 14h6M8 18h4M18 12h6M18 16h8M18 20h5" stroke="#BDBDBD" stroke-width="1.5" stroke-linecap="round"/></svg>
-    <br>${t.screenshotDMS}
+<!-- DMS Transfer Screen Visual -->
+<div class="comm-screenshot">
+    <div class="screenshot-titlebar">
+        <span class="screenshot-dot red"></span>
+        <span class="screenshot-dot yellow"></span>
+        <span class="screenshot-dot green"></span>
+        <span class="screenshot-title">Service Box — DMS Transfer Screen</span>
+    </div>
+    <div class="screenshot-body">
+        <div class="screenshot-toolbar">
+            <span class="stb-item">Folder: #274910</span>
+            <span class="stb-item">VIN: VF3XXXXXX12345678</span>
+            <span class="stb-status stb-eligible">Eligible</span>
+        </div>
+        <table class="screenshot-table">
+            <thead>
+                <tr>
+                    <th>Workline</th>
+                    <th>SC Code</th>
+                    <th>Allocation</th>
+                    <th>DMS Status</th>
+                    <th class="col-bc">BrandCare</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>WL-001 — Maintenance Check</td>
+                    <td><code>93830000</code></td>
+                    <td>Manufacturer</td>
+                    <td><span class="stb-ok">Transferred</span></td>
+                    <td class="col-bc"><input type="checkbox" checked disabled> <span class="stb-ok">Ready</span></td>
+                </tr>
+                <tr>
+                    <td>WL-002 — Additional Repair</td>
+                    <td><code>95R48A</code></td>
+                    <td>Manufacturer</td>
+                    <td><span class="stb-ok">Transferred</span></td>
+                    <td class="col-bc"><input type="checkbox" checked disabled> <span class="stb-ok">Ready</span></td>
+                </tr>
+                <tr class="row-disabled">
+                    <td>WL-003 — Body Work</td>
+                    <td><code>45200100</code></td>
+                    <td>Customer</td>
+                    <td><span class="stb-ok">Transferred</span></td>
+                    <td class="col-bc"><span class="stb-na">N/A</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="screenshot-action">
+            <button class="screenshot-btn" disabled>Transfer to 8 years Warranty program</button>
+        </div>
+    </div>
 </div>
 
 <p>${t.jobRoles}</p>
@@ -324,6 +403,50 @@ function getCommunicationHTML(lang) {
 <div class="highlight-box">
     ${t.importantWarning}
 </div>
+
+<!-- Bug Fixes Table (Basket Template Format) -->
+<h4>${t.bugFixes || 'Bug Fixes'}</h4>
+<table class="bugfix-table">
+    <thead>
+        <tr>
+            <th>${t.bfDescription || 'Description'}</th>
+            <th>${t.bfDetected || 'How Was the Problem Detected?'}</th>
+            <th>${t.bfRelatedItem || 'Related Item'}</th>
+            <th>${t.bfRelatedTickets || 'Related Tickets'}</th>
+            <th>${t.bfComment || 'Comment'}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>${t.bf1Desc || 'VIN eligibility status not refreshed when VIN is changed in existing folder'}</td>
+            <td>${t.bf1Detected || 'Internal Testing (UAT)'}</td>
+            <td>${t.bf1Item || 'VIN Eligibility Module'}</td>
+            <td>${t.bf1Ticket || 'JIRA-48291'}</td>
+            <td>${t.bf1Comment || 'Fixed — HUB call now triggered on VIN change event'}</td>
+        </tr>
+        <tr>
+            <td>${t.bf2Desc || 'BrandCare checkbox visible for non-Manufacturer allocation types'}</td>
+            <td>${t.bf2Detected || 'Country Pilot (France)'}</td>
+            <td>${t.bf2Item || 'DMS Transfer Screen'}</td>
+            <td>${t.bf2Ticket || 'JIRA-48305'}</td>
+            <td>${t.bf2Comment || 'Fixed — allocation type validation added'}</td>
+        </tr>
+        <tr>
+            <td>${t.bf3Desc || 'JWT token expiry not handled gracefully during BCF transfer'}</td>
+            <td>${t.bf3Detected || 'Integration Testing'}</td>
+            <td>${t.bf3Item || 'Authentication Module'}</td>
+            <td>${t.bf3Ticket || 'JIRA-48312'}</td>
+            <td>${t.bf3Comment || 'Fixed — auto-refresh token before expiry'}</td>
+        </tr>
+        <tr>
+            <td>${t.bf4Desc || 'Orange bar message not displayed when mandatory parameters missing'}</td>
+            <td>${t.bf4Detected || 'Regression Testing'}</td>
+            <td>${t.bf4Item || 'DMS Transfer Screen'}</td>
+            <td>${t.bf4Ticket || 'JIRA-48320'}</td>
+            <td>${t.bf4Comment || 'Fixed — error handling improved'}</td>
+        </tr>
+    </tbody>
+</table>
 
 <h4>${t.keyMessages}</h4>
 <ul>
@@ -345,9 +468,46 @@ function getCommunicationHTML(lang) {
     <li><strong>${t.browsers}:</strong> ${t.browsersValue}</li>
 </ul>
 
-<div class="word-image-placeholder">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#BDBDBD" stroke-width="2"/><path d="M10 16h12M16 10v12" stroke="#BDBDBD" stroke-width="2" stroke-linecap="round"/></svg>
-    <br>${t.architectureDiagram}
+<!-- Architecture Flow Diagram -->
+<div class="comm-architecture">
+    <h5>${t.architectureDiagramTitle || 'Integration Architecture — PANIER / HUB / DMBR'}</h5>
+    <div class="arch-flow">
+        <div class="arch-node arch-panier">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="4" fill="#1B2A4A"/><path d="M8 10h12M8 14h12M8 18h8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>PANIER</span>
+            <small>Service Box Basket</small>
+        </div>
+        <div class="arch-arrow">
+            <svg width="60" height="24" viewBox="0 0 60 24"><path d="M0 12h50" stroke="#1976D2" stroke-width="2"/><polygon points="50,6 60,12 50,18" fill="#1976D2"/><text x="25" y="8" text-anchor="middle" fill="#1976D2" font-size="7">VIN Check</text></svg>
+        </div>
+        <div class="arch-node arch-hub">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" fill="#0D47A1"/><circle cx="14" cy="14" r="5" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M14 2v6M14 20v6M2 14h6M20 14h6" stroke="#fff" stroke-width="1.2"/></svg>
+            <span>HUB</span>
+            <small>Eligibility Router</small>
+        </div>
+        <div class="arch-arrow">
+            <svg width="60" height="24" viewBox="0 0 60 24"><path d="M0 12h50" stroke="#388E3C" stroke-width="2"/><polygon points="50,6 60,12 50,18" fill="#388E3C"/><text x="25" y="8" text-anchor="middle" fill="#388E3C" font-size="7">JWT Token</text></svg>
+        </div>
+        <div class="arch-node arch-dmbr">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="4" width="24" height="20" rx="3" fill="#E65100"/><path d="M8 10h12M8 14h8M8 18h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>DMBR</span>
+            <small>BrandCare Forms</small>
+        </div>
+    </div>
+    <div class="arch-secondary">
+        <div class="arch-secondary-node">
+            <span class="arch-sec-label">BRR</span>
+            <small>Dealer Characteristics</small>
+        </div>
+        <div class="arch-secondary-node">
+            <span class="arch-sec-label">CEM/SAGAI</span>
+            <small>Contract Info</small>
+        </div>
+        <div class="arch-secondary-node">
+            <span class="arch-sec-label">CIN</span>
+            <small>VIN Resolution</small>
+        </div>
+    </div>
 </div>
 
 <p>${t.thankYou}</p>
@@ -407,6 +567,13 @@ const translations = {
         integratedSystems: 'Integrated Systems', authentication: 'Authentication',
         browsers: 'Browsers', browsersValue: 'Stellantis-approved versions of Edge and Chrome',
         architectureDiagram: '[Architecture Diagram: PANIER-HUB-DMBR Integration Flow — preserved from uploaded Word template]',
+        architectureDiagramTitle: 'Integration Architecture — PANIER / HUB / DMBR',
+        bugFixes: 'Bug Fixes',
+        bfDescription: 'Description', bfDetected: 'How Was the Problem Detected?', bfRelatedItem: 'Related Item', bfRelatedTickets: 'Related Tickets', bfComment: 'Comment',
+        bf1Desc: 'VIN eligibility status not refreshed when VIN is changed in existing folder', bf1Detected: 'Internal Testing (UAT)', bf1Item: 'VIN Eligibility Module', bf1Ticket: 'JIRA-48291', bf1Comment: 'Fixed — HUB call now triggered on VIN change event',
+        bf2Desc: 'BrandCare checkbox visible for non-Manufacturer allocation types', bf2Detected: 'Country Pilot (France)', bf2Item: 'DMS Transfer Screen', bf2Ticket: 'JIRA-48305', bf2Comment: 'Fixed — allocation type validation added',
+        bf3Desc: 'JWT token expiry not handled gracefully during BCF transfer', bf3Detected: 'Integration Testing', bf3Item: 'Authentication Module', bf3Ticket: 'JIRA-48312', bf3Comment: 'Fixed — auto-refresh token before expiry',
+        bf4Desc: 'Orange bar message not displayed when mandatory parameters missing', bf4Detected: 'Regression Testing', bf4Item: 'DMS Transfer Screen', bf4Ticket: 'JIRA-48320', bf4Comment: 'Fixed — error handling improved',
         thankYou: 'Thank you for your attention and cooperation in ensuring a smooth implementation. Should you have any questions, please do not hesitate to reach out.',
     },
     fr: {
@@ -460,6 +627,13 @@ const translations = {
         integratedSystems: 'Systèmes Intégrés', authentication: 'Authentification',
         browsers: 'Navigateurs', browsersValue: "Versions approuvées Stellantis d'Edge et Chrome",
         architectureDiagram: "[Schéma d'Architecture : Flux d'Intégration PANIER-HUB-DMBR — préservé du template Word uploadé]",
+        architectureDiagramTitle: "Architecture d'Intégration — PANIER / HUB / DMBR",
+        bugFixes: 'Corrections de Bugs',
+        bfDescription: 'Description', bfDetected: 'Comment le problème a-t-il été détecté ?', bfRelatedItem: 'Élément Concerné', bfRelatedTickets: 'Tickets Associés', bfComment: 'Commentaire',
+        bf1Desc: "Le statut d'éligibilité VIN n'est pas rafraîchi lors du changement de VIN dans un dossier existant", bf1Detected: 'Tests Internes (UAT)', bf1Item: "Module d'Éligibilité VIN", bf1Ticket: 'JIRA-48291', bf1Comment: "Corrigé — appel HUB déclenché lors du changement de VIN",
+        bf2Desc: "Case BrandCare visible pour les types d'allocation non-Constructeur", bf2Detected: 'Pilote Pays (France)', bf2Item: 'Écran de Transfert DMS', bf2Ticket: 'JIRA-48305', bf2Comment: "Corrigé — validation du type d'allocation ajoutée",
+        bf3Desc: "Expiration du token JWT non gérée lors du transfert BCF", bf3Detected: "Tests d'Intégration", bf3Item: "Module d'Authentification", bf3Ticket: 'JIRA-48312', bf3Comment: "Corrigé — rafraîchissement automatique du token",
+        bf4Desc: "Message barre orange non affiché quand paramètres obligatoires manquants", bf4Detected: 'Tests de Régression', bf4Item: 'Écran de Transfert DMS', bf4Ticket: 'JIRA-48320', bf4Comment: "Corrigé — gestion d'erreurs améliorée",
         thankYou: "Nous vous remercions de votre attention et de votre coopération pour assurer une mise en œuvre fluide. N'hésitez pas à nous contacter pour toute question.",
     },
     de: {
@@ -743,25 +917,32 @@ function renderValidation() {
 // ===== ACRONYM TABLE (same as before) =====
 function renderAcronyms() {
     const acronyms = [
-        { acr: 'AR', source: 'Spec + Comm', def: 'Authorised Repairers', status: 'ok', note: 'Defined in glossary' },
-        { acr: 'PANIER', source: 'Spec + Comm', def: 'Application used for parts purchase and vehicle servicing (Basket)', status: 'ok', note: 'Defined in glossary' },
-        { acr: 'VIN', source: 'Spec + Comm', def: 'Vehicle Identification Number', status: 'ok', note: 'Industry standard' },
-        { acr: 'HUB', source: 'Spec + Comm', def: 'Central integration platform for eligibility routing', status: 'ok', note: 'Used in DFS context' },
-        { acr: 'DMBR', source: 'Spec + Comm', def: 'Application hosting BrandCare Forms', status: 'ok', note: 'Defined in DFS' },
-        { acr: 'DMS', source: 'Spec + Comm', def: 'Dealer Management System', status: 'ok', note: 'Industry standard' },
-        { acr: 'BRR', source: 'Spec', def: 'Business Rules Repository', status: 'ok', note: 'Referenced in integration section' },
-        { acr: 'CEM', source: 'Spec', def: 'Contract and Eligibility Management', status: 'warn', note: 'Not in DFS glossary — inferred' },
-        { acr: 'SAGAI', source: 'Spec + Comm', def: 'Warranty contract information system', status: 'warn', note: 'Not in DFS glossary — inferred' },
-        { acr: 'CIN', source: 'Spec', def: 'Vehicle identification system', status: 'warn', note: 'Not in DFS glossary' },
-        { acr: 'SCF', source: 'Spec', def: 'BrandCare Forms hosted by DMBR', status: 'ok', note: 'Defined in glossary' },
-        { acr: 'SA', source: 'Spec', def: 'Service Applicative', status: 'ok', note: 'Defined in glossary' },
-        { acr: 'FDZ', source: 'Spec + Comm', def: 'Technical documentation (Fiche de Zone)', status: 'ok', note: 'Defined in glossary' },
-        { acr: 'RRDI', source: 'Spec + Comm', def: 'Dealer identification code', status: 'warn', note: 'Used frequently but not in glossary' },
-        { acr: 'BEV', source: 'Spec + Comm', def: 'Battery Electric Vehicle', status: 'ok', note: 'Industry standard' },
-        { acr: 'LCV', source: 'Spec + Comm', def: 'Light Commercial Vehicle', status: 'ok', note: 'Industry standard' },
-        { acr: 'JWT', source: 'Comm', def: 'JSON Web Token', status: 'ok', note: 'Industry standard' },
-        { acr: 'CORVET', source: 'Spec', def: 'Vehicle technical data system', status: 'warn', note: 'Referenced once, not in glossary' },
-        { acr: 'VIS', source: 'Spec', def: 'Vehicle Identification Short', status: 'warn', note: 'Not in glossary' },
+        { acr: 'AR', source: 'Spec + Comm', def: 'Authorised Repairers', status: 'ok', note: 'Defined in DFS glossary §8.1' },
+        { acr: 'PANIER', source: 'Spec + Comm', def: 'Application used for parts purchase and vehicle servicing (Basket)', status: 'ok', note: 'Defined in DFS glossary §8.1' },
+        { acr: 'VIN', source: 'Spec + Comm', def: 'Vehicle Identification Number', status: 'ok', note: 'Industry standard — ISO 3779' },
+        { acr: 'HUB', source: 'Spec + Comm', def: 'Central integration platform for eligibility routing', status: 'ok', note: 'Defined in DFS §3.2 — routes VIN eligibility checks' },
+        { acr: 'DMBR', source: 'Spec + Comm', def: 'Application hosting BrandCare Forms (Digital Management BrandCare)', status: 'ok', note: 'Defined in DFS glossary §8.1' },
+        { acr: 'DMS', source: 'Spec + Comm', def: 'Dealer Management System', status: 'ok', note: 'Industry standard — manages dealer operations' },
+        { acr: 'BRR', source: 'Spec + Comm', def: 'Business Rules Repository', status: 'ok', note: 'Referenced in DFS §5.3 — stores PDVINFO dealer characteristics' },
+        { acr: 'CEM', source: 'Spec', def: 'Contract and Eligibility Management', status: 'warn', note: 'Not in DFS glossary — inferred from context in §4.2. Verify with spec owner.' },
+        { acr: 'SAGAI', source: 'Spec + Comm', def: 'Warranty contract information system', status: 'warn', note: 'Not in DFS glossary — referenced in §4.2 as contract data source. Verify definition.' },
+        { acr: 'CIN', source: 'Spec', def: 'Vehicle identification system (Cartographie d\'Identification Nationale)', status: 'warn', note: 'Not in DFS glossary — used in §3.4 for VIN/VIS resolution. Verify with IT team.' },
+        { acr: 'SCF', source: 'Spec', def: 'BrandCare Forms hosted by DMBR', status: 'ok', note: 'Defined in DFS glossary §8.1' },
+        { acr: 'SA', source: 'Spec + Comm', def: 'Service Applicative', status: 'ok', note: 'Defined in DFS glossary §8.1 — user access right for BrandCare' },
+        { acr: 'FDZ', source: 'Spec + Comm', def: 'Technical documentation — Fiche de Zone', status: 'ok', note: 'Defined in DFS glossary §8.1' },
+        { acr: 'RRDI', source: 'Spec + Comm', def: 'Dealer identification code (Référence Réseau Distribution International)', status: 'warn', note: 'Used in BR-07 criteria but not in DFS glossary. Verify full name.' },
+        { acr: 'BEV', source: 'Spec + Comm', def: 'Battery Electric Vehicle', status: 'ok', note: 'Industry standard — returned by HUB in eligibility response' },
+        { acr: 'LCV', source: 'Spec + Comm', def: 'Light Commercial Vehicle', status: 'ok', note: 'Industry standard — currently out of scope per DFS §2.1' },
+        { acr: 'PC', source: 'Spec + Comm', def: 'Passenger Car', status: 'ok', note: 'Industry standard — in scope for BrandCare programme' },
+        { acr: 'JWT', source: 'Comm', def: 'JSON Web Token', status: 'ok', note: 'Industry standard RFC 7519 — used for PANIER→DMBR authentication' },
+        { acr: 'CORVET', source: 'Spec', def: 'Vehicle technical data system (Construction Organique de Référence des Véhicules et des Ensembles Techniques)', status: 'warn', note: 'Referenced in DFS §3.4 — used for VIN resolution. Not in glossary.' },
+        { acr: 'VIS', source: 'Spec', def: 'Vehicle Identification Short (shortened VIN format)', status: 'warn', note: 'Referenced in DFS §3.4. Resolved to full VIN via CIN/CORVET.' },
+        { acr: 'APIC', source: 'Spec + Comm', def: 'API Connect — Gateway URL for authentication', status: 'ok', note: 'Referenced in DFS §5.1 authentication flow' },
+        { acr: 'IDP', source: 'Comm', def: 'Identity Provider (Ping Federate)', status: 'ok', note: 'Industry standard — OAuth 2.0 identity provider' },
+        { acr: 'UAT', source: 'Spec', def: 'User Acceptance Testing', status: 'ok', note: 'Industry standard — referenced in test strategy' },
+        { acr: 'G10', source: 'Spec + Comm', def: 'Group of 10 EU countries in scope for BrandCare', status: 'ok', note: 'Business term — eligible market list maintained by HUB' },
+        { acr: '8YW', source: 'Comm', def: '8-Year Warranty (programme umbrella name)', status: 'ok', note: 'Business term — covers Peugeot Care, Citroën We Care, DS Serenity, Opel 8Y' },
+        { acr: 'PDVINFO', source: 'Spec', def: 'Point De Vente Information — dealer characteristics service', status: 'ok', note: 'Referenced in DFS §5.3 — BRR service for dealer data' },
     ];
 
     const statusLabel = { ok: 'Defined', warn: 'Undefined', error: 'Inconsistent' };
@@ -804,6 +985,16 @@ function renderTestPlan() {
         { id: 'TC-BC-023', desc: 'SAGAI unavailable', pre: 'SAGAI down', steps: '1. Open folder', expected: '"SAGAI not available" message.' },
         { id: 'TC-BC-024', desc: 'JWT authentication', pre: 'OAuth 2.0 configured', steps: '1. Click BCF button\n2. Check request', expected: 'JWT token in header.' },
         { id: 'TC-BC-025', desc: 'Independent Repairer blocked', pre: 'Non-AR user', steps: '1. Navigate to PANIER', expected: 'No BrandCare features.' },
+        { id: 'TC-BC-026', desc: 'LCV vehicle (out of scope)', pre: 'LCV type VIN', steps: '1. Enter LCV VIN\n2. Search', expected: 'No BrandCare eligibility returned. Vehicle type = LCV.' },
+        { id: 'TC-BC-027', desc: 'BEV vs NON-BEV engine type handling', pre: 'BEV eligible VIN', steps: '1. Enter BEV VIN\n2. Check eligibility response', expected: 'Engine type = BEV displayed. Eligibility confirmed.' },
+        { id: 'TC-BC-028', desc: 'CARE_PROGRAM characteristic in My Dealership', pre: 'Admin access to dealer config', steps: '1. Open My Dealership\n2. Check RRDI characteristics', expected: 'CARE_PROGRAM characteristic visible and assignable.' },
+        { id: 'TC-BC-029', desc: 'Multiple BCF transfers — Transfer & Keep scenario', pre: 'Two eligible worklines, DMS transferred', steps: '1. Check both BrandCare boxes\n2. Transfer first\n3. Click Transfer & Keep\n4. Transfer second', expected: 'Both worklines transferred independently to DMBR.' },
+        { id: 'TC-BC-030', desc: 'Browser compatibility — Edge', pre: 'Stellantis-approved Edge version', steps: '1. Open PANIER in Edge\n2. Complete full flow', expected: 'All features work correctly. No layout issues.' },
+        { id: 'TC-BC-031', desc: 'Browser compatibility — Chrome', pre: 'Stellantis-approved Chrome version', steps: '1. Open PANIER in Chrome\n2. Complete full flow', expected: 'All features work correctly. No layout issues.' },
+        { id: 'TC-BC-032', desc: 'Contribution flag handling', pre: 'Eligible VIN with contribution flag', steps: '1. Check HUB response\n2. Verify contribution flag value', expected: 'Contribution flag correctly parsed and stored.' },
+        { id: 'TC-BC-033', desc: 'Concurrent DMS + BCF transfer', pre: 'DMS transfer in progress', steps: '1. Start DMS transfer\n2. Immediately click BCF button', expected: 'BCF button disabled until DMS transfer completes.' },
+        { id: 'TC-BC-034', desc: 'Token refresh during active session', pre: 'User session > 30min', steps: '1. Wait for token near expiry\n2. Click BCF transfer', expected: 'Token auto-refreshed. Transfer succeeds without re-login.' },
+        { id: 'TC-BC-035', desc: 'Non-G10 country access', pre: 'User from non-G10 country', steps: '1. Login from non-G10 subsidiary\n2. Navigate to PANIER', expected: 'No BrandCare features visible. Standard basket only.' },
     ];
 
     let html = `<p style="margin-bottom:16px;font-size:.9rem;"><strong>${tests.length}</strong> test cases generated from DFS CAP-37495 / PNR-10279.</p>`;
@@ -821,32 +1012,111 @@ function renderKnowHow() {
 <h4>1. Business Context</h4>
 <div class="kh-card">
     <h5>Allure Care Program (BrandCare)</h5>
-    <p>Warranty Extension program launched Feb 2024 for Peugeot in G10 EU markets. Extends to Citroën, Opel, DS.</p>
-    <ul><li><strong>Peugeot:</strong> Peugeot Care</li><li><strong>Citroën:</strong> Citroën We Care</li><li><strong>DS:</strong> DS Serenity</li><li><strong>Opel:</strong> Opel 8Y Warranty</li></ul>
+    <p>Warranty Extension program launched Feb 2024 for Peugeot in G10 EU markets. Extends to Citro\u00ebn, Opel, DS. The programme aims to provide an 8-year warranty (or 160,000 km) on eligible vehicles, managed through the BrandCare Forms (DMBR) application.</p>
+    <ul><li><strong>Peugeot:</strong> Peugeot Care</li><li><strong>Citro\u00ebn:</strong> Citro\u00ebn We Care</li><li><strong>DS:</strong> DS Serenity</li><li><strong>Opel:</strong> Opel 8Y Warranty</li></ul>
+    <p><strong>Scope:</strong> G10 EU markets only. PC vehicles (Passenger Cars) for Peugeot and Citro\u00ebn brands initially. LCV (Light Commercial Vehicles), DS, and Opel brands planned for future releases.</p>
 </div>
 <h4>2. Eligibility Rules</h4>
 <div class="kh-card">
-    <h5>VIN Eligibility (HUB Check)</h5>
-    <ul><li>PANIER sends VINs to HUB for eligibility</li><li>HUB performs Level 1 + Level 2 checks</li><li>Status = 1 → eligible</li><li>No response → ineligible</li><li>Returns: Contribution Flag, Engine Type (BEV/NON-BEV), Vehicle Type (PC/LCV)</li></ul>
+    <h5>VIN Eligibility (HUB Check) — Business Rules BR-01 to BR-03</h5>
+    <ul>
+        <li><strong>Trigger Events:</strong> VIN searched via HUB bar, folder created, folder opened, VIN changed in existing folder, or landing from external application</li>
+        <li>PANIER sends VIN to HUB for Level 1 + Level 2 eligibility checks</li>
+        <li><strong>Status = 1</strong> → Vehicle is eligible for BrandCare programme</li>
+        <li><strong>Status ≠ 1 or No response</strong> → Vehicle treated as ineligible — no BrandCare features shown</li>
+        <li><strong>HUB Returns:</strong> Eligibility Status, Contribution Flag, Engine Type (BEV/NON-BEV), Vehicle Type (PC/LCV)</li>
+        <li><strong>VIS Resolution:</strong> If a VIS (Vehicle Identification Short) is entered, PANIER resolves it to a full VIN via CIN/CORVET before checking eligibility</li>
+    </ul>
 </div>
 <div class="kh-card">
-    <h5>Workline Transfer (6 Conditions)</h5>
-    <ul><li>VIN eligible (HUB Status = 1)</li><li>CARE_PROGRAM assigned to dealer RRDI of Reception brand</li><li>Reception brand = VIN brand</li><li>User has BrandCare SA</li><li>Workline has designated SC code</li><li>Allocation Type = "Manufacturer"</li></ul>
+    <h5>BrandCare Contract Display — Business Rule BR-04</h5>
+    <ul>
+        <li>Contract information retrieved from CEM/SAGAI system</li>
+        <li>Displayed on: Vehicle Landing Page, Customer-Vehicle Page, Synthesis Page</li>
+        <li>Shown alongside other warranty contracts (e.g. Manufacturer Warranty, Extended Warranty)</li>
+        <li>If SAGAI is unavailable, a "SAGAI not available" message is displayed</li>
+    </ul>
+</div>
+<div class="kh-card">
+    <h5>Workline Creation — Business Rules BR-05 to BR-06</h5>
+    <ul>
+        <li><strong>Designated SC Codes:</strong> 93830000, 95R48A (and other codes listed in BRR configuration)</li>
+        <li><strong>Allocation Type:</strong> Must be set to "Manufacturer" (not Customer or Internal)</li>
+        <li>Worklines can be created manually or via FDZ/MenuPricing packages containing designated SC codes</li>
+        <li>Non-designated SC codes will not trigger BrandCare eligibility on DMS Transfer</li>
+    </ul>
+</div>
+<div class="kh-card">
+    <h5>DMS Transfer Checkbox — 6 Mandatory Conditions (BR-07)</h5>
+    <ul>
+        <li><strong>1.</strong> VIN eligibility status received from HUB (Eligibility Status = 1)</li>
+        <li><strong>2.</strong> Characteristic 'CARE_PROGRAM' assigned to the dealer RRDI of the vehicle Reception brand</li>
+        <li><strong>3.</strong> Reception brand is the same as VIN brand</li>
+        <li><strong>4.</strong> Logged-in user has the BrandCare service applicative (SA) assigned</li>
+        <li><strong>5.</strong> Workline has a designated BrandCare systematic operation code</li>
+        <li><strong>6.</strong> Workline Allocation Type is "Manufacturer"</li>
+    </ul>
+    <p><em>If any condition is not met, the BrandCare checkbox will not appear or will be greyed out with an explanatory orange bar message.</em></p>
 </div>
 <h4>3. Key Workflows</h4>
 <div class="kh-card">
-    <h5>VIN Check → Workline → Transfer Flow</h5>
-    <ul><li><strong>VIN Check:</strong> PANIER → HUB → eligibility status returned</li><li><strong>Workline:</strong> AR creates with SC code + Manufacturer allocation</li><li><strong>DMS Transfer:</strong> Checkbox appears if all 6 criteria met</li><li><strong>BCF Transfer:</strong> JWT token → DMBR → new tab opens</li></ul>
+    <h5>Complete End-to-End Flow</h5>
+    <ul>
+        <li><strong>Step 1 — VIN Check:</strong> AR enters VIN → PANIER sends to HUB → Eligibility response received → BrandCare contracts displayed from SAGAI</li>
+        <li><strong>Step 2 — Workline Creation:</strong> AR creates workline with designated SC code → Sets Allocation Type to "Manufacturer" → Workline is BrandCare-eligible</li>
+        <li><strong>Step 3 — DMS Transfer:</strong> AR navigates to DMS Transfer screen → BrandCare checkbox appears (if all 6 criteria met) → AR checks the box → Transfers to DMS</li>
+        <li><strong>Step 4 — BCF Transfer:</strong> After successful DMS transfer → "Transfer to 8 years Warranty program" button becomes active → AR clicks → PANIER sends data to DMBR via JWT → BrandCare form opens in new browser tab</li>
+    </ul>
+</div>
+<div class="kh-card">
+    <h5>Transfer & Keep Scenario (Multiple Worklines)</h5>
+    <ul>
+        <li>When multiple BrandCare-eligible worklines exist in a folder, each can be transferred independently</li>
+        <li>AR uses "Transfer & Keep" to transfer first workline while keeping the folder open</li>
+        <li>Then transfers the second workline separately to DMBR</li>
+    </ul>
 </div>
 <h4>4. System Interactions</h4>
 <div class="kh-card">
     <h5>Integration Map</h5>
-    <ul><li><strong>PANIER ↔ HUB:</strong> VIN eligibility</li><li><strong>PANIER → DMBR:</strong> Workline + folder via JWT</li><li><strong>PANIER ↔ BRR:</strong> Dealer characteristics (PDVINFO)</li><li><strong>PANIER ← CEM/SAGAI:</strong> Contract info</li><li><strong>PANIER ↔ CIN:</strong> VIN/VIS resolution</li></ul>
+    <ul>
+        <li><strong>PANIER ↔ HUB:</strong> VIN eligibility check (SOAP/REST). Triggered on VIN search, folder create/open, VIN change</li>
+        <li><strong>PANIER → DMBR:</strong> Workline + folder + vehicle data via JWT token (OAuth 2.0 / Ping Federate IDP). Opens BrandCare form in new tab</li>
+        <li><strong>PANIER ↔ BRR:</strong> Dealer characteristics retrieval (PDVINFO service). Checks CARE_PROGRAM characteristic</li>
+        <li><strong>PANIER ← CEM/SAGAI:</strong> BrandCare contract information display</li>
+        <li><strong>PANIER ↔ CIN/CORVET:</strong> VIN/VIS resolution for vehicle identification</li>
+    </ul>
 </div>
-<h4>5. Error Messages</h4>
 <div class="kh-card">
-    <ul><li><strong>Brand mismatch:</strong> "Reception Brand is different from the VIN brand..."</li><li><strong>DMS failed:</strong> "Workline cannot be transferred... as DMS is not successful"</li><li><strong>Missing param:</strong> "[XXXX] parameter is missing..."</li><li><strong>SAGAI down:</strong> "SAGAI not available"</li></ul>
-    <p><em>All messages translatable in all PANIER languages.</em></p>
+    <h5>Authentication Details</h5>
+    <ul>
+        <li><strong>Protocol:</strong> OAuth 2.0 via Ping Federate Identity Provider (IDP)</li>
+        <li><strong>Token:</strong> JWT (JSON Web Token) passed in Authorization header</li>
+        <li><strong>URL:</strong> APIC gateway URL configured per environment</li>
+        <li><strong>Token Refresh:</strong> Auto-refresh before expiry to avoid session interruption</li>
+    </ul>
+</div>
+<h4>5. Error Messages & Edge Cases</h4>
+<div class="kh-card">
+    <ul>
+        <li><strong>Brand mismatch:</strong> "Reception Brand is different from the VIN brand, workline cannot be transferred to 8 years Warranty program."</li>
+        <li><strong>DMS transfer failed:</strong> "Workline cannot be transferred to 8 years Warranty program as DMS Transfer is not successful."</li>
+        <li><strong>Missing mandatory parameter:</strong> "[XXXX] parameter is missing, workline cannot be transferred to 8 years Warranty program." (orange bar message)</li>
+        <li><strong>SAGAI unavailable:</strong> "SAGAI not available" — displayed on Vehicle Landing page</li>
+        <li><strong>HUB no response:</strong> VIN treated as ineligible — no BrandCare features shown</li>
+        <li><strong>Token expired:</strong> Auto-refresh mechanism; if fails, user must re-authenticate</li>
+    </ul>
+    <p><em>All error messages are translatable in all PANIER-supported languages.</em></p>
+</div>
+<h4>6. Dealer Configuration</h4>
+<div class="kh-card">
+    <h5>My Dealership Setup</h5>
+    <ul>
+        <li>A new characteristic <strong>"CARE_PROGRAM"</strong> must be assigned to the dealer's RRDI</li>
+        <li>The characteristic is brand-specific — must match the Reception brand</li>
+        <li>Configured via BRR (Business Rules Repository) at the dealer level</li>
+        <li>G10 country eligibility is maintained and checked by HUB</li>
+    </ul>
 </div>
 `;
 }
@@ -886,6 +1156,29 @@ ul{padding-left:18px}li{margin-bottom:4px}
     });
 
     document.getElementById('btn-pdf-comm').addEventListener('click', () => { window.print(); });
+
+    // Send by Email — opens Outlook with predefined message
+    document.getElementById('btn-email-comm').addEventListener('click', () => {
+        const subject = encodeURIComponent('Service Box – Basket 7.20 — Allure Care Program (BrandCare) Integration — REF: CAP-37495 / PNR-10279');
+        const body = encodeURIComponent(
+            'Dear colleagues,\n\n' +
+            'Please find below the communication regarding the new Basket 7.20 release for the Allure Care Program (BrandCare) integration.\n\n' +
+            '--- KEY POINTS ---\n\n' +
+            '• Application: Service Box – PANIER (Basket)\n' +
+            '• Scope: G10 EU markets — Peugeot & Citroën brands\n' +
+            '• Features: VIN Eligibility Check, BrandCare Workline Creation, DMS Transfer with BrandCare checkbox, Transfer to BrandCare Forms (DMBR)\n' +
+            '• Availability: [Deployment Date TBD]\n\n' +
+            '--- ACTION REQUIRED ---\n\n' +
+            '• Complete the Virtual Class Training before submitting BrandCare forms\n' +
+            '• Ensure CARE_PROGRAM characteristic is assigned to your dealership RRDI\n' +
+            '• Review the full communication document attached to this email\n\n' +
+            'The full generated communication document is available in the CommGen AI platform.\n\n' +
+            'Best regards,\n' +
+            'AFFI/PS/TS/NSS\n' +
+            'Stellantis Aftersales & Services'
+        );
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    });
 
     document.getElementById('btn-export-tp').addEventListener('click', () => {
         const html = document.getElementById('testplan-output').innerHTML;
