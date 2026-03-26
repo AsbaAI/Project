@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "stellantis-comm-ai", "-l", "3456"],
       "port": 3456
+    },
+    {
+      "name": "stellantis-backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["stellantis-comm-ai/server.js"],
+      "port": 3457
     }
   ]
 }

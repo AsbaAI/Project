@@ -1,10 +1,17 @@
-// ===== CommGen AI v4.0 — Stellantis Communication Generator =====
+// ===== CommGen AI v5.0 — Stellantis Communication Generator =====
+// Phase 1: Real AI generation — Multi-provider: Claude / GPT-4o / Gemini / Mistral / Azure / Custom
+
+const BACKEND_URL = 'http://localhost:3457';
 
 let selectedTemplateMode = 'upload'; // 'upload' or 'library'
 let selectedLibraryTemplate = null;
 let currentLang = 'en';
 let commOriginalHTML = '';
 let detectedLocale = null;
+
+// AI state
+let aiEnabled = false;
+let aiGeneratedData = null; // Stores parsed JSON from Claude response
 
 document.addEventListener('DOMContentLoaded', () => {
     initUpload();
@@ -16,11 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initTemplateBuilder();
     initAnalytics();
     detectLocale();
+    initSettings();
+    checkBackendStatus(); // non-blocking
 });
 
 // ===== NAVIGATION =====
 function initNavigation() {
-    const pages = ['templates', 'approvals', 'builder', 'analytics'];
+    const pages = ['templates', 'approvals', 'builder', 'analytics', 'settings'];
     document.querySelectorAll('.top-nav a').forEach(a => {
         a.addEventListener('click', (e) => {
             e.preventDefault();
@@ -36,6 +45,7 @@ function initNavigation() {
 
             if (pages.includes(target)) {
                 document.getElementById('page-' + target).style.display = 'block';
+                if (target === 'settings') refreshSettingsStatus();
             } else if (target === 'generator') {
                 document.getElementById('step-upload').classList.add('active-step');
             }
@@ -61,7 +71,7 @@ function hideTemplatesPage() {
 }
 
 function hideAllPages() {
-    ['templates', 'approvals', 'builder', 'analytics'].forEach(p => {
+    ['templates', 'approvals', 'builder', 'analytics', 'settings'].forEach(p => {
         const el = document.getElementById('page-' + p);
         if (el) el.style.display = 'none';
     });
@@ -263,6 +273,291 @@ function initTabs() {
 
 // ===== RENDER ALL OUTPUTS =====
 function renderAllOutputs() {
+    if (aiEnabled) {
+        // AI mode: generate everything via Claude, then fill static tabs
+        generateWithClaude();
+    } else {
+        // Fallback: static template generation
+        renderCommunication();
+        renderValidation();
+        renderAcronyms();
+        renderTestPlan();
+        renderKnowHow();
+        initExportButtons();
+        initTranslation();
+    }
+}
+
+// ===== AI GENERATION — Multi-provider =====
+async function generateWithClaude() {
+    const provider = localStorage.getItem('commgen_provider') || 'claude';
+    const apiKey = localStorage.getItem(`commgen_key_${provider}`)
+        || localStorage.getItem('commgen_api_key') || '';
+    const model = (() => {
+        const el = document.getElementById(`model-${provider}`);
+        return el ? el.value : '';
+    })();
+    const endpoint = localStorage.getItem(`commgen_endpoint_${provider}`) || '';
+    const deployment = localStorage.getItem('commgen_deployment_azure') || '';
+    const providerLabel = { claude: 'Claude Opus', gpt: 'GPT-4o', gemini: 'Gemini', mistral: 'Mistral', azure: 'Azure AI', custom: 'Modèle local' }[provider] || provider;
+
+    const outputEl = document.getElementById('comm-output');
+
+    outputEl.innerHTML = `
+        <div class="ai-generating">
+            <div class="ai-gen-header">
+                <div class="ai-spinner"></div>
+                <div>
+                    <strong>${providerLabel} génère votre communication...</strong>
+                    <p id="ai-status-msg">Initialisation...</p>
+                </div>
+            </div>
+            <div class="ai-stream-output" id="ai-stream-output"></div>
+        </div>`;
+
+    try {
+        const formData = new FormData();
+
+        // Attach uploaded files if available
+        const specFile = document.getElementById('file-spec')?.files?.[0];
+        const tplFile = document.getElementById('file-template')?.files?.[0];
+        if (specFile) formData.append('spec', specFile);
+        if (tplFile) formData.append('template', tplFile);
+
+        formData.append('language', currentLang);
+        formData.append('templateType', selectedLibraryTemplate || 'basket-720');
+
+        const response = await fetch(`${BACKEND_URL}/api/generate`, {
+            method: 'POST',
+            headers: {
+                'x-api-key': apiKey,
+                'x-provider': provider,
+                'x-model': model,
+                'x-endpoint': endpoint,
+                'x-deployment': deployment
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || `Erreur backend: ${response.status}`);
+        }
+
+        // Read SSE stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let streamText = '';
+        const streamEl = document.getElementById('ai-stream-output');
+        const statusEl = document.getElementById('ai-status-msg');
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete line
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const raw = line.slice(6).trim();
+                if (raw === '[DONE]') continue;
+
+                try {
+                    const msg = JSON.parse(raw);
+
+                    if (msg.type === 'status' && statusEl) {
+                        statusEl.textContent = msg.message;
+                    }
+                    else if (msg.type === 'delta' && streamEl) {
+                        streamText += msg.text;
+                        // Show first 500 chars of JSON being built
+                        streamEl.textContent = streamText.slice(0, 600) + (streamText.length > 600 ? '...' : '');
+                    }
+                    else if (msg.type === 'complete') {
+                        // Render the final generated content
+                        aiGeneratedData = msg.data;
+                        renderAIOutputs(msg.data);
+                    }
+                    else if (msg.type === 'error') {
+                        throw new Error(msg.message);
+                    }
+                } catch (parseErr) {
+                    // ignore partial JSON parse errors during streaming
+                }
+            }
+        }
+
+    } catch (err) {
+        console.error('AI generation failed:', err);
+        outputEl.innerHTML = `
+            <div class="ai-error">
+                <strong>⚠️ Génération IA échouée</strong>
+                <p>${err.message}</p>
+                <p>Vérifiez votre clé API dans <a href="#" onclick="goToSettings()">Paramètres</a> ou utilisez le mode statique.</p>
+                <button class="btn btn-outline" onclick="renderStaticFallback()">Utiliser le mode statique</button>
+            </div>`;
+    }
+}
+
+function renderAIOutputs(data) {
+    // 1. Communication document
+    if (data.communication) {
+        const commEl = document.getElementById('comm-output');
+        const providerLabels = { claude: 'Claude Opus', gpt: 'GPT-4o', gemini: 'Gemini', mistral: 'Mistral', azure: 'Azure AI', custom: 'Modèle local' };
+        const activeProvider = data._provider || localStorage.getItem('commgen_provider') || 'claude';
+        const pLabel = providerLabels[activeProvider] || activeProvider;
+        commEl.innerHTML = `
+            <div class="ai-generated-badge">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#1976D2"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Généré par ${pLabel}
+            </div>
+            <div class="ai-comm-content">${data.communication}</div>`;
+        commOriginalHTML = data.communication;
+    }
+
+    // 2. Quality score
+    if (data.qualityScore) {
+        const score = data.qualityScore;
+        const scoreEl = document.getElementById('quality-score-value');
+        if (scoreEl) {
+            scoreEl.textContent = score;
+            scoreEl.closest('.quality-score')?.setAttribute('data-score', score >= 85 ? 'high' : score >= 70 ? 'med' : 'low');
+        }
+        // Update ring SVG
+        const ring = document.getElementById('score-ring-fill');
+        if (ring) {
+            const circumference = 2 * Math.PI * 36;
+            ring.style.strokeDasharray = `${(score / 100) * circumference} ${circumference}`;
+        }
+        // Update quality sub-scores if available
+        if (data.qualityDetails) {
+            ['completeness', 'technical', 'compliance', 'clarity'].forEach(key => {
+                const el = document.getElementById(`score-${key}`);
+                if (el) el.style.width = `${data.qualityDetails[key] || 80}%`;
+                const valEl = document.getElementById(`score-${key}-val`);
+                if (valEl) valEl.textContent = `${data.qualityDetails[key] || 80}%`;
+            });
+        }
+    }
+
+    // 3. Acronyms
+    if (data.acronyms?.length) {
+        renderAIAcronyms(data.acronyms);
+    } else {
+        renderAcronyms(); // fallback
+    }
+
+    // 4. Test plan
+    if (data.testPlan?.length) {
+        renderAITestPlan(data.testPlan);
+    } else {
+        renderTestPlan(); // fallback
+    }
+
+    // 5. Know-how
+    if (data.knowHow?.length) {
+        renderAIKnowHow(data.knowHow);
+    } else {
+        renderKnowHow(); // fallback
+    }
+
+    // 6. Validation
+    renderAIValidation(data);
+
+    initExportButtons();
+    initTranslation();
+}
+
+function renderAIAcronyms(acronyms) {
+    const container = document.getElementById('panel-acronyms');
+    if (!container) return;
+    const rows = acronyms.map(a => `
+        <tr>
+            <td><strong>${a.term}</strong></td>
+            <td>${a.definition}</td>
+            <td class="text-muted">${a.reference || '—'}</td>
+            <td><span class="stb-ok">${a.status || 'Validé'}</span></td>
+        </tr>`).join('');
+    const existing = container.querySelector('.acronym-table');
+    if (existing) {
+        existing.querySelector('tbody').innerHTML = rows;
+    } else {
+        container.innerHTML = `
+            <div class="ai-generated-badge">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#1976D2"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Acronymes extraits par Claude Opus 4.6 (${acronyms.length} termes)
+            </div>
+            <table class="acronym-table">
+                <thead><tr><th>Terme</th><th>Définition</th><th>Référence</th><th>Statut</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    }
+}
+
+function renderAITestPlan(testCases) {
+    const container = document.getElementById('panel-testplan');
+    if (!container) return;
+    const rows = testCases.map(tc => `
+        <tr>
+            <td><code>${tc.id}</code></td>
+            <td><span class="tag tag-blue">${tc.category}</span></td>
+            <td>${tc.description}</td>
+            <td class="text-muted small">${tc.steps || '—'}</td>
+            <td class="text-muted small">${tc.expected || '—'}</td>
+            <td><span class="priority-${(tc.priority || 'medium').toLowerCase()}">${tc.priority || 'Medium'}</span></td>
+        </tr>`).join('');
+    container.innerHTML = `
+        <div class="ai-generated-badge">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#1976D2"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Plan de test généré par Claude Opus 4.6 (${testCases.length} cas)
+        </div>
+        <div class="test-summary">
+            <span>${testCases.filter(t => t.priority === 'Critical').length} Critical</span>
+            <span>${testCases.filter(t => t.priority === 'High').length} High</span>
+            <span>${testCases.filter(t => !['Critical','High'].includes(t.priority)).length} Other</span>
+        </div>
+        <table class="test-table">
+            <thead><tr><th>ID</th><th>Catégorie</th><th>Description</th><th>Étapes</th><th>Résultat Attendu</th><th>Priorité</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function renderAIKnowHow(sections) {
+    const container = document.getElementById('panel-knowhow');
+    if (!container) return;
+    const html = sections.map(s => `
+        <div class="knowhow-section">
+            <h4>${s.title}</h4>
+            <div class="knowhow-content">${s.content}</div>
+        </div>`).join('');
+    container.innerHTML = `
+        <div class="ai-generated-badge">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#1976D2"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Know-How généré par Claude Opus 4.6 (${sections.length} sections)
+        </div>
+        ${html}`;
+}
+
+function renderAIValidation(data) {
+    const container = document.getElementById('panel-validation');
+    if (!container) return;
+    const passed = (data.validationPassed || []).map(p => `
+        <div class="validation-item pass">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#E8F5E9"/><path d="M5 8l2 2 4-4" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>
+            ${p}
+        </div>`).join('');
+    const issues = (data.validationIssues || []).map(i => `
+        <div class="validation-item warn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#FFF8E1"/><path d="M8 5v3M8 10v1" stroke="#F9A825" stroke-width="1.5" stroke-linecap="round"/></svg>
+            ${i}
+        </div>`).join('');
+    container.querySelector('.validation-list') && (container.querySelector('.validation-list').innerHTML = passed + issues);
+}
+
+function renderStaticFallback() {
     renderCommunication();
     renderValidation();
     renderAcronyms();
@@ -272,7 +567,16 @@ function renderAllOutputs() {
     initTranslation();
 }
 
-// ===== GENERATED COMMUNICATION (Strict Template Mode) =====
+function goToSettings() {
+    hideAllPages();
+    document.getElementById('page-settings').style.display = 'block';
+    document.querySelectorAll('.top-nav a').forEach(a => a.classList.remove('active'));
+    document.querySelector('[data-nav="settings"]').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    refreshSettingsStatus();
+}
+
+// ===== GENERATED COMMUNICATION (Strict Template Mode — Fallback) =====
 function renderCommunication() {
     const html = getCommunicationHTML('en');
     document.getElementById('comm-output').innerHTML = html;
@@ -1519,5 +1823,261 @@ function detectLocale() {
 
             detectedLocale = nextLang;
         });
+    }
+}
+
+// ===== SETTINGS & AI CONFIGURATION =====
+function initSettings() {
+    const ALL_PROVIDERS = ['claude', 'gpt', 'gemini', 'mistral', 'azure', 'custom'];
+
+    // ── Load saved per-provider keys ───────────────────────────────────────────
+    ALL_PROVIDERS.forEach(p => {
+        const saved = localStorage.getItem(`commgen_key_${p}`);
+        const el = document.getElementById(`key-${p}`);
+        if (el && saved) el.value = saved;
+    });
+    // Load other saved fields
+    const savedEndpointAzure = localStorage.getItem('commgen_endpoint_azure');
+    const savedDeployAzure = localStorage.getItem('commgen_deployment_azure');
+    const savedEndpointCustom = localStorage.getItem('commgen_endpoint_custom');
+    const savedModelCustom = localStorage.getItem('commgen_model_custom');
+    if (savedEndpointAzure) document.getElementById('endpoint-azure').value = savedEndpointAzure;
+    if (savedDeployAzure) document.getElementById('deployment-azure').value = savedDeployAzure;
+    if (savedEndpointCustom) document.getElementById('endpoint-custom').value = savedEndpointCustom;
+    if (savedModelCustom) document.getElementById('model-custom').value = savedModelCustom;
+
+    // Restore active provider tab
+    const savedProvider = localStorage.getItem('commgen_provider') || 'claude';
+    activateProviderTab(savedProvider);
+
+    // ── Provider tab switching ─────────────────────────────────────────────────
+    document.querySelectorAll('.ptab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            activateProviderTab(tab.dataset.provider);
+        });
+    });
+
+    // ── Eye buttons (show/hide key) ────────────────────────────────────────────
+    document.querySelectorAll('.btn-eye').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            if (input) input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
+
+    // ── Guide tabs ─────────────────────────────────────────────────────────────
+    document.querySelectorAll('.pgtab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.pgtab').forEach(t => t.classList.remove('pgtab-active'));
+            tab.classList.add('pgtab-active');
+            document.querySelectorAll('.guide-steps').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(tab.dataset.guide);
+            if (target) target.style.display = 'block';
+        });
+    });
+
+    // ── Save ───────────────────────────────────────────────────────────────────
+    document.getElementById('btn-save-key')?.addEventListener('click', async () => {
+        const provider = localStorage.getItem('commgen_provider') || 'claude';
+        const key = document.getElementById(`key-${provider}`)?.value?.trim() || '';
+        const model = document.getElementById(`model-${provider}`)?.value || '';
+        const endpoint = document.getElementById(`endpoint-${provider}`)?.value?.trim() || '';
+        const deployment = document.getElementById('deployment-azure')?.value?.trim() || '';
+
+        if (!key && provider !== 'custom') {
+            showKeyFeedback('error', '⚠️ Entrez votre clé d\'accès');
+            return;
+        }
+
+        // Save to localStorage
+        if (key) localStorage.setItem(`commgen_key_${provider}`, key);
+        if (endpoint) localStorage.setItem(`commgen_endpoint_${provider}`, endpoint);
+        if (deployment) localStorage.setItem('commgen_deployment_azure', deployment);
+        if (document.getElementById('model-custom')?.value) localStorage.setItem('commgen_model_custom', document.getElementById('model-custom').value);
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: key || 'ollama', provider, model, endpoint, deployment })
+            });
+            if (res.ok) {
+                showKeyFeedback('success', `✓ Fournisseur ${provider.toUpperCase()} configuré`);
+                aiEnabled = true;
+                updateAIIndicator(true, provider);
+                checkBackendStatus();
+            } else {
+                showKeyFeedback('warn', `✓ Sauvegardé localement (backend hors ligne)`);
+                aiEnabled = !!(key && key.length > 5);
+                updateAIIndicator(aiEnabled);
+            }
+        } catch {
+            showKeyFeedback('warn', `✓ Clé sauvegardée — démarrez le backend: node server.js`);
+            aiEnabled = !!(key && key.length > 5);
+            updateAIIndicator(aiEnabled);
+        }
+    });
+
+    // ── Test connection ────────────────────────────────────────────────────────
+    document.getElementById('btn-test-key')?.addEventListener('click', async () => {
+        const provider = localStorage.getItem('commgen_provider') || 'claude';
+        const key = document.getElementById(`key-${provider}`)?.value?.trim()
+            || localStorage.getItem(`commgen_key_${provider}`) || '';
+        const model = document.getElementById(`model-${provider}`)?.value || '';
+        const endpoint = document.getElementById(`endpoint-${provider}`)?.value?.trim() || '';
+        const deployment = document.getElementById('deployment-azure')?.value?.trim() || '';
+
+        showKeyFeedback('loading', `⏳ Test de connexion ${provider.toUpperCase()}...`);
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/test-key`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: key, provider, model, endpoint, deployment })
+            });
+            const data = await res.json();
+            if (data.valid) {
+                showKeyFeedback('success', '✓ ' + data.message);
+                aiEnabled = true;
+                updateAIIndicator(true, provider);
+            } else {
+                showKeyFeedback('error', '✗ ' + (data.error || 'Clé invalide'));
+            }
+        } catch {
+            showKeyFeedback('error', '✗ Backend non accessible — lancez: node server.js dans stellantis-comm-ai/');
+        }
+    });
+
+    // ── Refresh status ─────────────────────────────────────────────────────────
+    document.getElementById('btn-refresh-status')?.addEventListener('click', refreshSettingsStatus);
+
+    // ── Init: check if any key already saved ──────────────────────────────────
+    const anyKey = ALL_PROVIDERS.find(p => {
+        const k = localStorage.getItem(`commgen_key_${p}`);
+        return k && k.length > 5;
+    });
+    // Backwards compat: migrate old single key
+    const legacyKey = localStorage.getItem('commgen_api_key');
+    if (legacyKey && !localStorage.getItem('commgen_key_claude')) {
+        localStorage.setItem('commgen_key_claude', legacyKey);
+    }
+    if (anyKey || legacyKey) {
+        aiEnabled = true;
+        updateAIIndicator(true, savedProvider);
+        const displayProvider = savedProvider.charAt(0).toUpperCase() + savedProvider.slice(1);
+        showKeyFeedback('success', `✓ Fournisseur actif: ${displayProvider}`);
+    }
+}
+
+function activateProviderTab(provider) {
+    localStorage.setItem('commgen_provider', provider);
+    document.querySelectorAll('.ptab').forEach(t => t.classList.remove('ptab-active'));
+    const activeTab = document.querySelector(`.ptab[data-provider="${provider}"]`);
+    if (activeTab) activeTab.classList.add('ptab-active');
+    document.querySelectorAll('.provider-panel').forEach(p => p.style.display = 'none');
+    const panel = document.getElementById(`panel-${provider}`);
+    if (panel) panel.style.display = 'block';
+    // Sync guide tab
+    document.querySelectorAll('.pgtab').forEach(t => t.classList.remove('pgtab-active'));
+    const guideTab = document.querySelector(`.pgtab[data-guide="g-${provider}"]`);
+    if (guideTab) {
+        guideTab.classList.add('pgtab-active');
+        document.querySelectorAll('.guide-steps').forEach(s => s.style.display = 'none');
+        const guidePanel = document.getElementById(`g-${provider}`);
+        if (guidePanel) guidePanel.style.display = 'block';
+    }
+}
+
+function showKeyFeedback(type, msg) {
+    const el = document.getElementById('key-feedback');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.className = `key-feedback key-feedback-${type}`;
+    el.innerHTML = msg;
+}
+
+async function checkBackendStatus() {
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+        const data = await res.json();
+        aiEnabled = data.aiEnabled;
+        updateAIIndicator(data.aiEnabled);
+        return data;
+    } catch {
+        updateAIIndicator(false);
+        // If key saved locally, still enable AI (will send key in headers)
+        const savedKey = localStorage.getItem('commgen_api_key');
+        if (savedKey && savedKey.length > 20) {
+            aiEnabled = true;
+            updateAIIndicator(true, 'local');
+        }
+        return null;
+    }
+}
+
+function updateAIIndicator(enabled, provider) {
+    const dot = document.getElementById('ai-dot');
+    const label = document.getElementById('ai-label');
+    const indicator = document.getElementById('ai-indicator');
+    if (!dot) return;
+
+    if (enabled) {
+        const prov = provider || localStorage.getItem('commgen_provider') || 'IA';
+        const provLabels = { claude: 'Claude Opus', gpt: 'GPT-4o', gemini: 'Gemini', mistral: 'Mistral', azure: 'Azure AI', custom: 'Local AI' };
+        const name = provLabels[prov] || prov.toUpperCase();
+        dot.className = 'ai-dot ai-dot-on';
+        if (label) label.textContent = 'IA ON';
+        if (indicator) indicator.title = `${name} — Actif`;
+        indicator?.classList.add('ai-active');
+    } else {
+        dot.className = 'ai-dot ai-dot-off';
+        if (label) label.textContent = 'IA';
+        if (indicator) indicator.title = 'IA non configurée — cliquez sur Paramètres';
+        indicator?.classList.remove('ai-active');
+    }
+}
+
+async function refreshSettingsStatus() {
+    // Server status
+    const dotServer = document.getElementById('dot-server');
+    const valServer = document.getElementById('val-server');
+    const dotApi = document.getElementById('dot-api');
+    const valApi = document.getElementById('val-api');
+    const valModel = document.getElementById('val-model');
+
+    const bannerTitle = document.getElementById('ai-banner-title');
+    const bannerDesc = document.getElementById('ai-banner-desc');
+    const statusPill = document.getElementById('ai-status-pill');
+
+    try {
+        const data = await checkBackendStatus();
+        if (data) {
+            if (dotServer) dotServer.className = 'backend-dot dot-green';
+            if (valServer) valServer.textContent = 'En ligne ✓';
+
+            if (data.aiEnabled) {
+                if (dotApi) dotApi.className = 'backend-dot dot-green';
+                if (valApi) valApi.textContent = `Connectée (${data.keyPreview})`;
+                if (valModel) valModel.textContent = 'claude-opus-4-6';
+                if (bannerTitle) bannerTitle.textContent = 'Statut IA: Active ✓';
+                if (bannerDesc) bannerDesc.textContent = 'Claude Opus 4.6 avec Adaptive Thinking — Prêt à générer';
+                if (statusPill) { statusPill.textContent = 'ONLINE'; statusPill.className = 'ai-status-pill pill-online'; }
+                document.getElementById('settings-ai-banner')?.classList.add('banner-active');
+            } else {
+                if (dotApi) dotApi.className = 'backend-dot dot-red';
+                if (valApi) valApi.textContent = 'Non configurée';
+                if (valModel) valModel.textContent = '—';
+                if (bannerTitle) bannerTitle.textContent = 'Statut IA: Clé API manquante';
+                if (bannerDesc) bannerDesc.textContent = 'Entrez votre clé Anthropic ci-dessous pour activer Claude Opus 4.6';
+                if (statusPill) { statusPill.textContent = 'CONFIG REQUIRED'; statusPill.className = 'ai-status-pill pill-warn'; }
+            }
+        }
+    } catch {
+        if (dotServer) dotServer.className = 'backend-dot dot-red';
+        if (valServer) valServer.textContent = 'Hors ligne — lancez: node server.js';
+        if (dotApi) dotApi.className = 'backend-dot dot-grey';
+        if (valApi) valApi.textContent = '—';
+        if (bannerTitle) bannerTitle.textContent = 'Statut IA: Backend non démarré';
+        if (bannerDesc) bannerDesc.textContent = 'Lancez: cd stellantis-comm-ai && node server.js';
+        if (statusPill) { statusPill.textContent = 'OFFLINE'; statusPill.className = 'ai-status-pill'; }
     }
 }

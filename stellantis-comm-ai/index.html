@@ -25,6 +25,10 @@
             <a href="#" data-nav="settings">Settings</a>
         </nav>
         <div class="top-bar-right">
+            <div class="ai-indicator" id="ai-indicator" title="Statut IA">
+                <span class="ai-dot" id="ai-dot"></span>
+                <span class="ai-label" id="ai-label">IA</span>
+            </div>
             <span class="user-avatar">MC</span>
             <span class="user-name">M. Chenafi</span>
         </div>
@@ -1057,11 +1061,421 @@
             </div>
         </section>
 
+        <!-- ============================================= -->
+        <!-- SETTINGS PAGE                                 -->
+        <!-- ============================================= -->
+        <section id="page-settings" class="page" style="display:none;">
+            <div class="step-header">
+                <div class="step-number" style="background:#546E7A;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#fff" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="#fff"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.1 4.1l1.4 1.4M14.5 14.5l1.4 1.4M4.1 15.9l1.4-1.4M14.5 5.5l1.4-1.4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+                <div>
+                    <h2>Paramètres — CommGen AI v5.0</h2>
+                    <p class="step-desc">Connectez votre fournisseur IA pour activer la génération intelligente</p>
+                </div>
+            </div>
+
+            <!-- AI Status Banner -->
+            <div class="settings-ai-banner" id="settings-ai-banner">
+                <div class="ai-banner-icon" id="ai-banner-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E0E0E0"/><path d="M12 6v6l4 2" stroke="#9E9E9E" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="ai-banner-text">
+                    <strong id="ai-banner-title">Statut IA: Non configurée</strong>
+                    <span id="ai-banner-desc">Sélectionnez un fournisseur et entrez votre clé d'accès</span>
+                </div>
+                <span class="ai-status-pill" id="ai-status-pill">OFFLINE</span>
+            </div>
+
+            <div class="settings-grid settings-grid-full">
+
+                <!-- ── PROVIDER SELECTOR + KEY CONFIG (full width) ── -->
+                <div class="settings-card settings-card-wide">
+                    <div class="settings-card-header">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="4" fill="#1B2A4A"/><path d="M7 11a4 4 0 1 1 4 4H7v-4z" stroke="#4FC3F7" stroke-width="1.5" fill="none"/><circle cx="7" cy="13" r="1.2" fill="#4FC3F7"/></svg>
+                        <h3>Fournisseur IA & Clé d'accès</h3>
+                    </div>
+
+                    <!-- Provider Tabs -->
+                    <div class="provider-tabs" id="provider-tabs">
+                        <button class="ptab ptab-active" data-provider="claude">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#1B2A4A"/><path d="M5 8l2 2.5L11 5" stroke="#4FC3F7" stroke-width="1.4" stroke-linecap="round"/></svg>
+                            <span class="ptab-name">Claude Opus</span>
+                            <small>Raisonnement avancé</small>
+                        </button>
+                        <button class="ptab" data-provider="gpt">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="4" fill="#10A37F"/><path d="M5 8h6M8 5v6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <span class="ptab-name">GPT-4o</span>
+                            <small>Multimodal</small>
+                        </button>
+                        <button class="ptab" data-provider="gemini">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,8 8,15 1,8" fill="#4285F4"/><polygon points="8,4 12,8 8,12 4,8" fill="#34A853"/></svg>
+                            <span class="ptab-name">Gemini Pro</span>
+                            <small>Multilingue</small>
+                        </button>
+                        <button class="ptab" data-provider="azure">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" fill="#0078D4"/><path d="M4 12l3-8 2 5 1.5-3L13 12" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="ptab-name">Azure AI</span>
+                            <small>Cloud entreprise</small>
+                        </button>
+                        <button class="ptab" data-provider="mistral">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" fill="#FF7000"/><path d="M4 5h3v2H4zM9 5h3v2H9zM4 9h3v2H4zM9 9h3v2H9z" fill="#fff"/></svg>
+                            <span class="ptab-name">Mistral</span>
+                            <small>Europe · RGPD</small>
+                        </button>
+                        <button class="ptab" data-provider="custom">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="8" rx="2" fill="#546E7A"/><circle cx="4.5" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="11.5" cy="8" r="1.2" fill="#fff"/></svg>
+                            <span class="ptab-name">Endpoint</span>
+                            <small>Personnalisé / Local</small>
+                        </button>
+                    </div>
+
+                    <!-- Panel: Claude -->
+                    <div class="provider-panel" id="panel-claude">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-blue">Modèle de raisonnement — Thinking adaptatif</span>
+                            <span class="pinfo-cost">~€0.10–0.30 / communication</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>Clé d'accès</label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-claude" placeholder="sk-ant-api03-..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-claude">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                                <small class="field-hint">Format: <code>sk-ant-api03-...</code> — console.anthropic.com → API Keys → Create Key</small>
+                            </div>
+                            <div class="settings-field">
+                                <label>Modèle</label>
+                                <select class="settings-input" id="model-claude">
+                                    <option value="claude-opus-4-6" selected>claude-opus-4-6 — Raisonnement max (recommandé)</option>
+                                    <option value="claude-sonnet-4-6">claude-sonnet-4-6 — Rapide & équilibré</option>
+                                    <option value="claude-haiku-4-5">claude-haiku-4-5 — Ultra-rapide</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: GPT-4o -->
+                    <div class="provider-panel" id="panel-gpt" style="display:none;">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-green">Modèle multimodal — Vision & texte</span>
+                            <span class="pinfo-cost">~€0.05–0.20 / communication</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>Clé d'accès</label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-gpt" placeholder="sk-proj-..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-gpt">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                                <small class="field-hint">Format: <code>sk-proj-...</code> — platform.openai.com → API Keys</small>
+                            </div>
+                            <div class="settings-field">
+                                <label>Modèle</label>
+                                <select class="settings-input" id="model-gpt">
+                                    <option value="gpt-4o" selected>gpt-4o — Multimodal (recommandé)</option>
+                                    <option value="gpt-4o-mini">gpt-4o-mini — Rapide & économique</option>
+                                    <option value="gpt-4-turbo">gpt-4-turbo — Haute précision</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Gemini -->
+                    <div class="provider-panel" id="panel-gemini" style="display:none;">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-indigo">Modèle multilingue — 100+ langues</span>
+                            <span class="pinfo-cost">~€0.02–0.15 / communication</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>Clé d'accès</label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-gemini" placeholder="AIzaSy..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-gemini">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                                <small class="field-hint">Format: <code>AIzaSy...</code> — aistudio.google.com → Get API Key</small>
+                            </div>
+                            <div class="settings-field">
+                                <label>Modèle</label>
+                                <select class="settings-input" id="model-gemini">
+                                    <option value="gemini-2.0-flash" selected>gemini-2.0-flash — Rapide (recommandé)</option>
+                                    <option value="gemini-2.0-pro">gemini-2.0-pro — Qualité maximale</option>
+                                    <option value="gemini-1.5-pro">gemini-1.5-pro — Contexte 1M tokens</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Azure -->
+                    <div class="provider-panel" id="panel-azure" style="display:none;">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-azure">Déploiement cloud d'entreprise — RGPD ✓</span>
+                            <span class="pinfo-cost">Tarif négocié Microsoft</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>Clé d'accès Azure</label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-azure" placeholder="a1b2c3d4e5f6..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-azure">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="settings-field">
+                                <label>URL du point de terminaison</label>
+                                <input type="text" id="endpoint-azure" placeholder="https://stellantis-ai.openai.azure.com/" class="settings-input"/>
+                            </div>
+                            <div class="settings-field">
+                                <label>Nom du déploiement</label>
+                                <input type="text" id="deployment-azure" placeholder="gpt-4o-stellantis" class="settings-input"/>
+                                <small class="field-hint">Azure AI Studio → Déploiements → Nom du modèle</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Mistral AI -->
+                    <div class="provider-panel" id="panel-mistral" style="display:none;">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-orange">Modèle européen — Hébergé en UE, conforme RGPD</span>
+                            <span class="pinfo-cost">~€0.02–0.10 / communication</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>Clé d'accès</label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-mistral" placeholder="..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-mistral">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                                <small class="field-hint">console.mistral.ai → API Keys → Créer une clé</small>
+                            </div>
+                            <div class="settings-field">
+                                <label>Modèle</label>
+                                <select class="settings-input" id="model-mistral">
+                                    <option value="mistral-large-latest" selected>mistral-large-latest — Qualité max (recommandé)</option>
+                                    <option value="mistral-medium-latest">mistral-medium-latest — Équilibré</option>
+                                    <option value="mistral-small-latest">mistral-small-latest — Rapide</option>
+                                    <option value="open-mistral-nemo">open-mistral-nemo — Open source</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Custom / Local -->
+                    <div class="provider-panel" id="panel-custom" style="display:none;">
+                        <div class="provider-info">
+                            <span class="pinfo-badge pinfo-grey">Endpoint compatible API — Ollama / LM Studio / vLLM</span>
+                            <span class="pinfo-cost">Hébergement local — coût serveur uniquement</span>
+                        </div>
+                        <div class="provider-fields">
+                            <div class="settings-field">
+                                <label>URL de l'endpoint</label>
+                                <input type="text" id="endpoint-custom" placeholder="http://localhost:11434/v1" class="settings-input"/>
+                                <small class="field-hint">Ex: Ollama <code>:11434/v1</code> — LM Studio <code>:1234/v1</code> — vLLM <code>:8000/v1</code></small>
+                            </div>
+                            <div class="settings-field">
+                                <label>Clé d'accès <span style="font-weight:400;color:#999;">(optionnel)</span></label>
+                                <div class="api-key-input-wrap">
+                                    <input type="password" id="key-custom" placeholder="ollama / lm-studio / token..." class="settings-input" autocomplete="off"/>
+                                    <button class="btn-eye" data-target="key-custom">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="#888" stroke-width="1.4"/><circle cx="9" cy="9" r="2.5" stroke="#888" stroke-width="1.4"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="settings-field">
+                                <label>Nom du modèle</label>
+                                <input type="text" id="model-custom" placeholder="llama3.2 / mistral / qwen2.5..." class="settings-input"/>
+                                <small class="field-hint">Exactement le nom retourné par <code>GET /v1/models</code></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shared actions -->
+                    <div class="settings-actions" style="margin-top:20px;">
+                        <button class="btn btn-primary" id="btn-save-key">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+                            Sauvegarder
+                        </button>
+                        <button class="btn btn-outline" id="btn-test-key">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#1976D2" stroke-width="1.5"/><path d="M5.5 8l2 2 3-3" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            Tester la connexion
+                        </button>
+                    </div>
+
+                    <div id="key-feedback" class="key-feedback" style="display:none;"></div>
+
+                    <div class="settings-info-box" style="margin-top:14px;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#1976D2" stroke-width="1.2"/><path d="M8 7v4M8 5.5v.5" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span>Les clés sont stockées localement dans votre navigateur — elles ne transitent que vers le backend local (port 3457) lors de la génération.</span>
+                    </div>
+                </div>
+
+                <!-- ── MODEL CONFIG + EFFORT ── -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="4" fill="#1976D2"/><path d="M7 15l2-4 2 4 2-8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <h3>Qualité de génération</h3>
+                    </div>
+
+                    <div class="settings-field">
+                        <label>Mode de réflexion</label>
+                        <select class="settings-input" id="select-thinking">
+                            <option value="adaptive" selected>Adaptatif — Le modèle décide (recommandé)</option>
+                            <option value="none">Désactivé — Réponse directe, plus rapide</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-field">
+                        <label>Niveau d'effort</label>
+                        <select class="settings-input" id="select-effort">
+                            <option value="high" selected>Élevé — Qualité maximale</option>
+                            <option value="medium">Moyen — Équilibré vitesse/qualité</option>
+                            <option value="low">Faible — Réponse rapide</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-field">
+                        <label>Langue de génération par défaut</label>
+                        <select class="settings-input" id="select-default-lang">
+                            <option value="fr" selected>Français</option>
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="it">Italiano</option>
+                            <option value="es">Español</option>
+                            <option value="nl">Nederlands</option>
+                            <option value="pt">Português</option>
+                            <option value="pl">Polski</option>
+                        </select>
+                    </div>
+
+                    <div class="model-cost-note">
+                        <strong>Coût estimé par communication:</strong>
+                        <span id="cost-estimate">~€0.10 – €0.30 (~3 000 tokens)</span>
+                    </div>
+                </div>
+
+                <!-- ── BACKEND STATUS ── -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="5" width="18" height="12" rx="3" fill="#388E3C"/><rect x="5" y="8" width="4" height="2" rx="1" fill="#fff"/><rect x="5" y="12" width="8" height="1.5" rx=".75" fill="#A5D6A7"/><circle cx="16" cy="11" r="2" fill="#C8E6C9"/></svg>
+                        <h3>Statut du Backend</h3>
+                    </div>
+
+                    <div class="backend-status-list">
+                        <div class="backend-status-row">
+                            <span class="backend-dot" id="dot-server"></span>
+                            <span>Backend Node.js (port 3457)</span>
+                            <span class="backend-val" id="val-server">—</span>
+                        </div>
+                        <div class="backend-status-row">
+                            <span class="backend-dot" id="dot-api"></span>
+                            <span>Connexion fournisseur IA</span>
+                            <span class="backend-val" id="val-api">—</span>
+                        </div>
+                        <div class="backend-status-row">
+                            <span class="backend-dot" id="dot-model"></span>
+                            <span>Fournisseur actif</span>
+                            <span class="backend-val" id="val-model">—</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline" id="btn-refresh-status" style="margin-top:16px;">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3" stroke="#1976D2" stroke-width="1.5" stroke-linecap="round"/><path d="M3 4V1l-1 3h1z" fill="#1976D2"/></svg>
+                        Actualiser le statut
+                    </button>
+
+                    <div class="backend-start-hint">
+                        <code>cd stellantis-comm-ai</code><br>
+                        <code>node server.js</code>
+                    </div>
+                </div>
+
+                <!-- ── HOW TO GET A KEY ── -->
+                <div class="settings-card settings-card-guide">
+                    <div class="settings-card-header">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" fill="#E65100"/><path d="M11 7v4M11 13.5v1" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+                        <h3>Où obtenir une clé d'accès?</h3>
+                    </div>
+                    <div class="provider-guide-tabs">
+                        <button class="pgtab pgtab-active" data-guide="g-claude">Claude Opus</button>
+                        <button class="pgtab" data-guide="g-gpt">GPT-4o</button>
+                        <button class="pgtab" data-guide="g-gemini">Gemini</button>
+                        <button class="pgtab" data-guide="g-mistral">Mistral</button>
+                        <button class="pgtab" data-guide="g-azure">Azure</button>
+                        <button class="pgtab" data-guide="g-custom">Local</button>
+                    </div>
+
+                    <ol class="guide-steps" id="g-claude">
+                        <li>Aller sur <strong>console.anthropic.com</strong></li>
+                        <li>Se connecter → menu <strong>API Keys</strong></li>
+                        <li>Cliquer <strong>Create Key</strong> → nom: <em>CommGen-AI</em></li>
+                        <li>Copier la clé <code>sk-ant-api03-...</code></li>
+                        <li>Coller dans le champ ci-dessus → <strong>Sauvegarder</strong></li>
+                    </ol>
+                    <ol class="guide-steps" id="g-gpt" style="display:none">
+                        <li>Aller sur <strong>platform.openai.com</strong></li>
+                        <li>Se connecter → <strong>API Keys</strong></li>
+                        <li>Cliquer <strong>Create new secret key</strong></li>
+                        <li>Copier la clé <code>sk-proj-...</code></li>
+                        <li>Coller dans le champ GPT-4o → <strong>Sauvegarder</strong></li>
+                    </ol>
+                    <ol class="guide-steps" id="g-gemini" style="display:none">
+                        <li>Aller sur <strong>aistudio.google.com</strong></li>
+                        <li>Se connecter → <strong>Get API Key</strong></li>
+                        <li>Créer un projet si nécessaire</li>
+                        <li>Copier la clé <code>AIzaSy...</code></li>
+                        <li>Coller dans le champ Gemini → <strong>Sauvegarder</strong></li>
+                    </ol>
+                    <ol class="guide-steps" id="g-mistral" style="display:none">
+                        <li>Aller sur <strong>console.mistral.ai</strong></li>
+                        <li>Se connecter → <strong>API Keys</strong></li>
+                        <li>Cliquer <strong>Créer une nouvelle clé</strong></li>
+                        <li>Copier la clé générée</li>
+                        <li>Coller dans le champ Mistral → <strong>Sauvegarder</strong></li>
+                        <li><em>Avantage: données hébergées en UE (Paris), conformité RGPD native</em></li>
+                    </ol>
+                    <ol class="guide-steps" id="g-azure" style="display:none">
+                        <li>Azure Portal → <strong>Azure AI Services</strong></li>
+                        <li>Créer une ressource <em>Azure OpenAI</em></li>
+                        <li>Région UE recommandée (conformité RGPD)</li>
+                        <li>Copier la clé dans <strong>Clés et point de terminaison</strong></li>
+                        <li>Déployer un modèle dans <strong>Azure AI Studio</strong></li>
+                    </ol>
+                    <ol class="guide-steps" id="g-custom" style="display:none">
+                        <li>Installer <strong>Ollama</strong>: <code>curl -fsSL https://ollama.ai/install.sh | sh</code></li>
+                        <li>Télécharger un modèle: <code>ollama pull llama3.2</code></li>
+                        <li>L'API est disponible sur <code>http://localhost:11434/v1</code></li>
+                        <li>Laisser la clé vide ou mettre <code>ollama</code></li>
+                        <li>Entrer le nom exact du modèle téléchargé</li>
+                    </ol>
+
+                    <div class="guide-cost">
+                        <strong>Tarifs indicatifs (mars 2026):</strong><br>
+                        Claude Opus 4.6: $5/M entrée — $25/M sortie<br>
+                        GPT-4o: $2.5/M entrée — $10/M sortie<br>
+                        Gemini 2.0 Flash: $0.075/M entrée — $0.30/M sortie<br>
+                        Local (Ollama): <em>coût infrastructure uniquement</em>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
     </main>
 
     <footer class="app-footer">
-        <span>CommGen AI v4.0 — Stellantis Aftersales Digital Tools</span>
-        <span>Powered by AI | Internal Use Only</span>
+        <span>CommGen AI v5.0 — Stellantis Aftersales Digital Tools</span>
+        <span>Powered by Claude Opus 4.6 | Internal Use Only</span>
     </footer>
 
     <script src="app.js"></script>
