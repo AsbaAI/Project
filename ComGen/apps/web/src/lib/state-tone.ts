@@ -1,29 +1,15 @@
+import { ETATS_COMMUNICATION, type EtatCommunication } from '@comgen/core'
+
 import type { BadgeTone } from '@/components/ui/badge'
 
 /*
  * Correspondance état de communication → tonalité de badge (§7 × §14).
- *
- * La liste des états est celle de la spécification ; au lot 1 elle sera
- * dérivée du type de `@comgen/core` pour qu'un état ajouté sans tonalité
- * soit une erreur de compilation.
+ * La liste des états vient de `@comgen/core` : un état ajouté sans tonalité
+ * est une erreur de compilation.
  */
-export const COMMUNICATION_STATES = [
-  'BROUILLON',
-  'FAITS_A_VALIDER',
-  'PRETE_A_GENERER',
-  'EN_GENERATION',
-  'EN_CONTROLE',
-  'A_CORRIGER',
-  'EN_RELECTURE',
-  'EN_APPROBATION',
-  'APPROUVEE',
-  'ENVOI_PLANIFIE',
-  'ENVOYEE',
-  'REJETEE',
-  'ARCHIVEE',
-] as const
+export const COMMUNICATION_STATES = ETATS_COMMUNICATION
 
-export type CommunicationState = (typeof COMMUNICATION_STATES)[number]
+export type CommunicationState = EtatCommunication
 
 export const STATE_TONE: Record<CommunicationState, BadgeTone> = {
   BROUILLON: 'draft',

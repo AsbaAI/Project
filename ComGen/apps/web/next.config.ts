@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 const nextConfig: NextConfig = {
   // Les paquets du dépôt sont publiés en sources TypeScript : Next les
   // transpile lui-même, il n'y a pas d'étape de build intermédiaire.
-  transpilePackages: ['@comgen/core'],
+  transpilePackages: ['@comgen/core', '@comgen/db'],
   typescript: {
     // Un avertissement de type est une erreur de build (définition de « terminé »).
     ignoreBuildErrors: false,
