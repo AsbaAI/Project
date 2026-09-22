@@ -4,12 +4,12 @@
 
 L'application s'organise en quatre espaces :
 
-| Espace | Rôle |
-|---|---|
-| **Generator** | le parcours de génération, en quatre étapes |
-| **Templates** | la bibliothèque de modèles de communication |
-| **History** | les générations passées, leurs entrées et leurs sorties |
-| **Settings** | paramétrage : langues par défaut, modèle IA, seuils de qualité |
+| Espace        | Rôle                                                           |
+| ------------- | -------------------------------------------------------------- |
+| **Generator** | le parcours de génération, en quatre étapes                    |
+| **Templates** | la bibliothèque de modèles de communication                    |
+| **History**   | les générations passées, leurs entrées et leurs sorties        |
+| **Settings**  | paramétrage : langues par défaut, modèle IA, seuils de qualité |
 
 ## Le parcours de génération
 
@@ -23,9 +23,9 @@ périmètre de déploiement.
 
 **Template de communication.** Deux modes au choix :
 
-- *Téléverser un template Word* — l'utilisateur fournit son propre fichier. Sa mise en
+- _Téléverser un template Word_ — l'utilisateur fournit son propre fichier. Sa mise en
   forme est préservée intégralement.
-- *Choisir dans la bibliothèque* — l'utilisateur sélectionne un modèle prédéfini dans
+- _Choisir dans la bibliothèque_ — l'utilisateur sélectionne un modèle prédéfini dans
   la galerie.
 
 Le bouton d'analyse ne s'active qu'une fois les deux entrées fournies.
@@ -46,37 +46,37 @@ L'avancement est affiché à l'utilisateur pendant le traitement.
 
 Cinq livrables sont produits et présentés par onglets.
 
-| Onglet | Contenu |
-|---|---|
-| **Communication** | le document final, dans la mise en forme du template, avec sélecteur de langue |
-| **Rapport de validation** | contrôles de cohérence, éléments manquants, score de qualité |
-| **Acronymes** | glossaire des sigles détectés et leur définition |
-| **Plan de test** | scénarios de test déduits de la spécification |
-| **Know-how** | synthèse capitalisable pour les prochaines communications |
+| Onglet                    | Contenu                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| **Communication**         | le document final, dans la mise en forme du template, avec sélecteur de langue |
+| **Rapport de validation** | contrôles de cohérence, éléments manquants, score de qualité                   |
+| **Acronymes**             | glossaire des sigles détectés et leur définition                               |
+| **Plan de test**          | scénarios de test déduits de la spécification                                  |
+| **Know-how**              | synthèse capitalisable pour les prochaines communications                      |
 
 Un **score de qualité** sur 100 accompagne la génération et résume le rapport de validation.
 
 ### Étape 4 — Export
 
-| Action | Format |
-|---|---|
-| Copier | texte brut, vers le presse-papiers |
-| Exporter la communication | Word |
-| Imprimer / PDF | PDF |
-| Exporter le plan de test | fichier séparé |
+| Action                    | Format                             |
+| ------------------------- | ---------------------------------- |
+| Copier                    | texte brut, vers le presse-papiers |
+| Exporter la communication | Word                               |
+| Imprimer / PDF            | PDF                                |
+| Exporter le plan de test  | fichier séparé                     |
 
 ## Bibliothèque de templates
 
 Six familles au catalogue initial :
 
-| Template | Description |
-|---|---|
-| **Basket Communication** | note de livraison standard : section Évolutions, tableau des corrections, informations de déploiement. *Modèle recommandé par défaut.* |
-| **Country Note** | note adressée à un marché spécifique |
-| **Technical Bulletin** | bulletin technique destiné aux équipes techniques |
-| **Release Note** | note de version applicative |
-| **Training Communication** | communication de formation |
-| **Warranty Alert** | alerte garantie |
+| Template                   | Description                                                                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Basket Communication**   | note de livraison standard : section Évolutions, tableau des corrections, informations de déploiement. _Modèle recommandé par défaut._ |
+| **Country Note**           | note adressée à un marché spécifique                                                                                                   |
+| **Technical Bulletin**     | bulletin technique destiné aux équipes techniques                                                                                      |
+| **Release Note**           | note de version applicative                                                                                                            |
+| **Training Communication** | communication de formation                                                                                                             |
+| **Warranty Alert**         | alerte garantie                                                                                                                        |
 
 Chaque entrée de la galerie présente un aperçu de la mise en page avant sélection.
 
@@ -84,16 +84,16 @@ Chaque entrée de la galerie présente un aperçu de la mise en page avant séle
 
 Huit langues sont générées depuis la source unique :
 
-| Code | Langue |
-|---|---|
-| `en` | English |
-| `fr` | Français |
-| `de` | Deutsch |
-| `it` | Italiano |
-| `es` | Español |
-| `pt` | Português |
+| Code | Langue     |
+| ---- | ---------- |
+| `en` | English    |
+| `fr` | Français   |
+| `de` | Deutsch    |
+| `it` | Italiano   |
+| `es` | Español    |
+| `pt` | Português  |
 | `nl` | Nederlands |
-| `pl` | Polski |
+| `pl` | Polski     |
 
 Le changement de langue s'applique à l'intégralité du document : corps de texte, titres
 de sections, en-têtes de tableaux, mentions de rôles destinataires, formules de

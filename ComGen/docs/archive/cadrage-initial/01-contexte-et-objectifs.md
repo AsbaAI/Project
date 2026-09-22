@@ -19,14 +19,14 @@ qui doit, pour chaque livraison :
 
 ## Problèmes constatés
 
-| Problème | Conséquence |
-|---|---|
-| Cycle long | la communication arrive après la livraison, ou la retarde |
-| Qualité variable | le résultat dépend du rédacteur et du temps disponible |
-| Mise en forme fragile | copier-coller depuis la spécification qui casse la charte du template |
-| Traductions désynchronisées | les versions linguistiques divergent de la version source |
-| Acronymes non explicités | le destinataire métier ne comprend pas le contenu |
-| Aucune capitalisation | chaque communication repart de zéro |
+| Problème                    | Conséquence                                                           |
+| --------------------------- | --------------------------------------------------------------------- |
+| Cycle long                  | la communication arrive après la livraison, ou la retarde             |
+| Qualité variable            | le résultat dépend du rédacteur et du temps disponible                |
+| Mise en forme fragile       | copier-coller depuis la spécification qui casse la charte du template |
+| Traductions désynchronisées | les versions linguistiques divergent de la version source             |
+| Acronymes non explicités    | le destinataire métier ne comprend pas le contenu                     |
+| Aucune capitalisation       | chaque communication repart de zéro                                   |
 
 ## Objectifs
 
@@ -35,25 +35,25 @@ template, une communication complète, multilingue et conforme, en quelques minu
 
 **Objectifs dérivés**
 
-- *Conformité* — le document produit respecte le template à l'identique : logo,
+- _Conformité_ — le document produit respecte le template à l'identique : logo,
   tableaux, captures d'écran, styles.
-- *Exhaustivité* — rien d'important dans la spécification n'est omis ; ce qui manque
+- _Exhaustivité_ — rien d'important dans la spécification n'est omis ; ce qui manque
   est signalé plutôt que silencieusement ignoré.
-- *Mesurabilité* — chaque génération porte un score de qualité et un rapport de
+- _Mesurabilité_ — chaque génération porte un score de qualité et un rapport de
   validation consultable.
-- *Traçabilité* — l'historique conserve les entrées, les sorties et les paramètres de
+- _Traçabilité_ — l'historique conserve les entrées, les sorties et les paramètres de
   chaque génération.
-- *Capitalisation* — la fiche know-how produite alimente les communications suivantes.
+- _Capitalisation_ — la fiche know-how produite alimente les communications suivantes.
 
 ## Indicateurs
 
-| Indicateur | Cible |
-|---|---|
-| Délai de production | < 10 minutes de bout en bout |
-| Score de qualité moyen | ≥ 85 / 100 |
-| Langues couvertes par génération | 8 |
-| Taux de reprise manuelle après génération | < 20 % du document |
-| Fidélité au template | mise en forme préservée sans retouche |
+| Indicateur                                | Cible                                 |
+| ----------------------------------------- | ------------------------------------- |
+| Délai de production                       | < 10 minutes de bout en bout          |
+| Score de qualité moyen                    | ≥ 85 / 100                            |
+| Langues couvertes par génération          | 8                                     |
+| Taux de reprise manuelle après génération | < 20 % du document                    |
+| Fidélité au template                      | mise en forme préservée sans retouche |
 
 ## Hors périmètre (à ce stade)
 

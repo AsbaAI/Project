@@ -97,20 +97,59 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 - Pas d'entraînement sur les sources ni les contenus générés sans
   consentement explicite et tracé.
 
+## Conventions de code — vérifiées par l'outillage
+
+- **Prettier** (`semi: false`, guillemets simples, 100 colonnes, virgules
+  finales) : écrire **sans point-virgule**. `pnpm format` avant de
+  committer ; `pnpm check` inclut `format:check`.
+- **oxlint** (`.oxlintrc.json` à la racine). Les directives de
+  désactivation dans du JSX ne sont pas honorées : utiliser une directive
+  de fichier `/* oxlint-disable règle -- raison */`, toujours motivée.
+  Règles fréquemment rencontrées : `typescript/consistent-type-imports`
+  (`import type`), `import/no-named-as-default`, `eslint/no-await-in-loop`,
+  `import/no-unassigned-import` (seuls `*.css` et le setup jest-dom sont
+  admis).
+- **Imports.** Dans `packages/*` : extension `.ts` explicite
+  (`allowImportingTsExtensions`), sources exportées telles quelles. Dans
+  `apps/web` : sans extension, alias `@/*` ; Next transpile `@comgen/core`.
+- **Server / client.** Tout composant qui reçoit un gestionnaire ou une
+  fonction en prop, ou qui utilise un hook, porte `'use client'`. Les pages
+  et layouts restent des composants serveur.
+- **`cn()`** repose sur `tailwind-merge` étendu : tout utilitaire maison
+  (`@utility` dans `styles/utilities.css`) doit être déclaré dans les
+  groupes de classes de `lib/cn.ts`, sinon `twMerge` le supprime comme un
+  conflit (cas vécu avec `border-w`). Bordures directionnelles :
+  `border-{t,b,l,r}-w`.
+- **`Button`** : `iconOnly` exige `icon` et un libellé en `children`
+  (rendu visuellement masqué) ; `asChild` enveloppe les enfants dans un
+  `Slottable`. **`Field`** possède l'identifiant du contrôle et le propage
+  (`aria-describedby`, `aria-invalid`) : ne pas passer d'`id` au contrôle.
+- **Radix RovingFocusGroup** diffère le focus : dans Playwright, naviguer
+  aux flèches avec `keyboard.down` / `keyboard.up`, pas `keyboard.press`.
+- **axe-core** : `aria-hidden` n'exempte pas du contraste ; un contrôle
+  `disabled` l'est.
+- **Stories Storybook** : contenu d'exemple français en dur autorisé (outil
+  de développement, pas d'interface livrée). Titres `Composants/…`.
+
 ## Commandes
 
 ```bash
 pnpm install
-pnpm dev                 # apps/web en développement
+pnpm dev                 # apps/web en développement (port 3000, /design)
 pnpm build               # build de tous les paquets — zéro avertissement de type
 pnpm typecheck
-pnpm lint
+pnpm lint                # oxlint
+pnpm format              # prettier --write ; format:check pour vérifier
 pnpm test                # Vitest, tous les paquets
-pnpm test:e2e            # Playwright : parcours, captures 4 configurations, axe-core
-pnpm check:contrast      # couples de jetons, deux thèmes, seuil WCAG 2.2 AA
-pnpm storybook
-pnpm check               # typecheck + lint + test + check:contrast
+pnpm test:e2e            # Playwright : clavier, axe-core, captures 4 configurations (port 3100)
+pnpm check:contrast      # couples de jetons, deux thèmes, seuils WCAG 2.2 AA
+pnpm storybook           # port 6006 ; pnpm --filter @comgen/web build-storybook pour vérifier
+pnpm check               # typecheck + lint + format:check + test + check:contrast
 ```
+
+Les captures Playwright vont dans `apps/web/e2e/captures/<projet>/` et ne
+sont pas versionnées : les régénérer avec `pnpm test:e2e` puis les lire
+(outil Read) avant de conclure.
 
 Un lot est terminé quand : tests verts, critères §17 concernés testés,
 `pnpm build` sans avertissement, écrans capturés et relus dans les quatre
@@ -142,3 +181,5 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   (proxy) : polices et ressources doivent être auto-hébergées.
 - Aucune clé de fournisseur de modèle disponible : les adaptateurs sont
   testés contre un faux serveur HTTP.
+- Le serveur MCP de documentation (Context7) a un quota épuisé : vérifier
+  les API dans `node_modules` plutôt que d'écrire de mémoire.

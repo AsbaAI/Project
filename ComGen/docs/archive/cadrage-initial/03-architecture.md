@@ -1,6 +1,6 @@
 # 03 — Architecture
 
-> Document de cadrage. Les choix techniques marqués *(à arbitrer)* restent ouverts et
+> Document de cadrage. Les choix techniques marqués _(à arbitrer)_ restent ouverts et
 > seront tranchés avant le premier développement.
 
 ## Vue d'ensemble
@@ -43,20 +43,20 @@ Application web servant le parcours en quatre étapes, la galerie de templates,
 l'historique et les paramètres. Responsable de l'affichage des cinq onglets de sortie,
 du sélecteur de langue et des actions d'export côté client.
 
-*(à arbitrer)* : application statique, ou framework à composants.
+_(à arbitrer)_ : application statique, ou framework à composants.
 
 ### `backend/` — API et orchestration
 
 Six responsabilités distinctes :
 
-| Module | Rôle |
-|---|---|
-| **Ingestion** | réception des fichiers, extraction du texte et de la structure des documents Word, inventaire des éléments non textuels à préserver |
-| **Analyse & mapping** | identification des sections utiles de la spécification, détection de la structure du template, mise en correspondance des deux |
-| **Génération** | production des cinq livrables : communication, validation, acronymes, plan de test, know-how |
-| **Traduction** | déclinaison de la communication dans les huit langues cibles, y compris les libellés structurels |
-| **Rendu** | réinjection du contenu dans le template, production des fichiers Word et PDF |
-| **Validation & scoring** | contrôles de cohérence, détection des manques, calcul du score de qualité |
+| Module                   | Rôle                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Ingestion**            | réception des fichiers, extraction du texte et de la structure des documents Word, inventaire des éléments non textuels à préserver |
+| **Analyse & mapping**    | identification des sections utiles de la spécification, détection de la structure du template, mise en correspondance des deux      |
+| **Génération**           | production des cinq livrables : communication, validation, acronymes, plan de test, know-how                                        |
+| **Traduction**           | déclinaison de la communication dans les huit langues cibles, y compris les libellés structurels                                    |
+| **Rendu**                | réinjection du contenu dans le template, production des fichiers Word et PDF                                                        |
+| **Validation & scoring** | contrôles de cohérence, détection des manques, calcul du score de qualité                                                           |
 
 ### `templates/` — bibliothèque
 
@@ -102,7 +102,7 @@ divergence entre langues est un défaut de qualité à détecter, pas une varian
 
 **Confidentialité.** Les spécifications fonctionnelles sont des documents internes. Le
 choix du modèle IA et de son mode d'hébergement doit respecter les règles de traitement
-des données applicables *(à arbitrer)*.
+des données applicables _(à arbitrer)_.
 
 **Reproductibilité.** Une même entrée avec les mêmes paramètres doit produire un
 résultat stable ; la génération est consignée avec sa version de modèle et ses paramètres.

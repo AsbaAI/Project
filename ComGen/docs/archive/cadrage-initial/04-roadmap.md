@@ -1,6 +1,6 @@
 # 04 — Roadmap
 
-## Jalon 0 — Cadrage *(en cours)*
+## Jalon 0 — Cadrage _(en cours)_
 
 - [x] Création du dépôt et de la structure
 - [x] Formalisation du contexte et des objectifs
