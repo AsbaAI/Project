@@ -1,0 +1,151 @@
+/*
+ * Exposition des jetons à Tailwind.
+ *
+ * `inline reference` : Tailwind n'émet AUCUNE variable pour ces entrées, il
+ * écrit `var(--jeton)` directement dans l'utilitaire. Sans `reference`, il
+ * redéclarerait `--color-x: var(--color-x)` sur :root — une référence
+ * circulaire qui invaliderait le jeton.
+ *
+ * Les espaces de noms par défaut sont vidés (`initial`) : `bg-red-500`,
+ * `rounded-2xl` ou `text-6xl` n'existent pas ici. Une valeur qui n'est pas
+ * un jeton ne peut pas être écrite, même par inadvertance.
+ */
+@theme inline reference {
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --font-weight-*: initial;
+  --tracking-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --ease-*: initial;
+  --animate-*: initial;
+  --blur-*: initial;
+  --perspective-*: initial;
+  --aspect-*: initial;
+  --leading-*: initial;
+
+  /* Couleurs — mêmes noms que les jetons */
+  --color-surface-sunken: var(--color-surface-sunken);
+  --color-surface-base: var(--color-surface-base);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-surface-overlay: var(--color-surface-overlay);
+  --color-surface-inverse: var(--color-surface-inverse);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-surface-active: var(--color-surface-active);
+  --color-surface-selected: var(--color-surface-selected);
+
+  --color-ink-primary: var(--color-ink-primary);
+  --color-ink-secondary: var(--color-ink-secondary);
+  --color-ink-tertiary: var(--color-ink-tertiary);
+  --color-ink-disabled: var(--color-ink-disabled);
+  --color-ink-inverse: var(--color-ink-inverse);
+  --color-ink-accent: var(--color-ink-accent);
+  --color-ink-link: var(--color-ink-link);
+
+  --color-line-subtle: var(--color-line-subtle);
+  --color-line-default: var(--color-line-default);
+  --color-line-control: var(--color-line-control);
+  --color-line-control-hover: var(--color-line-control-hover);
+  --color-line-strong: var(--color-line-strong);
+  --color-line-accent: var(--color-line-accent);
+
+  --color-action: var(--color-action);
+  --color-action-hover: var(--color-action-hover);
+  --color-action-active: var(--color-action-active);
+  --color-on-action: var(--color-on-action);
+
+  --color-danger-action: var(--color-danger-action);
+  --color-danger-action-hover: var(--color-danger-action-hover);
+  --color-danger-action-active: var(--color-danger-action-active);
+  --color-on-danger: var(--color-on-danger);
+
+  --color-success-bg: var(--color-success-bg);
+  --color-success-line: var(--color-success-line);
+  --color-success-ink: var(--color-success-ink);
+  --color-success-solid: var(--color-success-solid);
+
+  --color-warning-bg: var(--color-warning-bg);
+  --color-warning-line: var(--color-warning-line);
+  --color-warning-ink: var(--color-warning-ink);
+  --color-warning-solid: var(--color-warning-solid);
+
+  --color-danger-bg: var(--color-danger-bg);
+  --color-danger-line: var(--color-danger-line);
+  --color-danger-ink: var(--color-danger-ink);
+  --color-danger-solid: var(--color-danger-solid);
+
+  --color-accent-bg: var(--color-accent-bg);
+  --color-accent-line: var(--color-accent-line);
+
+  --color-focus: var(--color-focus);
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Typographie */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-2xs: var(--text-2xs);
+  --text-2xs--line-height: var(--text-2xs-lh);
+  --text-xs: var(--text-xs);
+  --text-xs--line-height: var(--text-xs-lh);
+  --text-sm: var(--text-sm);
+  --text-sm--line-height: var(--text-sm-lh);
+  --text-base: var(--text-base);
+  --text-base--line-height: var(--text-base-lh);
+  --text-md: var(--text-md);
+  --text-md--line-height: var(--text-md-lh);
+  --text-lg: var(--text-lg);
+  --text-lg--line-height: var(--text-lg-lh);
+  --text-xl: var(--text-xl);
+  --text-xl--line-height: var(--text-xl-lh);
+  --text-2xl: var(--text-2xl);
+  --text-2xl--line-height: var(--text-2xl-lh);
+  --text-display: var(--text-display);
+  --text-display--line-height: var(--text-display-lh);
+
+  --font-weight-regular: var(--weight-regular);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+  --font-weight-bold: var(--weight-bold);
+
+  --tracking-tight: var(--tracking-tight);
+  --tracking-snug: var(--tracking-snug);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: var(--tracking-wide);
+  --tracking-caps: var(--tracking-caps);
+
+  --leading-none: 1;
+  --leading-tight: 1.2;
+
+  /* Forme */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Mouvement */
+  --ease-out: var(--ease-out);
+  --ease-in: var(--ease-in);
+  --ease-in-out: var(--ease-in-out);
+
+  /* Gabarits : exposés comme espacements nommés (`w-sidebar`, `h-header`, `max-w-page`) */
+  --spacing-header: var(--layout-header-height);
+  --spacing-sidebar: var(--layout-sidebar-width);
+  --spacing-page: var(--layout-max-width);
+  --spacing-control-sm: var(--control-height-sm);
+  --spacing-control-md: var(--control-height-md);
+  --spacing-control-lg: var(--control-height-lg);
+  --spacing-target: var(--target-min);
+  --spacing-measure: var(--measure);
+}

@@ -1,0 +1,215 @@
+{
+  "app": {
+    "name": "ComGen",
+    "tagline": "Verified business-to-business communications",
+    "skipToContent": "Skip to main content"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "dashboard": "Dashboard",
+    "communications": "Communications",
+    "sources": "Sources",
+    "personas": "Personas",
+    "templates": "Templates",
+    "administration": "Administration",
+    "design": "Design system"
+  },
+  "theme": {
+    "label": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "locale": {
+    "label": "Language",
+    "fr": "Français",
+    "en": "English"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "actions": "Actions",
+    "state": "State",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "states": {
+    "BROUILLON": "Draft",
+    "FAITS_A_VALIDER": "Facts to validate",
+    "PRETE_A_GENERER": "Ready to generate",
+    "EN_GENERATION": "Generating",
+    "EN_CONTROLE": "Under review",
+    "A_CORRIGER": "Needs correction",
+    "EN_RELECTURE": "In proofreading",
+    "EN_APPROBATION": "Awaiting approval",
+    "APPROUVEE": "Approved",
+    "ENVOI_PLANIFIE": "Scheduled",
+    "ENVOYEE": "Sent",
+    "REJETEE": "Rejected",
+    "ARCHIVEE": "Archived"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Communications in progress across your organisation, by stage.",
+    "empty": {
+      "title": "No communications yet",
+      "description": "Source upload and generation arrive in batch 1. The foundations — tokens, themes, components, languages — are in place.",
+      "action": "View the design system"
+    },
+    "stats": {
+      "inProgress": "In progress",
+      "awaitingApproval": "Awaiting approval",
+      "blocked": "Blocked",
+      "sentThisWeek": "Sent this week"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The requested address does not match any page. Check the link or return to the dashboard.",
+    "action": "Back to the dashboard"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "The application could not display this page. No data was changed. You can try again.",
+    "reference": "Incident reference"
+  },
+  "design": {
+    "title": "Design system",
+    "description": "ComGen's foundations and components, in their real state. This page is the visual reference and the accessibility test bench.",
+    "sections": {
+      "foundations": "Foundations",
+      "components": "Components",
+      "states": "Screen states"
+    },
+    "colors": {
+      "title": "Colours",
+      "intro": "One accent hue. Every other colour carries a meaning and nothing else: success, warning, error.",
+      "surfaces": "Surfaces",
+      "ink": "Text",
+      "lines": "Borders",
+      "semantic": "Semantic"
+    },
+    "typography": {
+      "title": "Typography",
+      "intro": "Fixed scale from 14 px. Every size is paired with its line height.",
+      "sample": "Versions, dates and identifiers are copied, never regenerated.",
+      "mono": "Identifiers and versions in monospace: INC-2025-0342, v4.2.1"
+    },
+    "spacing": {
+      "title": "Spacing and shape",
+      "intro": "4 px grid. Deliberately small radii: separation comes from the border, not the shadow."
+    },
+    "buttons": {
+      "title": "Buttons",
+      "intro": "A single primary action per view. Destructive actions are always named.",
+      "primary": "Generate variants",
+      "secondary": "Save draft",
+      "ghost": "Cancel",
+      "danger": "Reject communication",
+      "loading": "Generating",
+      "disabled": "Send",
+      "iconOnly": "Close panel",
+      "sizes": "Sizes"
+    },
+    "fields": {
+      "title": "Fields",
+      "intro": "Label above, hint below, error after the hint. A field in error is announced to screen readers.",
+      "subjectLabel": "Communication subject",
+      "subjectHint": "As it will appear in the sent email.",
+      "subjectPlaceholder": "Payment platform migration — 14 March window",
+      "audienceLabel": "Audience",
+      "audienceHint": "One list per persona. Recipients are validated at send time.",
+      "audienceError": "The audience “Tier 2 suppliers” no longer exists in the directory.",
+      "audienceValue": "Tier 2 suppliers",
+      "notesLabel": "Internal notes",
+      "notesHint": "Never included in the communication.",
+      "required": "required",
+      "optional": "optional"
+    },
+    "badges": {
+      "title": "State badges",
+      "intro": "Every state has a shape and a text. Colour reinforces, it is never the only signal."
+    },
+    "notices": {
+      "title": "Messages",
+      "intro": "Three levels. The blocking level always explains what is missing and what to do.",
+      "info": {
+        "title": "Extraction complete",
+        "body": "12 facts were extracted from the source. Validate them before generating."
+      },
+      "warning": {
+        "title": "Incomplete register",
+        "body": "The “reassuring” tone has no equivalent for German. The German variant will use the default register."
+      },
+      "blocking": {
+        "title": "Sending blocked: 2 assertions without supporting fact",
+        "body": "Assertions A-07 and A-11 are not linked to any fact in the fact sheet. Link them to an existing fact or remove them from the variant.",
+        "action": "Open the variant"
+      }
+    },
+    "tabs": {
+      "title": "Tabs",
+      "intro": "For parallel views of the same object, never for sequential steps.",
+      "facts": "Facts",
+      "variants": "Variants",
+      "checks": "Checks",
+      "history": "History",
+      "factsBody": "Fact sheet: 12 facts, 2 pending amendments.",
+      "variantsBody": "3 variants generated, 1 under correction.",
+      "checksBody": "7 checks run, 1 blocking.",
+      "historyBody": "Last modified 4 minutes ago."
+    },
+    "table": {
+      "title": "Table",
+      "intro": "Numbers right-aligned in tabular figures. The whole row is clickable; the sorted header is announced.",
+      "columns": {
+        "subject": "Subject",
+        "audience": "Audience",
+        "state": "State",
+        "assertions": "Assertions",
+        "updated": "Updated"
+      },
+      "rows": {
+        "r1": {
+          "subject": "Payment platform migration",
+          "audience": "Tier 1 suppliers",
+          "assertions": "18 / 18",
+          "updated": "4 min ago"
+        },
+        "r2": {
+          "subject": "Incident INC-2025-0342: resolution",
+          "audience": "Enterprise customers",
+          "assertions": "9 / 11",
+          "updated": "1 h ago"
+        },
+        "r3": {
+          "subject": "New invoicing policy",
+          "audience": "Integration partners",
+          "assertions": "22 / 22",
+          "updated": "yesterday"
+        }
+      }
+    },
+    "progress": {
+      "title": "Progress",
+      "intro": "Always accompanied by a label and a numeric value.",
+      "label": "Generating variants",
+      "value": "{done} of {total}"
+    },
+    "screenStates": {
+      "empty": "Empty",
+      "loading": "Loading",
+      "error": "Error",
+      "blocking": "Blocking",
+      "emptyTitle": "No source uploaded",
+      "emptyDescription": "Upload a document, an email or a ticket to extract its facts.",
+      "emptyAction": "Upload a source",
+      "loadingLabel": "Loading communications",
+      "errorTitle": "Could not load communications",
+      "errorDescription": "The data service did not respond. Your drafts are intact."
+    }
+  }
+}

@@ -19,7 +19,12 @@
     "jsx-a11y/label-has-associated-control": "error",
     "react/jsx-key": "error",
     "react/no-danger": "error",
-    "import/no-cycle": "error"
+    "react/react-in-jsx-scope": "off",
+    "import/no-cycle": "error",
+    "import/no-unassigned-import": [
+      "warn",
+      { "allow": ["**/*.css", "@testing-library/jest-dom/vitest"] }
+    ]
   },
   "ignorePatterns": [
     "**/node_modules/**",

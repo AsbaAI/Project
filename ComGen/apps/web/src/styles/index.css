@@ -1,0 +1,41 @@
+/*
+ * Point d'entrée des styles globaux.
+ *
+ * L'ORDRE DES COUCHES EST DÉCLARÉ EN PREMIER, avant tout import. C'est lui,
+ * et non l'ordre des fichiers ni la spécificité des sélecteurs, qui décide
+ * qui gagne. Conséquence : aucun `!important` n'est nécessaire dans ce
+ * projet. Si l'envie s'en fait sentir, une règle est dans la mauvaise couche.
+ *
+ *   reset      → neutralise les défauts du navigateur (remplace le preflight
+ *                de Tailwind, qui n'est pas importé)
+ *   tokens     → variables, aucune règle appliquée à un élément
+ *   theme      → ce que Tailwind émet pour lui-même (--spacing, propriétés)
+ *   base       → styles des éléments HTML nus
+ *   layout     → structures de page
+ *   components → styles de composants qui ne tiennent pas en utilitaires
+ *   utilities  → utilitaires Tailwind générés + les nôtres
+ *
+ * Tailwind ne possède aucune valeur : les jetons sont des variables CSS
+ * ordinaires (tokens/*.css) et `theme.css` ne fait que les exposer comme
+ * utilitaires. Supprimer Tailwind ne changerait aucune couleur.
+ */
+
+@layer reset, tokens, theme, base, layout, components, utilities;
+
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+
+@import './reset.css';
+@import './tokens/color.css';
+@import './tokens/typography.css';
+@import './tokens/space.css';
+@import './tokens/shape.css';
+@import './tokens/motion.css';
+@import './theme.css';
+@import './base.css';
+@import './components.css';
+@import './utilities.css';
+
+/* Les composants des paquets du dépôt et les stories sont scannés aussi. */
+@source '../components';
+@source '../app';

@@ -1,0 +1,215 @@
+{
+  "app": {
+    "name": "ComGen",
+    "tagline": "Communications inter-entreprises vérifiées",
+    "skipToContent": "Aller au contenu principal"
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "dashboard": "Tableau de bord",
+    "communications": "Communications",
+    "sources": "Sources",
+    "personas": "Personas",
+    "templates": "Modèles",
+    "administration": "Administration",
+    "design": "Système de design"
+  },
+  "theme": {
+    "label": "Thème",
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
+  "locale": {
+    "label": "Langue",
+    "fr": "Français",
+    "en": "English"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "actions": "Actions",
+    "state": "État",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "states": {
+    "BROUILLON": "Brouillon",
+    "FAITS_A_VALIDER": "Faits à valider",
+    "PRETE_A_GENERER": "Prête à générer",
+    "EN_GENERATION": "En génération",
+    "EN_CONTROLE": "En contrôle",
+    "A_CORRIGER": "À corriger",
+    "EN_RELECTURE": "En relecture",
+    "EN_APPROBATION": "En approbation",
+    "APPROUVEE": "Approuvée",
+    "ENVOI_PLANIFIE": "Envoi planifié",
+    "ENVOYEE": "Envoyée",
+    "REJETEE": "Rejetée",
+    "ARCHIVEE": "Archivée"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "description": "Les communications en cours dans votre organisation, par étape.",
+    "empty": {
+      "title": "Aucune communication pour l'instant",
+      "description": "Le dépôt de sources et la génération arrivent au lot 1. Les fondations — jetons, thèmes, composants, langues — sont en place.",
+      "action": "Voir le système de design"
+    },
+    "stats": {
+      "inProgress": "En cours",
+      "awaitingApproval": "En attente d'approbation",
+      "blocked": "Bloquées",
+      "sentThisWeek": "Envoyées cette semaine"
+    }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "L'adresse demandée ne correspond à aucune page. Vérifiez le lien ou revenez au tableau de bord.",
+    "action": "Retour au tableau de bord"
+  },
+  "error": {
+    "title": "Une erreur s'est produite",
+    "description": "L'application n'a pas pu afficher cette page. Aucune donnée n'a été modifiée. Vous pouvez réessayer.",
+    "reference": "Référence de l'incident"
+  },
+  "design": {
+    "title": "Système de design",
+    "description": "Fondations et composants de ComGen, dans leur état réel. Cette page sert de référence visuelle et de banc d'essai d'accessibilité.",
+    "sections": {
+      "foundations": "Fondations",
+      "components": "Composants",
+      "states": "États d'écran"
+    },
+    "colors": {
+      "title": "Couleurs",
+      "intro": "Une seule teinte d'accent. Les autres couleurs portent un sens et rien d'autre : succès, avertissement, erreur.",
+      "surfaces": "Surfaces",
+      "ink": "Texte",
+      "lines": "Bordures",
+      "semantic": "Sémantiques"
+    },
+    "typography": {
+      "title": "Typographie",
+      "intro": "Échelle fixe à partir de 14 px. Chaque taille est appariée à son interligne.",
+      "sample": "Les versions, dates et identifiants sont recopiés, jamais régénérés.",
+      "mono": "Identifiants et versions en chasse fixe : INC-2025-0342, v4.2.1"
+    },
+    "spacing": {
+      "title": "Espacement et forme",
+      "intro": "Grille de 4 px. Rayons volontairement petits : la séparation se fait par la bordure, pas par l'ombre."
+    },
+    "buttons": {
+      "title": "Boutons",
+      "intro": "Une seule action principale par vue. Les actions destructives sont toujours nommées.",
+      "primary": "Générer les variantes",
+      "secondary": "Enregistrer le brouillon",
+      "ghost": "Annuler",
+      "danger": "Rejeter la communication",
+      "loading": "Génération en cours",
+      "disabled": "Envoyer",
+      "iconOnly": "Fermer le panneau",
+      "sizes": "Tailles"
+    },
+    "fields": {
+      "title": "Champs",
+      "intro": "Libellé au-dessus, aide en dessous, erreur après l'aide. Le champ en erreur est annoncé au lecteur d'écran.",
+      "subjectLabel": "Objet de la communication",
+      "subjectHint": "Tel qu'il apparaîtra dans le courriel envoyé.",
+      "subjectPlaceholder": "Migration de la plateforme de paiement — fenêtre du 14 mars",
+      "audienceLabel": "Audience",
+      "audienceHint": "Une liste par persona. Les destinataires sont validés à l'envoi.",
+      "audienceError": "L'audience « Fournisseurs Tier 2 » n'existe plus dans le référentiel.",
+      "audienceValue": "Fournisseurs Tier 2",
+      "notesLabel": "Notes internes",
+      "notesHint": "Jamais incluses dans la communication.",
+      "required": "obligatoire",
+      "optional": "facultatif"
+    },
+    "badges": {
+      "title": "Badges d'état",
+      "intro": "Chaque état a une forme et un texte. La couleur est un renfort, jamais le seul signal."
+    },
+    "notices": {
+      "title": "Messages",
+      "intro": "Trois niveaux. Le niveau bloquant explique toujours ce qui manque et ce qu'il faut faire.",
+      "info": {
+        "title": "Extraction terminée",
+        "body": "12 faits ont été extraits de la source. Validez-les avant de générer."
+      },
+      "warning": {
+        "title": "Registre incomplet",
+        "body": "Le ton « rassurant » n'a pas de correspondance pour la langue allemande. La variante allemande utilisera le registre par défaut."
+      },
+      "blocking": {
+        "title": "Envoi bloqué : 2 affirmations sans fait d'appui",
+        "body": "Les affirmations A-07 et A-11 ne se rattachent à aucun fait de la fiche. Rattachez-les à un fait existant ou supprimez-les de la variante.",
+        "action": "Ouvrir la variante"
+      }
+    },
+    "tabs": {
+      "title": "Onglets",
+      "intro": "Pour des vues parallèles d'un même objet, jamais pour des étapes séquentielles.",
+      "facts": "Faits",
+      "variants": "Variantes",
+      "checks": "Contrôles",
+      "history": "Historique",
+      "factsBody": "Fiche de faits : 12 faits, 2 amendements en attente.",
+      "variantsBody": "3 variantes générées, 1 en correction.",
+      "checksBody": "7 contrôles exécutés, 1 bloquant.",
+      "historyBody": "Dernière modification il y a 4 minutes."
+    },
+    "table": {
+      "title": "Tableau",
+      "intro": "Chiffres alignés à droite en chasse tabulaire. La ligne entière est cliquable ; l'en-tête trié est annoncé.",
+      "columns": {
+        "subject": "Objet",
+        "audience": "Audience",
+        "state": "État",
+        "assertions": "Affirmations",
+        "updated": "Modifiée"
+      },
+      "rows": {
+        "r1": {
+          "subject": "Migration de la plateforme de paiement",
+          "audience": "Fournisseurs Tier 1",
+          "assertions": "18 / 18",
+          "updated": "il y a 4 min"
+        },
+        "r2": {
+          "subject": "Incident INC-2025-0342 : résolution",
+          "audience": "Clients Entreprise",
+          "assertions": "9 / 11",
+          "updated": "il y a 1 h"
+        },
+        "r3": {
+          "subject": "Nouvelle politique de facturation",
+          "audience": "Partenaires intégrateurs",
+          "assertions": "22 / 22",
+          "updated": "hier"
+        }
+      }
+    },
+    "progress": {
+      "title": "Progression",
+      "intro": "Toujours accompagnée d'un libellé et d'une valeur chiffrée.",
+      "label": "Génération des variantes",
+      "value": "{done} sur {total}"
+    },
+    "screenStates": {
+      "empty": "Vide",
+      "loading": "Chargement",
+      "error": "Erreur",
+      "blocking": "Bloquant",
+      "emptyTitle": "Aucune source déposée",
+      "emptyDescription": "Déposez un document, un courriel ou un ticket pour en extraire les faits.",
+      "emptyAction": "Déposer une source",
+      "loadingLabel": "Chargement des communications",
+      "errorTitle": "Impossible de charger les communications",
+      "errorDescription": "Le service de données n'a pas répondu. Vos brouillons sont intacts."
+    }
+  }
+}
