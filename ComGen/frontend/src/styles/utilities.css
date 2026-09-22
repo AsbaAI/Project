@@ -1,0 +1,75 @@
+/*
+ * Utilitaires
+ *
+ * Liste courte et fermée. Ce fichier n'est PAS le début d'un framework
+ * utilitaire : dès qu'une combinaison d'utilitaires se répète, elle doit
+ * devenir un composant. On ne trouve ici que ce qui n'a pas de forme
+ * visuelle propre et ne mérite donc pas de composant.
+ */
+
+@layer utilities {
+  /* Masque visuellement sans retirer du flux d'accessibilité. Pour les
+   * libellés que les lecteurs d'écran doivent annoncer mais que le
+   * contexte visuel rend redondants. */
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Lien d'évitement : premier élément focalisable de la page, invisible
+   * jusqu'à ce qu'il reçoive le focus au clavier. */
+  .skip-link {
+    position: absolute;
+    inset-block-start: var(--space-2);
+    inset-inline-start: var(--space-2);
+    z-index: var(--z-toast);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-overlay);
+    border: var(--border-width) solid var(--color-border-default);
+    box-shadow: var(--shadow-md);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    transform: translateY(calc(-100% - var(--space-4)));
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  /* Tronque sur une ligne. La largeur doit être contrainte par ailleurs. */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Limite le texte à N lignes ; N se règle via --line-clamp. */
+  .line-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--line-clamp, 2);
+    line-clamp: var(--line-clamp, 2);
+    overflow: hidden;
+  }
+
+  /* Longueur de ligne confortable pour du texte suivi. */
+  .measure {
+    max-inline-size: var(--measure);
+  }
+
+  /* Chiffres tabulaires explicites, pour un bloc qui hérite d'un contexte
+   * les ayant désactivés. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}

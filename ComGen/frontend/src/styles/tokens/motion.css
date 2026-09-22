@@ -1,0 +1,49 @@
+/*
+ * Tokens de mouvement
+ *
+ * Règle : le mouvement sert à expliquer un changement d'état, jamais à
+ * décorer. Au-delà de 250 ms dans une application de travail, l'animation
+ * devient une attente.
+ *
+ * Les courbes sont asymétriques — sortie rapide, entrée amortie — parce
+ * qu'un élément qui disparaît ne doit pas retenir l'attention, alors
+ * qu'un élément qui apparaît doit se laisser suivre.
+ */
+
+@layer tokens {
+  :root {
+    --duration-instant: 80ms;
+    --duration-fast: 120ms;
+    --duration-base: 160ms;
+    --duration-slow: 240ms;
+
+    /* Décélération : pour ce qui entre ou s'agrandit. */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Accélération : pour ce qui sort ou se referme. */
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+    /* Symétrique : pour ce qui se déplace sans apparaître ni disparaître. */
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* Transitions prêtes à l'emploi, pour que les durées ne soient pas
+     * redécidées composant par composant. */
+    --transition-colors:
+      color var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+
+    --transition-transform: transform var(--duration-fast) var(--ease-out);
+    --transition-opacity: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  /* Respect du réglage système. On ne supprime pas la transition — un
+   * changement instantané se lit mal — on la réduit à un seuil
+   * imperceptible comme mouvement mais suffisant comme continuité. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --duration-instant: 1ms;
+      --duration-fast: 1ms;
+      --duration-base: 1ms;
+      --duration-slow: 1ms;
+    }
+  }
+}

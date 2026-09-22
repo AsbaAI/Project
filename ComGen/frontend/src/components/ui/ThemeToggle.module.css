@@ -1,0 +1,80 @@
+/*
+ * Sélecteur de thème — contrôle segmenté
+ *
+ * Les trois segments sont posés dans un creux ; le segment actif est la
+ * seule surface qui remonte. C'est l'inverse du réflexe habituel, qui
+ * enfonce l'élément actif : ici la position haute correspond à « c'est
+ * celui-ci qui est devant vous ».
+ */
+
+@layer components {
+  .group {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-px);
+    padding: var(--space-px);
+    border: var(--border-width) solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-sunken);
+  }
+
+  .option {
+    display: inline-flex;
+  }
+
+  /* Le bouton radio reste dans le flux d'accessibilité — c'est lui qui
+   * porte le focus, la sélection et la navigation aux flèches. Il est
+   * simplement superposé à sa représentation visuelle. */
+  .input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .face {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.625rem;
+    block-size: 1.625rem;
+    border-radius: calc(var(--radius-sm) - 1px);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    transition: var(--transition-colors);
+  }
+
+  .face > svg {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.35;
+  }
+
+  .option:hover .face {
+    color: var(--color-text-secondary);
+  }
+
+  .input:checked + .face {
+    background-color: var(--color-surface-raised);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Le focus se pose sur la face, jamais sur l'entrée masquée : sinon
+   * l'anneau se dessine sur un carré d'un pixel. */
+  .input:focus-visible + .face {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* La lune du thème sombre est pleine : à cette taille, un croissant
+   * ajouré se lit comme une tache. */
+  .face > svg.solid {
+    fill: currentColor;
+    stroke: none;
+  }
+}

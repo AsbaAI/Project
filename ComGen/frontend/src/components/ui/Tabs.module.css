@@ -1,0 +1,96 @@
+/*
+ * Onglets
+ *
+ * L'onglet actif est marqué par un trait posé SUR la règle qui sépare la
+ * barre du contenu : le trait se lit comme un prolongement du panneau,
+ * ce qui est précisément le rôle d'un onglet. Pas de pastille arrondie —
+ * elle détache l'onglet de son panneau et en fait un bouton.
+ */
+
+@layer components {
+  .tabs {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .list {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-block-end: var(--border-width) solid var(--color-border-default);
+  }
+
+  .list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+
+    padding: var(--space-2) var(--space-3);
+    /* Le trait actif déborde d'un pixel pour recouvrir la règle de la
+     * barre au lieu de se poser au-dessus. */
+    margin-block-end: calc(var(--border-width) * -1);
+    border-block-end: var(--border-width-strong) solid transparent;
+
+    background: none;
+    color: var(--color-text-tertiary);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .tab:hover:not(:disabled) {
+    color: var(--color-text-secondary);
+  }
+
+  .tab:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-start-start-radius: var(--radius-xs);
+    border-start-end-radius: var(--radius-xs);
+  }
+
+  .tab:disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  .tabSelected {
+    color: var(--color-text-primary);
+    border-block-end-color: var(--color-action-bg);
+  }
+
+  /* La graisse ne change PAS à la sélection : passer en gras élargit
+   * l'onglet et décale toute la rangée. La couleur et le trait suffisent
+   * à désigner l'onglet actif. */
+  .tabLabel {
+    display: inline-block;
+  }
+
+  .tabTrailing {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .panel {
+    padding-block-start: var(--space-4);
+  }
+
+  .panel:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+}

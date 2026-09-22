@@ -1,0 +1,311 @@
+/*
+ * Tokens de couleur
+ *
+ * Deux niveaux, jamais mélangés :
+ *   - la PALETTE (--p-*) : des valeurs brutes, en OKLCH, jamais utilisées
+ *     directement dans un composant ;
+ *   - les tokens SÉMANTIQUES (--color-*) : ce qu'un composant consomme.
+ *     Ils changent de valeur selon le thème, jamais de nom.
+ *
+ * OKLCH est choisi pour que les paliers d'une rampe soient perceptuellement
+ * réguliers : passer de 500 à 600 produit le même écart visuel sur le neutre
+ * et sur l'accent, ce que sRGB ne garantit pas.
+ *
+ * Les contrastes sont vérifiés automatiquement : `npm run check:contrast`.
+ */
+
+@layer tokens {
+  :root {
+    /* ---------------------------------------------------------------
+     * Palette — neutres
+     * Très légèrement chauds (H 80, C ≤ 0.009) : à l'écran un gris
+     * parfaitement neutre paraît bleuté et froid.
+     * --------------------------------------------------------------- */
+    --p-neutral-0: oklch(1 0 0);
+    --p-neutral-25: oklch(0.988 0.002 80);
+    --p-neutral-50: oklch(0.974 0.003 80);
+    --p-neutral-100: oklch(0.951 0.004 80);
+    --p-neutral-200: oklch(0.912 0.005 80);
+    --p-neutral-300: oklch(0.853 0.006 80);
+    --p-neutral-400: oklch(0.731 0.008 80);
+    --p-neutral-500: oklch(0.616 0.009 80);
+    --p-neutral-600: oklch(0.512 0.009 80);
+    --p-neutral-700: oklch(0.416 0.008 80);
+    --p-neutral-800: oklch(0.321 0.007 80);
+    --p-neutral-900: oklch(0.242 0.006 80);
+    --p-neutral-950: oklch(0.181 0.005 80);
+    --p-neutral-1000: oklch(0.134 0.004 80);
+
+    /* ---------------------------------------------------------------
+     * Palette — accent
+     * Bleu pétrole (H 205). Une seule teinte d'accent dans tout le
+     * produit, réservée à l'action principale et à la sélection.
+     * --------------------------------------------------------------- */
+    --p-accent-50: oklch(0.971 0.016 205);
+    --p-accent-100: oklch(0.938 0.033 205);
+    --p-accent-200: oklch(0.881 0.055 205);
+    --p-accent-300: oklch(0.805 0.077 205);
+    --p-accent-400: oklch(0.708 0.095 205);
+    --p-accent-500: oklch(0.586 0.101 205);
+    --p-accent-600: oklch(0.468 0.093 205);
+    --p-accent-700: oklch(0.397 0.081 205);
+    --p-accent-800: oklch(0.332 0.066 205);
+    --p-accent-900: oklch(0.271 0.051 205);
+    --p-accent-950: oklch(0.207 0.038 205);
+
+    /* ---------------------------------------------------------------
+     * Palette — états
+     * Désaturées volontairement : dans une application dense, un rouge
+     * pur ou un vert vif attirent l'œil plus que l'information qu'ils
+     * qualifient.
+     * --------------------------------------------------------------- */
+    --p-success-50: oklch(0.965 0.021 150);
+    --p-success-100: oklch(0.925 0.043 150);
+    --p-success-200: oklch(0.866 0.069 150);
+    --p-success-400: oklch(0.688 0.104 150);
+    --p-success-600: oklch(0.452 0.083 150);
+    --p-success-700: oklch(0.382 0.071 150);
+    --p-success-900: oklch(0.262 0.046 150);
+
+    --p-warning-50: oklch(0.973 0.028 78);
+    --p-warning-100: oklch(0.941 0.058 78);
+    --p-warning-200: oklch(0.887 0.093 78);
+    --p-warning-400: oklch(0.762 0.129 65);
+    --p-warning-600: oklch(0.528 0.107 55);
+    --p-warning-700: oklch(0.446 0.092 50);
+    --p-warning-900: oklch(0.301 0.059 50);
+
+    --p-danger-50: oklch(0.966 0.017 22);
+    --p-danger-100: oklch(0.932 0.034 22);
+    --p-danger-200: oklch(0.878 0.059 22);
+    --p-danger-400: oklch(0.680 0.156 24);
+    --p-danger-600: oklch(0.505 0.173 26);
+    --p-danger-700: oklch(0.435 0.148 26);
+    --p-danger-900: oklch(0.291 0.093 26);
+
+    /* Transparences — pour les survols et les sélections, qui doivent
+     * composer avec la surface au lieu de la remplacer. */
+    --p-alpha-ink-4: oklch(0.181 0.005 80 / 0.04);
+    --p-alpha-ink-7: oklch(0.181 0.005 80 / 0.07);
+    --p-alpha-ink-12: oklch(0.181 0.005 80 / 0.12);
+    --p-alpha-paper-6: oklch(1 0 0 / 0.06);
+    --p-alpha-paper-10: oklch(1 0 0 / 0.1);
+    --p-alpha-paper-16: oklch(1 0 0 / 0.16);
+  }
+
+  /* =================================================================
+   * Thème clair — valeurs sémantiques par défaut
+   * ================================================================= */
+  :root,
+  :root[data-theme='light'] {
+    color-scheme: light;
+
+    /* Surfaces, de la plus enfoncée à la plus émergée */
+    --color-surface-sunken: var(--p-neutral-100);
+    --color-surface-base: var(--p-neutral-50);
+    --color-surface-raised: var(--p-neutral-0);
+    --color-surface-overlay: var(--p-neutral-0);
+    --color-surface-inverse: var(--p-neutral-900);
+
+    /* Fonds interactifs sur surface neutre */
+    --color-surface-hover: var(--p-alpha-ink-4);
+    --color-surface-active: var(--p-alpha-ink-7);
+    --color-surface-selected: var(--p-accent-50);
+
+    /* Texte */
+    --color-text-primary: var(--p-neutral-950);
+    --color-text-secondary: var(--p-neutral-700);
+    --color-text-tertiary: var(--p-neutral-600);
+    --color-text-disabled: var(--p-neutral-400);
+    --color-text-inverse: var(--p-neutral-0);
+    --color-text-accent: var(--p-accent-700);
+    --color-text-link: var(--p-accent-700);
+
+    /* Bordures
+     *
+     * Deux familles, à ne pas confondre :
+     *   - DÉCORATIVES (subtle, default) : séparer visuellement. Aucune
+     *     exigence de contraste, elles ne portent pas d'information.
+     *   - FONCTIONNELLES (control, strong) : délimiter un contrôle que
+     *     l'utilisateur doit pouvoir repérer. WCAG 1.4.11 impose 3:1,
+     *     vérifié par `npm run check:contrast`.
+     *
+     * Utiliser `default` sur le bord d'un champ de saisie est un défaut
+     * d'accessibilité, pas un choix esthétique. */
+    --color-border-subtle: var(--p-neutral-200);
+    --color-border-default: var(--p-neutral-300);
+    --color-border-control: var(--p-neutral-500);
+    --color-border-control-hover: var(--p-neutral-600);
+    --color-border-strong: var(--p-neutral-600);
+    --color-border-accent: var(--p-accent-600);
+
+    /* Action principale */
+    --color-action-bg: var(--p-accent-600);
+    --color-action-bg-hover: var(--p-accent-700);
+    --color-action-bg-active: var(--p-accent-800);
+    --color-on-action: var(--p-neutral-0);
+
+    /* Action destructive
+     * `--color-on-danger` est le libellé POSÉ SUR l'aplat rouge.
+     * À ne pas confondre avec `--color-danger-text`, qui est le texte
+     * d'un message d'erreur sur fond teinté clair. */
+    --color-danger-bg: var(--p-danger-600);
+    --color-danger-bg-hover: var(--p-danger-700);
+    --color-danger-bg-active: var(--p-danger-900);
+    --color-on-danger: var(--p-neutral-0);
+
+    /* États — fond discret + texte lisible sur ce fond */
+    --color-success-surface: var(--p-success-50);
+    --color-success-border: var(--p-success-200);
+    --color-success-text: var(--p-success-700);
+    --color-success-solid: var(--p-success-600);
+
+    --color-warning-surface: var(--p-warning-50);
+    --color-warning-border: var(--p-warning-200);
+    --color-warning-text: var(--p-warning-700);
+    --color-warning-solid: var(--p-warning-600);
+
+    --color-danger-surface: var(--p-danger-50);
+    --color-danger-border: var(--p-danger-200);
+    --color-danger-text: var(--p-danger-700);
+    --color-danger-solid: var(--p-danger-600);
+
+    --color-accent-surface: var(--p-accent-50);
+    --color-accent-border: var(--p-accent-200);
+
+    /* Focus — un seul anneau dans toute l'application */
+    --color-focus-ring: var(--p-accent-600);
+  }
+
+  /* =================================================================
+   * Thème sombre
+   *
+   * Ce n'est pas le thème clair inversé. Les surfaces s'éclaircissent
+   * en montant (une surface émergée reçoit plus de lumière), l'accent
+   * est remonté en luminosité pour rester lisible sur fond sombre, et
+   * le texte primaire n'est jamais blanc pur — le halo sur fond noir
+   * fatigue la lecture.
+   * ================================================================= */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      color-scheme: dark;
+
+      --color-surface-sunken: var(--p-neutral-1000);
+      --color-surface-base: var(--p-neutral-950);
+      --color-surface-raised: var(--p-neutral-900);
+      --color-surface-overlay: var(--p-neutral-800);
+      --color-surface-inverse: var(--p-neutral-50);
+
+      --color-surface-hover: var(--p-alpha-paper-6);
+      --color-surface-active: var(--p-alpha-paper-10);
+      --color-surface-selected: var(--p-accent-950);
+
+      --color-text-primary: var(--p-neutral-100);
+      --color-text-secondary: var(--p-neutral-300);
+      --color-text-tertiary: var(--p-neutral-400);
+      --color-text-disabled: var(--p-neutral-600);
+      --color-text-inverse: var(--p-neutral-950);
+      --color-text-accent: var(--p-accent-300);
+      --color-text-link: var(--p-accent-300);
+
+      --color-border-subtle: var(--p-alpha-paper-6);
+      --color-border-default: var(--p-alpha-paper-16);
+      --color-border-control: var(--p-neutral-500);
+      --color-border-control-hover: var(--p-neutral-400);
+      --color-border-strong: var(--p-neutral-400);
+      --color-border-accent: var(--p-accent-400);
+
+      --color-action-bg: var(--p-accent-400);
+      --color-action-bg-hover: var(--p-accent-300);
+      --color-action-bg-active: var(--p-accent-200);
+      --color-on-action: var(--p-neutral-1000);
+
+      --color-danger-bg: var(--p-danger-400);
+      --color-danger-bg-hover: oklch(0.74 0.14 24);
+      --color-danger-bg-active: oklch(0.8 0.12 24);
+      --color-on-danger: var(--p-neutral-1000);
+
+      --color-success-surface: var(--p-success-900);
+      --color-success-border: oklch(0.36 0.062 150);
+      --color-success-text: oklch(0.8 0.085 150);
+      --color-success-solid: var(--p-success-400);
+
+      --color-warning-surface: var(--p-warning-900);
+      --color-warning-border: oklch(0.4 0.078 55);
+      --color-warning-text: oklch(0.84 0.105 75);
+      --color-warning-solid: var(--p-warning-400);
+
+      --color-danger-surface: var(--p-danger-900);
+      --color-danger-border: oklch(0.39 0.12 26);
+      --color-danger-text: oklch(0.79 0.118 24);
+      --color-danger-solid: var(--p-danger-400);
+
+      --color-accent-surface: var(--p-accent-950);
+      --color-accent-border: oklch(0.34 0.062 205);
+
+      --color-focus-ring: var(--p-accent-400);
+    }
+  }
+
+  /* Thème sombre forcé — mêmes valeurs, appliquées sans dépendre du
+   * réglage système. Le bloc est dupliqué volontairement : une règle
+   * `@media` ne peut pas être réutilisée par un sélecteur. */
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-surface-sunken: var(--p-neutral-1000);
+    --color-surface-base: var(--p-neutral-950);
+    --color-surface-raised: var(--p-neutral-900);
+    --color-surface-overlay: var(--p-neutral-800);
+    --color-surface-inverse: var(--p-neutral-50);
+
+    --color-surface-hover: var(--p-alpha-paper-6);
+    --color-surface-active: var(--p-alpha-paper-10);
+    --color-surface-selected: var(--p-accent-950);
+
+    --color-text-primary: var(--p-neutral-100);
+    --color-text-secondary: var(--p-neutral-300);
+    --color-text-tertiary: var(--p-neutral-400);
+    --color-text-disabled: var(--p-neutral-600);
+    --color-text-inverse: var(--p-neutral-950);
+    --color-text-accent: var(--p-accent-300);
+    --color-text-link: var(--p-accent-300);
+
+    --color-border-subtle: var(--p-alpha-paper-6);
+    --color-border-default: var(--p-alpha-paper-16);
+    --color-border-control: var(--p-neutral-500);
+    --color-border-control-hover: var(--p-neutral-400);
+    --color-border-strong: var(--p-neutral-400);
+    --color-border-accent: var(--p-accent-400);
+
+    --color-action-bg: var(--p-accent-400);
+    --color-action-bg-hover: var(--p-accent-300);
+    --color-action-bg-active: var(--p-accent-200);
+    --color-on-action: var(--p-neutral-1000);
+
+    --color-danger-bg: var(--p-danger-400);
+    --color-danger-bg-hover: oklch(0.74 0.14 24);
+    --color-danger-bg-active: oklch(0.8 0.12 24);
+    --color-on-danger: var(--p-neutral-1000);
+
+    --color-success-surface: var(--p-success-900);
+    --color-success-border: oklch(0.36 0.062 150);
+    --color-success-text: oklch(0.8 0.085 150);
+    --color-success-solid: var(--p-success-400);
+
+    --color-warning-surface: var(--p-warning-900);
+    --color-warning-border: oklch(0.4 0.078 55);
+    --color-warning-text: oklch(0.84 0.105 75);
+    --color-warning-solid: var(--p-warning-400);
+
+    --color-danger-surface: var(--p-danger-900);
+    --color-danger-border: oklch(0.39 0.12 26);
+    --color-danger-text: oklch(0.79 0.118 24);
+    --color-danger-solid: var(--p-danger-400);
+
+    --color-accent-surface: var(--p-accent-950);
+    --color-accent-border: oklch(0.34 0.062 205);
+
+    --color-focus-ring: var(--p-accent-400);
+  }
+}

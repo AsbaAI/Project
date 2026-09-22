@@ -1,0 +1,193 @@
+/*
+ * Bouton
+ *
+ * Quatre variantes, trois tailles. La hiérarchie visuelle porte le sens :
+ * un écran ne comporte qu'UN bouton `primary`, celui qui fait avancer la
+ * tâche. Tout le reste est `secondary`, `ghost` ou `danger`.
+ */
+
+@layer components {
+  .button {
+    /* Ces variables sont le seul point de personnalisation : chaque
+     * variante les redéfinit au lieu de réécrire les règles. */
+    --_bg: transparent;
+    --_bg-hover: var(--color-surface-hover);
+    --_bg-active: var(--color-surface-active);
+    --_fg: var(--color-text-primary);
+    --_border: transparent;
+    --_border-hover: transparent;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1-5);
+
+    block-size: var(--control-height-md);
+    padding-inline: var(--space-3);
+    /* Un bouton court ne doit pas paraître écrasé entre deux boutons
+     * longs : cette largeur minimale les harmonise sans les étirer. */
+    min-inline-size: calc(var(--control-height-md) * 2);
+
+    border: var(--border-width) solid var(--_border);
+    border-radius: var(--radius-sm);
+    background-color: var(--_bg);
+    color: var(--_fg);
+
+    font-size: var(--text-sm);
+    line-height: 1;
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-normal);
+    white-space: nowrap;
+    /* Le libellé d'un bouton ne se sélectionne pas : un double-clic doit
+     * déclencher l'action, pas surligner le texte. */
+    user-select: none;
+
+    transition: var(--transition-colors);
+  }
+
+  .button:hover:not(:disabled) {
+    background-color: var(--_bg-hover);
+    border-color: var(--_border-hover);
+  }
+
+  .button:active:not(:disabled) {
+    background-color: var(--_bg-active);
+    /* Enfoncement d'un pixel, sans changement d'échelle : un bouton qui
+     * rétrécit décale tout ce qui l'entoure. */
+    transform: translateY(0.5px);
+  }
+
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ---------------------------------------------------------------
+   * Variantes
+   * --------------------------------------------------------------- */
+
+  .primary {
+    --_bg: var(--color-action-bg);
+    --_bg-hover: var(--color-action-bg-hover);
+    --_bg-active: var(--color-action-bg-active);
+    --_fg: var(--color-on-action);
+  }
+
+  .secondary {
+    --_bg: var(--color-surface-raised);
+    --_bg-hover: var(--color-surface-raised);
+    --_bg-active: var(--color-surface-active);
+    --_fg: var(--color-text-primary);
+    --_border: var(--color-border-control);
+    --_border-hover: var(--color-border-control-hover);
+  }
+
+  .ghost {
+    --_fg: var(--color-text-secondary);
+  }
+
+  .ghost:hover:not(:disabled) {
+    color: var(--color-text-primary);
+  }
+
+  .danger {
+    --_bg: var(--color-danger-bg);
+    --_bg-hover: var(--color-danger-bg-hover);
+    --_bg-active: var(--color-danger-bg-active);
+    --_fg: var(--color-on-danger);
+  }
+
+  /* ---------------------------------------------------------------
+   * Tailles
+   * --------------------------------------------------------------- */
+
+  .sm {
+    block-size: var(--control-height-sm);
+    padding-inline: var(--space-2);
+    min-inline-size: 0;
+    font-size: var(--text-xs);
+    gap: var(--space-1);
+  }
+
+  .lg {
+    block-size: var(--control-height-lg);
+    padding-inline: var(--space-4);
+    font-size: var(--text-base);
+  }
+
+  /* ---------------------------------------------------------------
+   * Modificateurs
+   * --------------------------------------------------------------- */
+
+  /* Bouton ne contenant qu'une icône : carré, et pourvu d'un
+   * `aria-label` — imposé par le typage du composant. */
+  .iconOnly {
+    padding-inline: 0;
+    min-inline-size: 0;
+    aspect-ratio: 1;
+  }
+
+  .fullWidth {
+    inline-size: 100%;
+  }
+
+  /* ---------------------------------------------------------------
+   * État de chargement
+   *
+   * Le libellé reste en place et garde sa largeur : remplacer le texte
+   * par un indicateur fait sauter la mise en page et, pire, fait perdre
+   * à l'utilisateur ce qu'il vient de déclencher.
+   * --------------------------------------------------------------- */
+
+  .loading {
+    cursor: progress;
+  }
+
+  .loading .label {
+    opacity: 0.35;
+  }
+
+  /* L'indicateur prend place DEVANT le libellé, dans le flux : superposé
+   * au texte, il le rendait illisible — ce qui contredisait la raison
+   * même de garder le libellé affiché. */
+  .spinner {
+    flex-shrink: 0;
+    inline-size: 0.875em;
+    block-size: 0.875em;
+    border: 1.5px solid currentColor;
+    border-block-start-color: transparent;
+    border-radius: var(--radius-full);
+    animation: spin 620ms linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* Un utilisateur ayant demandé moins d'animation a quand même besoin
+   * de savoir que l'action est en cours : le disque pulse au lieu de
+   * tourner. */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner {
+      animation: pulse 1.4s ease-in-out infinite;
+      border-block-start-color: currentColor;
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: 0.3;
+      }
+    }
+  }
+
+  /* Les icônes s'alignent sur la hauteur de la ligne et ne se compriment
+   * jamais, même si le libellé est long. */
+  .button > svg {
+    flex-shrink: 0;
+    inline-size: 1em;
+    block-size: 1em;
+    stroke-width: 1.75;
+  }
+}

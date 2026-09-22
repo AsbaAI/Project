@@ -1,0 +1,87 @@
+/*
+ * Entrée de navigation
+ *
+ * L'entrée courante n'est pas seulement colorée : un filet vertical
+ * marque son bord intérieur. Le filet reste visible quand le fond ne
+ * l'est plus — contraste élevé, impression, écran mal réglé.
+ */
+
+@layer components {
+  .item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: 100%;
+
+    min-block-size: var(--control-height-md);
+    padding-inline: var(--space-2-5);
+    border-radius: var(--radius-sm);
+
+    background: none;
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+    font-weight: var(--weight-medium);
+    text-align: start;
+    cursor: pointer;
+    transition: var(--transition-colors);
+  }
+
+  .item:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+  }
+
+  .item:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  .item[aria-current='page'] {
+    background-color: var(--color-surface-selected);
+    color: var(--color-text-primary);
+  }
+
+  .item[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    inset-block: var(--space-1-5);
+    inset-inline-start: 0;
+    inline-size: var(--border-width-strong);
+    border-radius: var(--radius-full);
+    background-color: var(--color-action-bg);
+  }
+
+  .icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--color-text-tertiary);
+  }
+
+  .icon > svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .item[aria-current='page'] .icon {
+    color: var(--color-text-accent);
+  }
+
+  .label {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .trailing {
+    margin-inline-start: auto;
+    flex-shrink: 0;
+  }
+}

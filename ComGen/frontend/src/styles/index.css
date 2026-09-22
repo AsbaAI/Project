@@ -1,0 +1,45 @@
+/*
+ * Point d'entrée des styles globaux.
+ *
+ * L'ORDRE DES COUCHES EST DÉCLARÉ EN PREMIER, avant tout import.
+ * C'est lui — et non l'ordre des fichiers, ni la spécificité des
+ * sélecteurs — qui décide qui gagne. Une règle de la couche `components`
+ * l'emporte sur une règle de `base`, même si cette dernière est plus
+ * spécifique.
+ *
+ * Conséquence pratique : aucun `!important` n'est nécessaire dans ce
+ * projet. Si l'envie s'en fait sentir, c'est qu'une règle est dans la
+ * mauvaise couche.
+ *
+ *   reset      → neutralise les défauts du navigateur
+ *   tokens     → variables, aucune règle appliquée à un élément
+ *   base       → styles des éléments HTML nus
+ *   layout     → structures de page
+ *   components → CSS Modules des composants
+ *   utilities  → classes utilitaires ponctuelles
+ */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+@import './reset.css';
+@import './tokens/color.css';
+@import './tokens/typography.css';
+@import './tokens/space.css';
+@import './tokens/shape.css';
+@import './tokens/motion.css';
+@import './base.css';
+@import './utilities.css';
+
+/*
+ * Fontes
+ *
+ * Chargées depuis Google Fonts en développement. Pour un déploiement
+ * interne sans accès sortant, remplacer par des fichiers WOFF2
+ * auto-hébergés (voir frontend/README.md) : la pile de replis définie
+ * dans tokens/typography.css assure un rendu correct entre-temps.
+ *
+ * `display=swap` : le texte s'affiche immédiatement dans la fonte de
+ * repli plutôt que de rester invisible le temps du téléchargement.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap')
+  layer(base);

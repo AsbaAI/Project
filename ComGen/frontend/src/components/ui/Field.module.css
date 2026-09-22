@@ -1,0 +1,160 @@
+/*
+ * Champ de formulaire
+ *
+ * Le composant réunit libellé, contrôle, aide et erreur. Ils ne sont
+ * jamais utilisés séparément : c'est leur association — et le câblage
+ * `for` / `aria-describedby` / `aria-invalid` qui va avec — qui rend un
+ * formulaire utilisable au clavier et au lecteur d'écran.
+ */
+
+@layer components {
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+  }
+
+  .labelRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .label {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs-lh);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-secondary);
+  }
+
+  /* Marque d'obligation. Le mot « requis » est également fourni aux
+   * lecteurs d'écran : un astérisque seul n'est pas une information. */
+  .required {
+    color: var(--color-danger-solid);
+    margin-inline-start: var(--space-0-5);
+  }
+
+  .optional {
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+    font-weight: var(--weight-regular);
+  }
+
+  /* ---------------------------------------------------------------
+   * Contrôles
+   * Input, textarea et select partagent la même assise visuelle pour
+   * s'aligner sur une même ligne dans un formulaire en colonnes.
+   * --------------------------------------------------------------- */
+
+  .control {
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--control-height-md);
+    padding-inline: var(--space-2-5);
+
+    border: var(--border-width) solid var(--color-border-control);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text-primary);
+
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+
+    transition: var(--transition-colors);
+  }
+
+  .control::placeholder {
+    color: var(--color-text-tertiary);
+  }
+
+  .control:hover:not(:disabled):not([aria-invalid='true']) {
+    border-color: var(--color-border-control-hover);
+  }
+
+  .control:focus-visible {
+    border-color: var(--color-border-accent);
+    /* L'anneau remplace l'outline pour épouser exactement le rayon du
+     * champ : un outline rectangulaire sur un champ arrondi se voit. */
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  .control:disabled {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-text-disabled);
+    border-color: var(--color-border-default);
+    cursor: not-allowed;
+  }
+
+  .control[aria-invalid='true'] {
+    border-color: var(--color-danger-solid);
+  }
+
+  .control[aria-invalid='true']:focus-visible {
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--color-surface-raised),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
+        var(--color-danger-solid);
+  }
+
+  /* Le textarea n'a pas de hauteur de contrôle fixe et ne se
+   * redimensionne qu'en hauteur : l'élargir casserait la grille. */
+  .textarea {
+    block-size: auto;
+    min-block-size: calc(var(--control-height-md) * 2.5);
+    padding-block: var(--space-2);
+    resize: vertical;
+  }
+
+  /* Le select masque la flèche native pour en dessiner une cohérente
+   * avec le reste ; la flèche est en arrière-plan afin de rester
+   * cliquable sans élément supplémentaire. */
+  .select {
+    appearance: none;
+    padding-inline-end: var(--space-7);
+    background-image: linear-gradient(
+        45deg,
+        transparent 50%,
+        currentColor 50%
+      ),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+      calc(100% - var(--space-4)) center,
+      calc(100% - var(--space-3)) center;
+    background-size:
+      5px 5px,
+      5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+  }
+
+  /* ---------------------------------------------------------------
+   * Messages
+   * --------------------------------------------------------------- */
+
+  .hint {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs-lh);
+    color: var(--color-text-tertiary);
+  }
+
+  /* Le message d'erreur ne repose pas sur la seule couleur : il est
+   * précédé d'un signe et rattaché au champ par `aria-describedby`. */
+  .error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs-lh);
+    color: var(--color-danger-text);
+  }
+
+  .errorIcon {
+    flex-shrink: 0;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    margin-block-start: 0.125rem;
+    stroke-width: 1.75;
+  }
+}

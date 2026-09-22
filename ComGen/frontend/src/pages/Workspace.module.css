@@ -1,0 +1,124 @@
+/*
+ * Écran type — mise en situation
+ *
+ * Deux colonnes : ce qu'on fournit à gauche, ce qu'on obtient à droite.
+ * La colonne de droite est la plus large : c'est elle qu'on relit.
+ */
+
+@layer layout {
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  @media (width < 68rem) {
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .langues {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1-5);
+  }
+
+  .progress {
+    margin-block-start: var(--space-4);
+  }
+
+  /* ---------------------------------------------------------------
+   * Sortie générée
+   * --------------------------------------------------------------- */
+
+  .objet {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-block-end: var(--space-3);
+    margin-block-end: var(--space-3);
+    border-block-end: var(--border-width) solid var(--color-border-subtle);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-primary);
+    text-wrap: pretty;
+  }
+
+  .objetLabel {
+    flex-shrink: 0;
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+
+  /* Le texte produit est affiché tel qu'il sera diffusé : sauts de ligne
+   * préservés, largeur de ligne limitée. On relit mal un paragraphe de
+   * 140 caractères de large. */
+  .sortie {
+    white-space: pre-wrap;
+    max-inline-size: var(--measure);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------------------------------------------------------------
+   * Contrôles
+   * --------------------------------------------------------------- */
+
+  .controles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .controle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2-5) var(--space-4);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+    color: var(--color-text-secondary);
+    border-block-end: var(--border-width) solid var(--color-border-subtle);
+  }
+
+  .controle:last-child {
+    border-block-end: none;
+  }
+
+  .controleIcone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background-color: var(--color-success-surface);
+    color: var(--color-success-text);
+  }
+
+  .controleIcone > svg {
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+  }
+}
