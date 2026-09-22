@@ -1,55 +1,29 @@
-# --- Dépendances ---
+# dépendances
 node_modules/
-.pnp/
-.pnp.js
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-env/
 
-# --- Build / distribution ---
-dist/
-build/
-out/
+# sorties de build
 .next/
-.cache/
-*.egg-info/
+out/
+dist/
+storybook-static/
+*.tsbuildinfo
+next-env.d.ts
 
-# --- Environnement et secrets ---
+# tests
+coverage/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/e2e/captures/**/*.png
+!apps/web/e2e/captures/.gitkeep
+
+# environnement — jamais de secret dans le dépôt
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-credentials.json
 
-# --- Documents de travail ---
-# Aucun document source réel ne doit être versionné :
-# les spécifications fonctionnelles et communications réelles sont internes.
-/uploads/
-/tmp/
-/output/
-samples/**/*.docx
-samples/**/*.doc
-samples/**/*.pdf
-!samples/**/*.example.docx
-~$*.doc*
-*.tmp
+# données locales de développement
+.local/
 
-# --- Logs ---
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# --- Outils et IDE ---
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# --- Système ---
+# éditeurs et systèmes
 .DS_Store
-Thumbs.db
-desktop.ini
+*.log

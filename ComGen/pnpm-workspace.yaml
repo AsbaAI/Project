@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 10 n'exécute plus les scripts d'installation par défaut. Seuls les
+# paquets listés ici y sont autorisés, après vérification de ce qu'ils font.
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - '@prisma/client'
+  - prisma
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - '@swc/core'
+  - '@parcel/watcher'

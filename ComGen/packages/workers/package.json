@@ -1,0 +1,24 @@
+{
+  "name": "@comgen/workers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Consommateurs BullMQ de ComGen : un worker par rôle d'agent. Dépend de core et d'agents.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@comgen/agents": "workspace:*",
+    "@comgen/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.1"
+  }
+}

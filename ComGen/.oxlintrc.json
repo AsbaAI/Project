@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/consistent-type-imports": "error",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "eqeqeq": "error",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-is-valid": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/no-static-element-interactions": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "react/jsx-key": "error",
+    "react/no-danger": "error",
+    "import/no-cycle": "error"
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/storybook-static/**",
+    "**/coverage/**",
+    "frontend/**",
+    "stellantis-comm-ai/**"
+  ],
+  "overrides": [
+    {
+      "files": ["**/scripts/**/*.mjs", "**/e2e/**/*.ts", "**/*.config.*"],
+      "rules": { "no-console": "off" }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": { "typescript/no-non-null-assertion": "off" }
+    }
+  ]
+}
