@@ -7,3 +7,9 @@
  */
 export * from './agents/roles.ts'
 export * from './agents/independance.ts'
+export * from './domaine/enumerations.ts'
+export * from './domaine/etats.ts'
+export * from './domaine/approbations.ts'
+export * from './domaine/droits.ts'
+export * from './domaine/references.ts'
+export * from './domaine/sources.ts'
