@@ -8,7 +8,11 @@
     "node": ">=22.12"
   },
   "scripts": {
+    "postinstall": "pnpm --filter @comgen/db generate",
     "dev": "pnpm --filter @comgen/web dev",
+    "db:generate": "pnpm --filter @comgen/db generate",
+    "db:migrate": "pnpm --filter @comgen/db migrate",
+    "db:seed": "pnpm --filter @comgen/db seed",
     "build": "pnpm -r --workspace-concurrency=1 build",
     "typecheck": "pnpm -r typecheck",
     "lint": "oxlint",

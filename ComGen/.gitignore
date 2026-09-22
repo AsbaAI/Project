@@ -27,3 +27,6 @@ apps/web/e2e/captures/**/*.png
 # éditeurs et systèmes
 .DS_Store
 *.log
+
+# client Prisma généré (pnpm install le régénère)
+packages/db/src/generated/

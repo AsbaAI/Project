@@ -1,0 +1,739 @@
+// Schéma de données ComGen — spécification §6 (modèle), §7 (états), §13.2
+// (multi-région), §16 (rôles). Les noms de modèles, de champs et de valeurs
+// d'énumération sont contractuels et repris à l'identique de `@comgen/core`
+// (test de parité dans `src/parite-enumerations.test.ts`).
+//
+// Cloisonnement : toute ligne rattachée à une organisation porte
+// `organisationId`, y compris les lignes filles (faits, variantes…), pour que
+// le contexte d'accès puisse imposer le filtre sur chaque requête sans
+// dépendre d'une jointure. Cette redondance est une décision consignée dans
+// DECISIONS.md ; la valeur est toujours posée par le contexte, jamais par
+// l'appelant.
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Énumérations (miroir de packages/core/src/domaine/enumerations.ts)
+// ---------------------------------------------------------------------------
+
+enum Nature {
+  SPEC_UPDATE
+  CHANGE
+  INCIDENT
+  RELEASE
+  ORG
+  REGULATORY
+}
+
+enum Criticite {
+  COURANTE
+  IMPORTANTE
+  CRITIQUE
+}
+
+enum Portee {
+  INTERNE
+  INTER_ORG
+  EXTERNE
+}
+
+enum ModeEntree {
+  FICHIER
+  TEXTE_SAISI
+  CONNECTEUR
+  COURRIEL
+  DICTEE
+  API
+  FORMULAIRE
+}
+
+enum TypeSource {
+  FICHIER
+  TEXTE_SAISI
+  CONNECTEUR
+  COURRIEL
+  DICTEE
+  API
+  FORMULAIRE
+}
+
+enum IntentionReprise {
+  MISE_A_JOUR
+  CORRECTIF
+  RAPPEL
+}
+
+enum Niveau {
+  PUBLIC
+  INTERNE
+  RESTREINT
+  SECRET
+}
+
+enum TypeValeur {
+  DATE
+  NOMBRE
+  VERSION
+  IDENTIFIANT
+  NOM
+  TEXTE
+}
+
+enum StatutFait {
+  PROPOSE
+  CONFIRME
+  RETIRE
+  PERIME
+  DECLARE
+}
+
+enum FormatTemplate {
+  MAIL_HTML
+  MAIL_TEXTE
+  PDF
+  NEWSLETTER
+  MESSAGE_INSTANTANE
+  ARTICLE
+  UNE_PAGE
+}
+
+enum Canal {
+  COURRIEL
+  MESSAGERIE_INSTANTANEE
+  PORTAIL
+  DOCUMENT
+}
+
+enum EtatCommunication {
+  BROUILLON
+  FAITS_A_VALIDER
+  PRETE_A_GENERER
+  EN_GENERATION
+  EN_CONTROLE
+  A_CORRIGER
+  EN_RELECTURE
+  EN_APPROBATION
+  APPROUVEE
+  ENVOI_PLANIFIE
+  ENVOYEE
+  REJETEE
+  ARCHIVEE
+}
+
+enum EtatVariante {
+  EN_GENERATION
+  A_REVOIR
+  BLOQUEE
+  CONFORME
+  APPROUVEE
+  ENVOYEE
+  ECHEC
+}
+
+enum Verdict {
+  SOUTENUE
+  CONTREDITE
+  SANS_APPUI
+  NON_FACTUELLE
+}
+
+enum TypeControle {
+  ANCRAGE
+  COMPARAISON_EXACTE
+  TOXICITE
+  DONNEES_SENSIBLES
+  CONFIDENTIALITE_PERSONA
+  TEMPLATE
+  LISTE
+  TON
+  LISIBILITE
+  LONGUEUR
+  COHERENCE_INTER_VARIANTES
+}
+
+enum Gravite {
+  INFO
+  AVERTISSEMENT
+  ERREUR
+}
+
+enum OrigineTexte {
+  GENEREE
+  EDITEE
+  REIMPORTEE
+  CORRIGEE_AGENT
+}
+
+enum TypeEntite {
+  PROJET
+  PRODUIT
+  SYSTEME
+  CLIENT
+  SITE
+  NORME
+  MOT_CLE
+}
+
+enum RoleMention {
+  PRINCIPAL
+  INCIDENT
+}
+
+enum OrigineSuggestion {
+  ENTITE
+  MOT_CLE
+  DIMENSION
+}
+
+enum DecisionSuggestion {
+  EN_ATTENTE
+  ACCEPTEE
+  REFUSEE
+  REPORTEE
+}
+
+enum TypeListe {
+  STATIQUE
+  GROUPE_ANNUAIRE
+  REGLE
+  IMPORT
+}
+
+enum Regime {
+  RELECTURE
+  APPROBATION
+}
+
+enum Decision {
+  EN_ATTENTE
+  APPROUVEE
+  REJETEE
+  DELEGUEE
+}
+
+enum RoleAgent {
+  EXTRACTEUR
+  ANALYSTE_IMPACT
+  REDACTEUR
+  VERIFICATEUR
+  GARDIEN
+  CORRECTEUR
+  ARBITRE
+  SUGGESTEUR
+}
+
+enum RoleUtilisateur {
+  REDACTEUR
+  RELECTEUR
+  APPROBATEUR
+  ADMINISTRATEUR
+  AUDITEUR
+}
+
+// ---------------------------------------------------------------------------
+// Organisation, régions, sites, utilisateurs (§13.2, §16)
+// ---------------------------------------------------------------------------
+
+model Organisation {
+  id            String   @id @default(cuid())
+  nom           String
+  codePays      String
+  fuseauHoraire String
+  localeDefaut  String
+  creeLe        DateTime @default(now())
+
+  regions        Region[]
+  utilisateurs   Utilisateur[]
+  communications Communication[]
+  personas       Persona[]
+  templates      Template[]
+  canevas        Canevas[]
+  entites        Entite[]
+  listes         ListeDiffusion[]
+}
+
+model Region {
+  id                String   @id @default(cuid())
+  organisationId    String
+  nom               String
+  localesAutorisees String[]
+  residenceDonnees  String
+  modelesAutorises  String[]
+
+  organisation   Organisation     @relation(fields: [organisationId], references: [id])
+  sites          Site[]
+  utilisateurs   Utilisateur[]
+  communications Communication[]
+  personas       Persona[]
+  templates      Template[]
+  canevas        Canevas[]
+  entites        Entite[]
+  listes         ListeDiffusion[]
+
+  @@index([organisationId])
+}
+
+model Site {
+  id             String @id @default(cuid())
+  organisationId String
+  regionId       String
+  nom            String
+  fuseauHoraire  String
+
+  region       Region           @relation(fields: [regionId], references: [id])
+  utilisateurs Utilisateur[]
+  listes       ListeDiffusion[]
+
+  @@index([organisationId])
+  @@index([regionId])
+}
+
+model Utilisateur {
+  id             String            @id @default(cuid())
+  organisationId String
+  regionId       String
+  siteId         String?
+  courriel       String            @unique
+  nom            String
+  /// Identifiant stable délivré par le fournisseur OIDC (claim `sub`).
+  sujetOidc      String?           @unique
+  roles          RoleUtilisateur[]
+  actif          Boolean           @default(true)
+  creeLe         DateTime          @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  region       Region       @relation(fields: [regionId], references: [id])
+  site         Site?        @relation(fields: [siteId], references: [id])
+
+  communicationsRedigees Communication[]  @relation("AuteurCommunication")
+  amendements            AmendementFait[]
+  approbations           Approbation[]
+  versionsTexte          VersionTexte[]
+
+  @@index([organisationId])
+}
+
+// ---------------------------------------------------------------------------
+// Communication et sa fiche de faits (§6, §7, §10, §11)
+// ---------------------------------------------------------------------------
+
+model Communication {
+  id               String            @id @default(cuid())
+  organisationId   String
+  regionId         String
+  reference        String            @unique
+  titre            String
+  nature           Nature
+  criticite        Criticite
+  portee           Portee
+  langue           String
+  dateEffet        DateTime?
+  echeance         DateTime?
+  etat             EtatCommunication @default(BROUILLON)
+  modeEntree       ModeEntree
+  auteurId         String
+  parentId         String?
+  intentionReprise IntentionReprise?
+  creeLe           DateTime          @default(now())
+  modifieLe        DateTime          @updatedAt
+
+  organisation Organisation    @relation(fields: [organisationId], references: [id])
+  region       Region          @relation(fields: [regionId], references: [id])
+  auteur       Utilisateur     @relation("AuteurCommunication", fields: [auteurId], references: [id])
+  parent       Communication?  @relation("Reprise", fields: [parentId], references: [id])
+  reprises     Communication[] @relation("Reprise")
+
+  sources      Source[]
+  faits        Fait[]
+  variantes    Variante[]
+  approbations Approbation[]
+  suggestions  SuggestionAudience[]
+  executions   Execution[]
+
+  @@index([organisationId, etat])
+  @@index([organisationId, auteurId])
+}
+
+model Source {
+  id              String     @id @default(cuid())
+  organisationId  String
+  communicationId String
+  type            TypeSource
+  nom             String
+  /// SHA-256 hexadécimal du contenu texte normalisé.
+  empreinte       String
+  cheminStockage  String?
+  contenuTexte    String?    @db.Text
+  /// Langue détectée (§13.1), jamais supposée. Null si la détection a échoué.
+  langue          String?
+  confidentialite Niveau
+  figeeLe         DateTime   @default(now())
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  faits         Fait[]
+  mentions      Mention[]
+
+  @@index([organisationId])
+  @@index([communicationId])
+}
+
+model Fait {
+  id              String      @id @default(cuid())
+  organisationId  String
+  communicationId String
+  reference       String
+  enonce          String      @db.Text
+  valeur          String?
+  typeValeur      TypeValeur?
+  citation        String      @db.Text
+  sourceId        String
+  /// { page?, ligne?, offsetDebut, offsetFin }
+  localisation    Json
+  confiance       Float
+  confidentialite Niveau
+  statut          StatutFait  @default(PROPOSE)
+
+  communication Communication    @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  source        Source           @relation(fields: [sourceId], references: [id])
+  amendements   AmendementFait[]
+
+  @@unique([communicationId, reference])
+  @@index([organisationId])
+}
+
+model AmendementFait {
+  id                    String   @id @default(cuid())
+  organisationId        String
+  faitId                String
+  ancienneValeur        String?  @db.Text
+  nouvelleValeur        String   @db.Text
+  justification         String   @db.Text
+  sourceInvoquee        String?
+  responsabiliteAssumee Boolean
+  auteurId              String
+  creeLe                DateTime @default(now())
+
+  fait   Fait        @relation(fields: [faitId], references: [id], onDelete: Cascade)
+  auteur Utilisateur @relation(fields: [auteurId], references: [id])
+
+  @@index([organisationId])
+  @@index([faitId])
+}
+
+// ---------------------------------------------------------------------------
+// Personas, templates, canevas (§6, §9)
+// ---------------------------------------------------------------------------
+
+model Persona {
+  id             String   @id @default(cuid())
+  organisationId String
+  regionId       String
+  nom            String
+  actif          Boolean  @default(true)
+  voix           Json
+  lexique        Json
+  gardeFous      Json
+  exemples       String[] @db.Text
+  canalDefaut    Canal
+  approbateurIds String[]
+
+  organisation Organisation     @relation(fields: [organisationId], references: [id])
+  region       Region           @relation(fields: [regionId], references: [id])
+  listes       ListeDiffusion[]
+  variantes    Variante[]
+
+  @@index([organisationId])
+}
+
+model Template {
+  id             String         @id @default(cuid())
+  organisationId String
+  regionId       String
+  nom            String
+  format         FormatTemplate
+  version        Int            @default(1)
+  corps          String         @db.Text
+  emplacements   Json
+  actif          Boolean        @default(true)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  region       Region       @relation(fields: [regionId], references: [id])
+  variantes    Variante[]
+
+  @@index([organisationId])
+}
+
+model Canevas {
+  id             String @id @default(cuid())
+  organisationId String
+  regionId       String
+  nature         Nature
+  nom            String
+  emplacements   Json
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  region       Region       @relation(fields: [regionId], references: [id])
+
+  @@index([organisationId])
+}
+
+// ---------------------------------------------------------------------------
+// Variantes et leur vérification (§6, §7, §12)
+// ---------------------------------------------------------------------------
+
+model Variante {
+  id              String       @id @default(cuid())
+  organisationId  String
+  communicationId String
+  personaId       String
+  templateId      String
+  templateVersion Int
+  /// Document TipTap (JSON). Toute écriture repasse la variante en EN_CONTROLE
+  /// et annule ses approbations : voir `src/regles-ecriture.ts` et le
+  /// déclencheur SQL de la migration initiale.
+  contenu         Json
+  etat            EtatVariante @default(EN_GENERATION)
+  score           Float?
+  longueurMots    Int          @default(0)
+  creeLe          DateTime     @default(now())
+  modifieLe       DateTime     @updatedAt
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  persona       Persona       @relation(fields: [personaId], references: [id])
+  template      Template      @relation(fields: [templateId], references: [id])
+
+  affirmations Affirmation[]
+  controles    Controle[]
+  versions     VersionTexte[]
+  envois       Envoi[]
+  approbations Approbation[]
+  mentions     Mention[]
+  executions   Execution[]
+
+  @@unique([communicationId, personaId])
+  @@index([organisationId])
+}
+
+model Affirmation {
+  id             String   @id @default(cuid())
+  organisationId String
+  varianteId     String
+  texte          String   @db.Text
+  position       Json
+  verdict        Verdict
+  faitIds        String[]
+  explication    String?  @db.Text
+
+  variante Variante @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId])
+  @@index([varianteId])
+}
+
+model Controle {
+  id             String       @id @default(cuid())
+  organisationId String
+  varianteId     String
+  type           TypeControle
+  bloquant       Boolean
+  gravite        Gravite
+  message        String
+  localisation   Json?
+  resoluLe       DateTime?
+  creeLe         DateTime     @default(now())
+
+  variante Variante @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId])
+  @@index([varianteId, resoluLe])
+}
+
+model VersionTexte {
+  id             String       @id @default(cuid())
+  organisationId String
+  varianteId     String
+  contenu        Json
+  origine        OrigineTexte
+  auteurId       String?
+  creeLe         DateTime     @default(now())
+
+  variante Variante     @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+  auteur   Utilisateur? @relation(fields: [auteurId], references: [id])
+
+  @@index([organisationId])
+  @@index([varianteId, creeLe])
+}
+
+// ---------------------------------------------------------------------------
+// Référentiel d'entités et suggestions d'audience (§6, §9.5)
+// ---------------------------------------------------------------------------
+
+model Entite {
+  id              String     @id @default(cuid())
+  organisationId  String
+  regionId        String
+  type            TypeEntite
+  libelle         String
+  alias           String[]
+  codeInterne     String?
+  responsableId   String?
+  listeIds        String[]
+  personaIds      String[]
+  confidentialite Niveau
+  actif           Boolean    @default(true)
+
+  organisation Organisation         @relation(fields: [organisationId], references: [id])
+  region       Region               @relation(fields: [regionId], references: [id])
+  mentions     Mention[]
+  suggestions  SuggestionAudience[]
+
+  @@index([organisationId, actif])
+}
+
+model Mention {
+  id             String      @id @default(cuid())
+  organisationId String
+  entiteId       String
+  varianteId     String?
+  sourceId       String?
+  terme          String
+  position       Json
+  role           RoleMention
+  confiance      Float
+
+  entite   Entite    @relation(fields: [entiteId], references: [id], onDelete: Cascade)
+  variante Variante? @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+  source   Source?   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId])
+  @@index([entiteId])
+}
+
+model SuggestionAudience {
+  id              String             @id @default(cuid())
+  organisationId  String
+  communicationId String
+  origine         OrigineSuggestion
+  entiteId        String?
+  dimension       String?
+  listeId         String?
+  personneId      String?
+  justification   String
+  extrait         String
+  pertinence      Float
+  decision        DecisionSuggestion @default(EN_ATTENTE)
+  motifRefus      String?
+  creeLe          DateTime           @default(now())
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  entite        Entite?       @relation(fields: [entiteId], references: [id])
+
+  @@index([organisationId])
+  @@index([communicationId, decision])
+}
+
+model ListeDiffusion {
+  id             String    @id @default(cuid())
+  organisationId String
+  regionId       String
+  siteId         String?
+  nom            String
+  type           TypeListe
+  definition     Json
+  exclusions     String[]
+  personaId      String?
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  region       Region       @relation(fields: [regionId], references: [id])
+  site         Site?        @relation(fields: [siteId], references: [id])
+  persona      Persona?     @relation(fields: [personaId], references: [id])
+
+  @@index([organisationId])
+}
+
+// ---------------------------------------------------------------------------
+// Approbation, envoi, exécutions (§6, §7, §8)
+// ---------------------------------------------------------------------------
+
+model Approbation {
+  id              String    @id @default(cuid())
+  organisationId  String
+  communicationId String
+  varianteId      String?
+  utilisateurId   String
+  regime          Regime
+  decision        Decision  @default(EN_ATTENTE)
+  commentaire     String?   @db.Text
+  ancrage         Json?
+  decideLe        DateTime?
+  /// Posé quand une écriture de contenu ou un amendement de fait rend
+  /// l'approbation caduque. Une approbation annulée ne compte plus (§7).
+  annuleeLe       DateTime?
+  motifAnnulation String?
+  creeLe          DateTime  @default(now())
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  variante      Variante?     @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+  utilisateur   Utilisateur   @relation(fields: [utilisateurId], references: [id])
+
+  @@index([organisationId])
+  @@index([communicationId, decision, annuleeLe])
+}
+
+model Envoi {
+  id             String    @id @default(cuid())
+  organisationId String
+  varianteId     String
+  canal          Canal
+  destinataires  Json
+  planifiePour   DateTime?
+  envoyeLe       DateTime?
+  etatRemise     Json
+  annulable      Boolean   @default(true)
+  creeLe         DateTime  @default(now())
+
+  variante Variante @relation(fields: [varianteId], references: [id])
+
+  @@index([organisationId])
+  @@index([varianteId])
+}
+
+model Execution {
+  id              String    @id @default(cuid())
+  organisationId  String
+  varianteId      String?
+  communicationId String
+  agent           RoleAgent
+  modele          String
+  promptVersion   String
+  parametres      Json
+  jetonsEntree    Int
+  jetonsSortie    Int
+  dureeMs         Int
+  coutCentimes    Int
+  succes          Boolean
+  erreur          String?
+  creeLe          DateTime  @default(now())
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  variante      Variante?     @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId])
+  @@index([communicationId, agent])
+}
+
+/// Compteur de numérotation des références COM-AAAA-NNNN, une ligne par année.
+model CompteurReference {
+  annee   Int @id
+  dernier Int @default(0)
+}

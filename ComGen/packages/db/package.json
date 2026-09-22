@@ -8,15 +8,24 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
+    "seed": "node --experimental-strip-types prisma/seed.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@comgen/core": "workspace:*"
+    "@comgen/core": "workspace:*",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",
+    "@types/pg": "^8.23.1",
+    "prisma": "^7.10.0",
     "typescript": "~6.0.2",
     "vitest": "^5.0.1"
   }

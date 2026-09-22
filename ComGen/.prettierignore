@@ -10,3 +10,4 @@ apps/web/test-results
 docs/SPECIFICATION.md
 samples
 templates
+packages/db/src/generated
