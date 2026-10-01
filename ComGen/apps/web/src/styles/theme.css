@@ -82,6 +82,22 @@
   --color-highlight-danger: var(--color-highlight-danger);
   --color-accent-line: var(--color-accent-line);
 
+  --color-emphasis: var(--color-emphasis);
+  --color-emphasis-hover: var(--color-emphasis-hover);
+  --color-emphasis-active: var(--color-emphasis-active);
+  --color-on-emphasis: var(--color-on-emphasis);
+  --color-emphasis-bg: var(--color-emphasis-bg);
+  --color-emphasis-line: var(--color-emphasis-line);
+  --color-emphasis-ink: var(--color-emphasis-ink);
+
+  --color-ai-bg: var(--color-ai-bg);
+  --color-ai-line: var(--color-ai-line);
+  --color-ai-ink: var(--color-ai-ink);
+  --color-ai-solid: var(--color-ai-solid);
+
+  --color-brand-start: var(--color-brand-start);
+  --color-brand-end: var(--color-brand-end);
+
   --color-focus: var(--color-focus);
 
   --color-transparent: transparent;

@@ -8,6 +8,7 @@ import {
   Clock,
   type LucideIcon,
   OctagonX,
+  Sparkles,
   TriangleAlert,
 } from 'lucide-react'
 import type { ComponentPropsWithoutRef } from 'react'
@@ -19,8 +20,9 @@ import { cn } from '@/lib/cn'
  *
  * Chaque tonalité a SA forme d'icône : cercle plein pour le neutre, point
  * pour l'accent, cercle coché pour le succès, triangle pour l'alerte,
- * octogone barré pour l'erreur, horloge pour l'attente, cercle tireté
- * pour le brouillon, boîte pour l'archive. Un daltonien distingue les
+ * octogone barré pour l'erreur, horloge pour l'attente, étincelles pour
+ * le travail d'un agent, cercle tireté pour le brouillon, boîte pour
+ * l'archive. Un daltonien distingue les
  * états à la forme ; la couleur confirme.
  */
 const badgeVariants = cva(
@@ -35,7 +37,8 @@ const badgeVariants = cva(
         draft: 'border-line-default bg-surface-sunken text-ink-secondary',
         neutral: 'border-line-default bg-surface-sunken text-ink-secondary',
         accent: 'border-accent-line bg-accent-bg text-ink-accent',
-        pending: 'border-accent-line bg-accent-bg text-ink-accent',
+        pending: 'border-warning-line bg-warning-bg text-warning-ink',
+        ai: 'border-ai-line bg-ai-bg text-ai-ink',
         success: 'border-success-line bg-success-bg text-success-ink',
         warning: 'border-warning-line bg-warning-bg text-warning-ink',
         danger: 'border-danger-line bg-danger-bg text-danger-ink',
@@ -53,6 +56,7 @@ const ICONS: Record<BadgeTone, LucideIcon> = {
   neutral: Circle,
   accent: CircleDot,
   pending: Clock,
+  ai: Sparkles,
   success: CircleCheck,
   warning: TriangleAlert,
   danger: OctagonX,
