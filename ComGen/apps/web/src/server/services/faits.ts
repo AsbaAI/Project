@@ -266,10 +266,11 @@ export async function retablirFait(acteur: Acteur, faitId: string): Promise<void
 export async function changerConfidentialiteFait(
   acteur: Acteur,
   faitId: string,
-  niveau: Niveau,
+  saisi: string | undefined,
 ): Promise<void> {
-  if (!NIVEAUX.includes(niveau)) {
-    throw new ErreurMetier('DONNEES_INVALIDES', `Niveau inconnu : ${niveau}`, {
+  const niveau = NIVEAUX.find((n) => n === saisi)
+  if (niveau === undefined) {
+    throw new ErreurMetier('DONNEES_INVALIDES', `Niveau inconnu : ${saisi}`, {
       champs: { confidentialite: 'invalide' },
     })
   }
@@ -411,7 +412,10 @@ const SchemaNouveauFait = z
     }
   })
 
-export type EntreeNouveauFait = z.input<typeof SchemaNouveauFait>
+/** Entrée brute d'un formulaire : des chaînes, validées ici. */
+export type EntreeNouveauFait = Partial<
+  Record<keyof z.input<typeof SchemaNouveauFait>, string | undefined>
+>
 
 /**
  * Ajoute un fait relevé à la main dans une source. La citation doit être un

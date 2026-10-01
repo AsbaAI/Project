@@ -2,6 +2,7 @@ import {
   type Contradiction,
   type ContexteTransition,
   type Criticite,
+  ETATS_COMMUNICATION,
   type EtatCommunication,
   type FaitComparable,
   type ResultatTransition,
@@ -24,6 +25,19 @@ type Lecteur = Pick<ContexteTransaction, 'fait' | 'source' | 'variante'>
  * leur propre parcours et sont refusées ici : aucun bouton, aucune route ne
  * mène à APPROUVEE ou ENVOYEE par ce chemin.
  */
+export type EtatCibleManuel = 'BROUILLON' | 'FAITS_A_VALIDER' | 'PRETE_A_GENERER' | 'ARCHIVEE'
+
+const CIBLES_MANUELLES: ReadonlySet<string> = new Set<EtatCibleManuel>([
+  'BROUILLON',
+  'FAITS_A_VALIDER',
+  'PRETE_A_GENERER',
+  'ARCHIVEE',
+])
+
+function estCibleManuelle(etat: EtatCommunication): etat is EtatCibleManuel {
+  return CIBLES_MANUELLES.has(etat)
+}
+
 const TRANSITIONS_MANUELLES: ReadonlySet<string> = new Set([
   'BROUILLON>FAITS_A_VALIDER',
   'FAITS_A_VALIDER>BROUILLON',
@@ -38,11 +52,11 @@ export function estTransitionManuelle(de: EtatCommunication, vers: EtatCommunica
   return TRANSITIONS_MANUELLES.has(`${de}>${vers}`)
 }
 
-export function transitionsManuellesDepuis(de: EtatCommunication): EtatCommunication[] {
-  return [...TRANSITIONS_MANUELLES]
-    .map((cle) => cle.split('>') as [EtatCommunication, EtatCommunication])
-    .filter(([source]) => source === de)
-    .map(([, cible]) => cible)
+export function transitionsManuellesDepuis(de: EtatCommunication): EtatCibleManuel[] {
+  return ETATS_COMMUNICATION.filter(
+    (cible): cible is EtatCibleManuel =>
+      estCibleManuelle(cible) && TRANSITIONS_MANUELLES.has(`${de}>${cible}`),
+  )
 }
 
 /** États dans lesquels la fiche de faits se modifie librement. */
@@ -128,7 +142,7 @@ export async function construireContexteTransition(
 }
 
 export interface TransitionEvaluee {
-  vers: EtatCommunication
+  vers: EtatCibleManuel
   resultat: ResultatTransition
 }
 

@@ -40,6 +40,8 @@ export interface DependancesEntree {
 
 export const FICHIERS_PAR_DEPOT = 20
 export const TAILLE_MAX_TEXTE = 200_000
+/** Volume total d'un dépôt ; chaque fichier reste borné par TAILLE_MAX_OCTETS. */
+export const TAILLE_MAX_DEPOT_OCTETS = 50 * 1024 * 1024
 
 export interface FichierDepose {
   nom: string
@@ -245,7 +247,7 @@ export async function deposerFichiers(
   dependances: DependancesEntree,
   communicationId: string,
   fichiers: readonly FichierDepose[],
-  options: { confidentialite: Niveau },
+  options: { confidentialite: string | undefined },
 ): Promise<ResultatDepot> {
   exigerDroit(acteur.utilisateur, 'EDITER')
   if (fichiers.length === 0 || fichiers.length > FICHIERS_PAR_DEPOT) {
@@ -253,7 +255,14 @@ export async function deposerFichiers(
       champs: { fichiers: fichiers.length === 0 ? 'requis' : 'trop_nombreux' },
     })
   }
-  if (!NIVEAUX.includes(options.confidentialite)) {
+  const volume = fichiers.reduce((total, f) => total + f.octets.byteLength, 0)
+  if (volume > TAILLE_MAX_DEPOT_OCTETS) {
+    throw new ErreurMetier('DONNEES_INVALIDES', 'Dépôt trop volumineux', {
+      champs: { fichiers: 'trop_volumineux' },
+    })
+  }
+  const confidentialite = NIVEAUX.find((n) => n === options.confidentialite)
+  if (confidentialite === undefined) {
     throw new ErreurMetier('DONNEES_INVALIDES', 'Confidentialité inconnue', {
       champs: { confidentialite: 'invalide' },
     })
@@ -287,7 +296,7 @@ export async function deposerFichiers(
       contenuTexte: analyse.texte,
       empreinte: somme,
       langue: detecterLangue(analyse.texte),
-      confidentialite: options.confidentialite,
+      confidentialite,
       cheminStockage: cleSource(communication.organisationId, id, analyse.nom),
       octets: analyse.octets,
       format: analyse.format,
@@ -352,7 +361,10 @@ const SchemaTexteSaisi = z.object({
   confidentialite: z.enum(NIVEAUX, { error: 'invalide' }),
 })
 
-export type EntreeTexteSaisi = z.input<typeof SchemaTexteSaisi>
+/** Entrée brute d'un formulaire : des chaînes, validées ici. */
+export type EntreeTexteSaisi = Partial<
+  Record<keyof z.input<typeof SchemaTexteSaisi>, string | undefined>
+>
 
 export async function saisirTexte(
   acteur: Acteur,

@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   poweredByHeader: false,
+  experimental: {
+    // Dépôt de sources par action serveur : 50 Mio par envoi (voir
+    // TAILLE_MAX_DEPOT_OCTETS), plus la marge de l'encodage multipart. Le
+    // proxy d'internationalisation lit le corps : même plafond.
+    serverActions: { bodySizeLimit: '52mb' },
+    proxyClientMaxBodySize: '52mb',
+  },
 }
 
 export default withNextIntl(nextConfig)

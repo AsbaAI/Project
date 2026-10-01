@@ -69,7 +69,8 @@ const SchemaCadrage = z
     }
   })
 
-export type EntreeCadrage = z.input<typeof SchemaCadrage>
+/** Entrée brute d'un formulaire : des chaînes, validées ici et nulle part ailleurs. */
+export type EntreeCadrage = Partial<Record<keyof z.input<typeof SchemaCadrage>, string | undefined>>
 
 function erreurValidation(issues: readonly z.core.$ZodIssue[]): ErreurMetier {
   const champs: Record<string, string> = {}
