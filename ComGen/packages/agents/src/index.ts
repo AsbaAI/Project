@@ -49,17 +49,23 @@ export type { JeuAgents, MotifSimulation, OptionsFabrique } from './agents/fabri
 export { fabriqueAgents } from './agents/fabrique.ts'
 
 export type {
+  EntreeRedacteur,
   EntreeTexte,
+  EntreeVerificateur,
   SortieAnalyste,
   SortieExtracteur,
+  SortieRedacteur,
   SortieSuggesteur,
+  SortieVerificateur,
 } from './simulation/index.ts'
 export {
   DELAIS_SIMULATION,
   agentsSimules,
   creerAnalysteSimule,
   creerExtracteurSimule,
+  creerRedacteurSimule,
   creerSuggesteurSimule,
+  creerVerificateurSimule,
 } from './simulation/index.ts'
 
 export type { ResolveurSecret } from './secrets/index.ts'

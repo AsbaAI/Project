@@ -18,9 +18,26 @@ export { creerAnalysteSimule, schemaSortieAnalyste, schemaSuggestionAudience } f
 export type { SortieSuggesteur } from './suggesteur.ts'
 export { creerSuggesteurSimule, schemaSortieSuggesteur } from './suggesteur.ts'
 
+export type { EntreeRedacteur, SortieRedacteur } from './redacteur.ts'
+export {
+  creerRedacteurSimule,
+  schemaParagraphe,
+  schemaSegment,
+  schemaSortieRedacteur,
+} from './redacteur.ts'
+
+export type { EntreeVerificateur, SortieVerificateur } from './verificateur.ts'
+export {
+  creerVerificateurSimule,
+  schemaAffirmationVerifiee,
+  schemaSortieVerificateur,
+} from './verificateur.ts'
+
 import { creerAnalysteSimule } from './analyste.ts'
 import { creerExtracteurSimule } from './extracteur.ts'
+import { creerRedacteurSimule } from './redacteur.ts'
 import { creerSuggesteurSimule } from './suggesteur.ts'
+import { creerVerificateurSimule } from './verificateur.ts'
 
 /** Le jeu complet, construit d'un coup : c'est ce que la fabrique assemble. */
 export function agentsSimules() {
@@ -28,5 +45,7 @@ export function agentsSimules() {
     extracteur: creerExtracteurSimule(),
     analyste: creerAnalysteSimule(),
     suggesteur: creerSuggesteurSimule(),
+    redacteur: creerRedacteurSimule(),
+    verificateur: creerVerificateurSimule(),
   }
 }
