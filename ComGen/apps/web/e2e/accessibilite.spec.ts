@@ -1,7 +1,7 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { type Page, expect, test } from '@playwright/test'
 
-import { PAGES, attendreRendu, estTelephone } from './outils'
+import { PAGES, SANS_SESSION, attendreRendu, estTelephone } from './outils'
 
 /*
  * Audit axe-core (WCAG 2.2 AA). Le critère d'acceptation est « zéro
@@ -31,6 +31,36 @@ for (const { nom, chemin } of PAGES) {
     await auditer(page)
   })
 }
+
+test.describe('sans session', () => {
+  test.use({ storageState: SANS_SESSION })
+
+  test('axe — connexion', async ({ page }) => {
+    await page.goto('/connexion')
+    await attendreRendu(page)
+    await auditer(page)
+  })
+
+  test('une page protégée renvoie vers la connexion', async ({ page }) => {
+    await page.goto('/communications/com_2026_0002/faits')
+    await expect(page).toHaveURL(/\/connexion/)
+  })
+})
+
+test('axe — fiche de faits, volet d’amendement ouvert', async ({ page }) => {
+  await page.goto('/communications/com_2026_0002/faits')
+  await attendreRendu(page)
+  await page.getByText('Amender la valeur').first().click()
+  await auditer(page)
+})
+
+test('axe — cadrage soumis vide, erreurs affichées', async ({ page }) => {
+  await page.goto('/communications/nouvelle')
+  await attendreRendu(page)
+  await page.getByRole('button', { name: /^Créer et passer à l/ }).click()
+  await expect(page.getByRole('alert').first()).toBeVisible()
+  await auditer(page)
+})
 
 test('axe — tableau de bord (en)', async ({ page }) => {
   await page.goto('/en')

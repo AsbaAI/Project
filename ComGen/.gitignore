@@ -15,6 +15,7 @@ apps/web/test-results/
 apps/web/playwright-report/
 apps/web/e2e/captures/**/*.png
 !apps/web/e2e/captures/.gitkeep
+apps/web/e2e/.auth/
 
 # environnement — jamais de secret dans le dépôt
 .env

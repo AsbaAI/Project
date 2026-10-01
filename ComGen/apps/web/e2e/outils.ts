@@ -1,10 +1,23 @@
 import { type Page, expect, test } from '@playwright/test'
 
-/** Pages capturées et auditées dans les quatre configurations. */
+/**
+ * Pages capturées et auditées dans les quatre configurations, vues par la
+ * rédactrice Helvea sur le jeu de démonstration. COM-2026-0002 porte une
+ * contradiction non résolue ; COM-2026-0001 est en cours de revue.
+ */
 export const PAGES = [
   { nom: 'tableau-de-bord', chemin: '/' },
+  { nom: 'communications', chemin: '/communications' },
+  { nom: 'cadrage', chemin: '/communications/nouvelle' },
+  { nom: 'communication', chemin: '/communications/com_2026_0002' },
+  { nom: 'entree', chemin: '/communications/com_2026_0001/entree' },
+  { nom: 'fiche-de-faits', chemin: '/communications/com_2026_0002/faits' },
+  { nom: 'fiche-de-faits-revue', chemin: '/communications/com_2026_0001/faits' },
   { nom: 'design', chemin: '/design' },
 ] as const
+
+/** Session vide : pages vues sans être connecté. */
+export const SANS_SESSION = { cookies: [], origins: [] }
 
 /** Attend que les polices auto-hébergées soient chargées : sans cela, la capture montre la police de repli. */
 export async function attendreRendu(page: Page) {
