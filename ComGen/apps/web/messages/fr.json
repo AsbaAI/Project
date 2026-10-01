@@ -6,12 +6,11 @@
   },
   "nav": {
     "label": "Navigation principale",
+    "newCommunication": "Nouvelle communication",
     "dashboard": "Tableau de bord",
-    "communications": "Communications",
-    "sources": "Sources",
-    "personas": "Personas",
-    "templates": "Modèles",
-    "administration": "Administration",
+    "history": "Historique",
+    "analytics": "Analyses",
+    "settings": "Paramètres",
     "design": "Système de design"
   },
   "theme": {
@@ -58,6 +57,25 @@
     "REJETEE": "Rejetée",
     "ARCHIVEE": "Archivée"
   },
+  "home": {
+    "metaTitle": "Accueil",
+    "greeting": "Bonjour {prenom}",
+    "question": "Que voulez-vous faire ?",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d'un document, d'un texte ou d'un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l'historique."
+    },
+    "todo": {
+      "title": "À traiter",
+      "blocked": "{count, plural, =0 {Aucune bloquée} one {# bloquée} other {# bloquées}}",
+      "approval": "{count, plural, =0 {Rien à approuver} one {# à approuver} other {# à approuver}}",
+      "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
+    }
+  },
   "dashboard": {
     "title": "Tableau de bord",
     "description": "Vos communications par étape, ce qui attend votre approbation, ce qui est bloqué.",
@@ -84,6 +102,37 @@
     "byState": "Répartition par état",
     "stateCount": "{count, plural, one {# communication} other {# communications}}",
     "seeAll": "Toutes les communications"
+  },
+  "analytics": {
+    "title": "Analyses",
+    "description": "Envois, attentes, rejets et taux d'approbation, par persona et par format.",
+    "empty": {
+      "title": "Les indicateurs viendront des envois réels",
+      "description": "Ils apparaîtront ici dès que des communications auront été approuvées et envoyées : aucun chiffre n'est estimé."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
+    "soon": "Bientôt",
+    "sections": {
+      "models": {
+        "title": "Modèles d'IA",
+        "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
+      },
+      "personas": {
+        "title": "Personas",
+        "description": "Ton, niveau de détail, angle et longueur de chaque audience."
+      },
+      "lists": {
+        "title": "Listes de diffusion",
+        "description": "Destinataires de chaque persona."
+      },
+      "templates": {
+        "title": "Gabarits",
+        "description": "Formats et variantes de mise en page."
+      }
+    }
   },
   "notFound": {
     "title": "Page introuvable",
@@ -274,8 +323,8 @@
   },
   "communications": {
     "list": {
-      "title": "Communications",
-      "description": "Toutes les communications de votre organisation, de la plus récemment modifiée à la plus ancienne.",
+      "title": "Historique",
+      "description": "Toutes les communications de votre organisation, de la plus récente à la plus ancienne.",
       "empty": {
         "title": "Aucune communication",
         "description": "Rien n'a encore été cadré dans votre organisation."

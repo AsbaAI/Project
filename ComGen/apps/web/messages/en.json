@@ -6,12 +6,11 @@
   },
   "nav": {
     "label": "Main navigation",
+    "newCommunication": "New communication",
     "dashboard": "Dashboard",
-    "communications": "Communications",
-    "sources": "Sources",
-    "personas": "Personas",
-    "templates": "Templates",
-    "administration": "Administration",
+    "history": "History",
+    "analytics": "Analytics",
+    "settings": "Settings",
     "design": "Design system"
   },
   "theme": {
@@ -58,6 +57,25 @@
     "REJETEE": "Rejected",
     "ARCHIVEE": "Archived"
   },
+  "home": {
+    "metaTitle": "Home",
+    "greeting": "Hello {prenom}",
+    "question": "What would you like to do?",
+    "new": {
+      "title": "New communication",
+      "description": "Start from a document, a text or a template."
+    },
+    "existing": {
+      "title": "Existing communication",
+      "description": "Resume, follow up or duplicate from history."
+    },
+    "todo": {
+      "title": "To do",
+      "blocked": "{count, plural, =0 {None blocked} one {# blocked} other {# blocked}}",
+      "approval": "{count, plural, =0 {Nothing to approve} one {# to approve} other {# to approve}}",
+      "inProgress": "{count, plural, =0 {None in progress} one {# in progress} other {# in progress}}"
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "description": "Your communications by stage, what awaits your approval, what is blocked.",
@@ -84,6 +102,37 @@
     "byState": "Breakdown by state",
     "stateCount": "{count, plural, one {# communication} other {# communications}}",
     "seeAll": "All communications"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "description": "Sent, pending, rejected and approval rate, by persona and format.",
+    "empty": {
+      "title": "Indicators will come from real sends",
+      "description": "They will appear here once communications have been approved and sent: no figure is estimated."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "AI models, personas, mailing lists and templates.",
+    "soon": "Soon",
+    "sections": {
+      "models": {
+        "title": "AI models",
+        "description": "Provider and model, per agent. Keys stay in the vault."
+      },
+      "personas": {
+        "title": "Personas",
+        "description": "Tone, level of detail, angle and length for each audience."
+      },
+      "lists": {
+        "title": "Mailing lists",
+        "description": "Each persona's recipients."
+      },
+      "templates": {
+        "title": "Templates",
+        "description": "Formats and layout variants."
+      }
+    }
   },
   "notFound": {
     "title": "Page not found",
@@ -274,8 +323,8 @@
   },
   "communications": {
     "list": {
-      "title": "Communications",
-      "description": "Every communication in your organisation, most recently modified first.",
+      "title": "History",
+      "description": "Every communication in your organisation, most recent first.",
       "empty": {
         "title": "No communications",
         "description": "Nothing has been framed in your organisation yet."
