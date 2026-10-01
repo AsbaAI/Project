@@ -60,7 +60,7 @@ function fournisseurOidc(env: Environnement): OIDCConfig<Profile> | null {
 }
 
 function fournisseurSimulateur(env: Environnement) {
-  if (!env.AUTH_SIMULATEUR || env.NODE_ENV === 'production') return null
+  if (!env.AUTH_SIMULATEUR || env.COMGEN_ENV === 'production') return null
   return Credentials({
     id: FOURNISSEUR_SIMULATEUR,
     name: 'Simulateur',

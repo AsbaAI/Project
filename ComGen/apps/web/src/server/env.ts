@@ -21,6 +21,12 @@ const booleen = z
 const SchemaEnvironnement = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    /**
+     * Environnement de déploiement, distinct du mode de build : un build de
+     * production sert aussi aux tests de bout en bout. Par défaut, un build
+     * de production EST la production ; le dire autrement est explicite.
+     */
+    COMGEN_ENV: z.enum(['developpement', 'test', 'production']).optional(),
     DATABASE_URL: z.string().url(),
     AUTH_SECRET: z
       .string()
@@ -61,7 +67,7 @@ const SchemaEnvironnement = z
           'Aucun moyen de connexion : configurez OIDC ou, hors production, AUTH_SIMULATEUR=true',
       })
     }
-    if (env.AUTH_SIMULATEUR && env.NODE_ENV === 'production') {
+    if (env.AUTH_SIMULATEUR && environnementDeploiement(env) === 'production') {
       ctx.addIssue({ code: 'custom', message: 'AUTH_SIMULATEUR est interdit en production' })
     }
     if (env.STOCKAGE_TYPE === 's3') {
@@ -78,7 +84,17 @@ const SchemaEnvironnement = z
     }
   })
 
-export type Environnement = z.infer<typeof SchemaEnvironnement>
+type EnvironnementBrut = z.infer<typeof SchemaEnvironnement>
+
+function environnementDeploiement(
+  env: Pick<EnvironnementBrut, 'NODE_ENV' | 'COMGEN_ENV'>,
+): 'developpement' | 'test' | 'production' {
+  return env.COMGEN_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'developpement')
+}
+
+export type Environnement = Omit<EnvironnementBrut, 'COMGEN_ENV'> & {
+  COMGEN_ENV: 'developpement' | 'test' | 'production'
+}
 
 export class ErreurConfiguration extends Error {
   constructor(message: string) {
@@ -87,7 +103,9 @@ export class ErreurConfiguration extends Error {
   }
 }
 
-export function analyserEnvironnement(source: NodeJS.ProcessEnv): Environnement {
+export function analyserEnvironnement(
+  source: Readonly<Record<string, string | undefined>>,
+): Environnement {
   const resultat = SchemaEnvironnement.safeParse(source)
   if (!resultat.success) {
     const details = resultat.error.issues
@@ -95,7 +113,7 @@ export function analyserEnvironnement(source: NodeJS.ProcessEnv): Environnement 
       .join('\n')
     throw new ErreurConfiguration(`Configuration invalide :\n${details}`)
   }
-  return resultat.data
+  return { ...resultat.data, COMGEN_ENV: environnementDeploiement(resultat.data) }
 }
 
 /** Racine du dépôt local de fichiers : `STOCKAGE_RACINE` ou `<dépôt>/.local/stockage`. */
