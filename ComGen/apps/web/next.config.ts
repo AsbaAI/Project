@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
@@ -12,6 +14,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   poweredByHeader: false,
+  // Racine du traçage des fichiers serveur : l'espace pnpm (`ComGen/`), pas
+  // le dépôt Git qui l'héberge. Le build s'exécute toujours dans apps/web.
+  outputFileTracingRoot: path.join(process.cwd(), '../..'),
   experimental: {
     // Dépôt de sources par action serveur : 50 Mio par envoi (voir
     // TAILLE_MAX_DEPOT_OCTETS), plus la marge de l'encodage multipart. Le

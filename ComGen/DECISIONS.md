@@ -399,3 +399,31 @@ s'enrichira en R6. Le tableau de bord passe à `/tableau-de-bord`.
 **Analyses et Paramètres existent avec un état vide qui dit ce qui
 viendra**, plutôt que des zéros qui passeraient pour une mesure ou des
 liens vers des pages vides.
+
+## 2026-10-01 — Démonstration publique
+
+Demandée par le propriétaire : un lien public, sur l'hébergement le plus
+simple. Procédure dans `docs/DEPLOIEMENT.md`.
+
+- **Vercel + Neon**, offres gratuites. Le build de `apps/web` culmine vers
+  950 Mo : les offres à 512 Mo échouent. Neon s'ajoute depuis Vercel et
+  pose ses variables lui-même.
+- **`COMGEN_ENV=demo`, quatrième environnement, toujours déclaré**, jamais
+  déduit : un build de production sans déclaration reste la production, où
+  le simulateur de connexion est refusé. En démo, le simulateur est admis et
+  un bandeau « Démonstration » (texte et pictogramme) précède l'en-tête de
+  chaque page, connexion comprise. La valeur est lue par les layouts
+  serveur ; le bandeau ne décide de rien.
+- **Hauteur du bandeau fixe** (`--layout-demo-height`) : sa présence
+  allonge `--layout-chrome-height`, dont partent la barre latérale
+  collante, le panneau collant de la fiche de faits et le défilement
+  d'ancre. Version courte du message sous `md` pour tenir sur une ligne.
+- **Seed « si vide »** (`pnpm db:seed:si-vide`) au build : un redéploiement
+  ne remet pas la démonstration à zéro. La remise à zéro reste le seed
+  complet, lancé à la main.
+- **Migrations sur `DATABASE_URL_UNPOOLED`** quand elle existe : les
+  verrous de session de `migrate deploy` ne passent pas un pooler en mode
+  transaction. L'application reste sur l'URL mutualisée.
+- **Limites acceptées, écrites dans la procédure** : 4,5 Mo par dépôt
+  (plafond des fonctions Vercel), fichiers déposés éphémères (`/tmp` ; le
+  texte de la source est en base), pas d'antivirus, pas de modèle.

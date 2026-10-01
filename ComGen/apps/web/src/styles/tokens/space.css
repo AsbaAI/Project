@@ -26,10 +26,19 @@
     --layout-sidebar-width: 15rem; /* 240px */
     --layout-gutter: 1.5rem; /* 24px, 16px sur téléphone (voir base.css) */
     --layout-max-width: 90rem; /* 1440px */
+    /* Bandeau de démonstration publique (COMGEN_ENV=demo), une ligne. */
+    --layout-demo-height: 2rem; /* 32px */
+    /* Hauteur collante en tête de page : l'en-tête, plus le bandeau quand
+     * il est présent. Tout décalage sous l'en-tête part de cette valeur. */
+    --layout-chrome-height: var(--layout-header-height);
 
     /* Cible tactile minimale (WCAG 2.2 AA, critère 2.5.8). Les contrôles
      * plus petits que cette valeur doivent élargir leur zone cliquable
      * sans grossir visuellement. */
     --target-min: 1.5rem; /* 24px */
+  }
+
+  :root:has([data-bandeau-demo]) {
+    --layout-chrome-height: calc(var(--layout-header-height) + var(--layout-demo-height));
   }
 }

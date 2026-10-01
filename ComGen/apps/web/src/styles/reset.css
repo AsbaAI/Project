@@ -29,8 +29,8 @@
      * sur iOS, qui casse l'échelle typographique. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Le défilement d'ancre respecte l'en-tête fixe. */
-    scroll-padding-block-start: calc(var(--layout-header-height) + 1rem);
+    /* Le défilement d'ancre respecte l'en-tête fixe (et le bandeau de démo). */
+    scroll-padding-block-start: calc(var(--layout-chrome-height) + 1rem);
     /* Réserve la gouttière de défilement : aucun décalage de mise en
      * page quand une barre apparaît. */
     scrollbar-gutter: stable;

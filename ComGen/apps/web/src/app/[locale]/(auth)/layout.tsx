@@ -1,8 +1,10 @@
 import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 
+import { BandeauDemo } from '@/components/layout/bandeau-demo'
 import { LocaleSwitcher } from '@/components/layout/locale-switcher'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { environnement } from '@/server/env'
 
 /*
  * Écrans hors session (connexion). Pas de navigation : il n'y a nulle part
@@ -16,6 +18,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <a href="#contenu" className="skip-link">
         {t('skipToContent')}
       </a>
+      {environnement().COMGEN_ENV === 'demo' ? <BandeauDemo /> : null}
       <header className="h-header border-b-w border-line-default bg-surface-raised">
         <div className="mx-auto flex h-full w-full max-w-page items-center gap-3 px-gutter">
           <span className="flex items-center gap-2 text-base font-semibold tracking-tight text-ink-primary">

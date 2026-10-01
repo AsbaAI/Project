@@ -130,6 +130,7 @@ par le propriétaire (voir `DECISIONS.md`), une branche par étape.
 | [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) | spécification contractuelle, sections 1 à 21                   |
 | [`CLAUDE.md`](CLAUDE.md)                         | mémoire de travail : contrainte cardinale, règles, commandes   |
 | [`DECISIONS.md`](DECISIONS.md)                   | journal des choix non dictés par la spécification              |
+| [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md)     | démonstration publique sur Vercel et Neon, pas à pas           |
 | `docs/archive/cadrage-initial/`                  | documents antérieurs à la spécification, sans valeur normative |
 
 ---

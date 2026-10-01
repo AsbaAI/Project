@@ -159,6 +159,8 @@
 
   /* Gabarits : exposés comme espacements nommés (`w-sidebar`, `h-header`, `max-w-page`) */
   --spacing-header: var(--layout-header-height);
+  --spacing-chrome: var(--layout-chrome-height);
+  --spacing-demo: var(--layout-demo-height);
   --spacing-sidebar: var(--layout-sidebar-width);
   --spacing-page: var(--layout-max-width);
   --spacing-control-sm: var(--control-height-sm);

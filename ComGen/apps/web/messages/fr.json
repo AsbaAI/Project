@@ -2,7 +2,12 @@
   "app": {
     "name": "ComGen",
     "tagline": "Communications inter-entreprises vérifiées",
-    "skipToContent": "Aller au contenu principal"
+    "skipToContent": "Aller au contenu principal",
+    "demo": {
+      "label": "Démonstration.",
+      "message": "Données fictives, visibles de tous : n’y saisissez aucune information réelle.",
+      "short": "Données fictives uniquement."
+    }
   },
   "nav": {
     "label": "Navigation principale",
@@ -294,6 +299,7 @@
       "simulator": {
         "title": "Compte de démonstration",
         "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
+        "descriptionDemo": "Démonstration publique : choisissez un compte fictif, sans mot de passe. Un compte « Rédacteur » peut créer une communication.",
         "account": "Compte",
         "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
         "submit": "Ouvrir la session"

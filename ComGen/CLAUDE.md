@@ -216,6 +216,10 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
 - `.env.example` documente chaque variable. `COMGEN_ENV` sépare le lieu
   de déploiement du mode de build : `next start` vaut production, où le
   simulateur de connexion est refusé ; Playwright déclare `COMGEN_ENV=test`.
+  `COMGEN_ENV=demo` (démonstration publique, Vercel + Neon,
+  `docs/DEPLOIEMENT.md`) admet le simulateur et affiche le bandeau. Tout
+  décalage sous l'en-tête part de `--layout-chrome-height`, jamais de
+  `--layout-header-height` seul.
 - E2E : la rédactrice Helvea (captures) et la rédactrice Kestrel
   (parcours qui écrivent) se connectent par l'écran réel
   (`e2e/connexion.setup.ts`) ; les écrans capturés ne changent donc pas

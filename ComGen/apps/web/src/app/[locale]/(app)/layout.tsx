@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import { AppShell } from '@/components/layout/app-shell'
 import { exigerUtilisateur } from '@/server/auth/session'
+import { environnement } from '@/server/env'
 
 /*
  * Tout ce qui est sous `(app)` exige une session. La vérification est
@@ -11,7 +12,10 @@ import { exigerUtilisateur } from '@/server/auth/session'
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const utilisateur = await exigerUtilisateur()
   return (
-    <AppShell utilisateur={{ nom: utilisateur.nom, courriel: utilisateur.courriel }}>
+    <AppShell
+      utilisateur={{ nom: utilisateur.nom, courriel: utilisateur.courriel }}
+      demo={environnement().COMGEN_ENV === 'demo'}
+    >
       {children}
     </AppShell>
   )

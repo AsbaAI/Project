@@ -170,7 +170,7 @@ export default async function FichePage({ params }: PageProps) {
             <aside
               aria-labelledby="titre-sources"
               tabIndex={0}
-              className="flex min-w-0 flex-col gap-3 rounded-md focus-ring *:shrink-0 lg:sticky lg:top-[calc(var(--layout-header-height)+1rem)] lg:max-h-[calc(100dvh-var(--layout-header-height)-2rem)] lg:overflow-y-auto"
+              className="flex min-w-0 flex-col gap-3 rounded-md focus-ring *:shrink-0 lg:sticky lg:top-[calc(var(--layout-chrome-height)+1rem)] lg:max-h-[calc(100dvh-var(--layout-chrome-height)-2rem)] lg:overflow-y-auto"
             >
               <h2 id="titre-sources" className="text-base font-semibold text-ink-primary">
                 {t('fiche.sourcePanel.title')}

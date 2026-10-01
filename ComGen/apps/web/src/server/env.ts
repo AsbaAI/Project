@@ -25,8 +25,10 @@ const SchemaEnvironnement = z
      * Environnement de déploiement, distinct du mode de build : un build de
      * production sert aussi aux tests de bout en bout. Par défaut, un build
      * de production EST la production ; le dire autrement est explicite.
+     * `demo` : démonstration publique, données fictives, bandeau visible,
+     * connexion simulée admise. Jamais déduit : seulement déclaré.
      */
-    COMGEN_ENV: z.enum(['developpement', 'test', 'production']).optional(),
+    COMGEN_ENV: z.enum(['developpement', 'test', 'demo', 'production']).optional(),
     DATABASE_URL: z.string().url(),
     AUTH_SECRET: z
       .string()
@@ -35,7 +37,7 @@ const SchemaEnvironnement = z
     AUTH_OIDC_ISSUER: z.string().url().optional(),
     AUTH_OIDC_CLIENT_ID: z.string().min(1).optional(),
     AUTH_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
-    /** Connexion simulée (choix d'un utilisateur de démonstration) : développement et test seulement. */
+    /** Connexion simulée (choix d'un utilisateur de démonstration) : jamais en production. */
     AUTH_SIMULATEUR: booleen,
     STOCKAGE_TYPE: z.enum(['fichiers', 's3']).default('fichiers'),
     STOCKAGE_RACINE: z.string().min(1).optional(),
@@ -86,14 +88,16 @@ const SchemaEnvironnement = z
 
 type EnvironnementBrut = z.infer<typeof SchemaEnvironnement>
 
+export type EnvironnementDeploiement = 'developpement' | 'test' | 'demo' | 'production'
+
 function environnementDeploiement(
   env: Pick<EnvironnementBrut, 'NODE_ENV' | 'COMGEN_ENV'>,
-): 'developpement' | 'test' | 'production' {
+): EnvironnementDeploiement {
   return env.COMGEN_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'developpement')
 }
 
 export type Environnement = Omit<EnvironnementBrut, 'COMGEN_ENV'> & {
-  COMGEN_ENV: 'developpement' | 'test' | 'production'
+  COMGEN_ENV: EnvironnementDeploiement
 }
 
 export class ErreurConfiguration extends Error {

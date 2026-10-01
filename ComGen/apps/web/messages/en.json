@@ -2,7 +2,12 @@
   "app": {
     "name": "ComGen",
     "tagline": "Verified business-to-business communications",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "demo": {
+      "label": "Demo.",
+      "message": "Fictional data, visible to everyone: do not enter any real information.",
+      "short": "Fictional data only."
+    }
   },
   "nav": {
     "label": "Main navigation",
@@ -294,6 +299,7 @@
       "simulator": {
         "title": "Demo account",
         "description": "Development environment: pick an account from the demo data set. No password. This mode is refused in production.",
+        "descriptionDemo": "Public demo: pick a fictional account, no password. A “Writer” account can create a communication.",
         "account": "Account",
         "hint": "The roles shown are those stored in the database; they are re-read on every request.",
         "submit": "Open session"
