@@ -51,8 +51,8 @@ export function TexteSource({
             data-faits={couvrants.join(' ')}
             className={
               contradictoire
-                ? 'rounded-xs bg-danger-bg text-ink-primary underline decoration-danger-solid decoration-wavy decoration-1 underline-offset-4'
-                : 'rounded-xs bg-accent-bg text-ink-primary'
+                ? 'rounded-xs bg-highlight-danger text-ink-primary underline decoration-danger-solid decoration-wavy decoration-1 underline-offset-4'
+                : 'rounded-xs bg-highlight text-ink-primary'
             }
           >
             {ancres}

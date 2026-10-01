@@ -177,6 +177,11 @@
     --color-accent-bg: var(--p-accent-50);
     --color-accent-line: var(--p-accent-200);
 
+    /* Surlignage des citations dans le texte d'une source : plus marqué
+       qu'un fond accentué, il doit se lire sur toutes les surfaces. */
+    --color-highlight: var(--p-accent-100);
+    --color-highlight-danger: var(--p-danger-100);
+
     /* Focus — un seul anneau dans toute l'application */
     --color-focus: var(--p-accent-600);
   }
@@ -247,6 +252,9 @@
       --color-accent-bg: var(--p-accent-950);
       --color-accent-line: oklch(0.34 0.062 205);
 
+      --color-highlight: var(--p-accent-900);
+      --color-highlight-danger: var(--p-danger-900);
+
       --color-focus: var(--p-accent-400);
     }
   }
@@ -310,6 +318,9 @@
 
     --color-accent-bg: var(--p-accent-950);
     --color-accent-line: oklch(0.34 0.062 205);
+
+    --color-highlight: var(--p-accent-900);
+    --color-highlight-danger: var(--p-danger-900);
 
     --color-focus: var(--p-accent-400);
   }

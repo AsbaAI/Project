@@ -208,6 +208,8 @@ const PAIRS = [
   ['--color-ink-primary', '--color-warning-bg', TEXTE, 'Corps de message / fond alerte'],
   ['--color-ink-primary', '--color-danger-bg', TEXTE, 'Corps de message / fond erreur'],
   ['--color-ink-primary', '--color-accent-bg', TEXTE, 'Corps de message / fond accentué'],
+  ['--color-ink-primary', '--color-highlight', TEXTE, 'Citation surlignée / surlignage'],
+  ['--color-ink-primary', '--color-highlight-danger', TEXTE, 'Citation contredite / surlignage'],
   ['--color-ink-secondary', '--color-success-bg', TEXTE, 'Détail de message / fond succès'],
   ['--color-ink-secondary', '--color-warning-bg', TEXTE, 'Détail de message / fond alerte'],
   ['--color-ink-secondary', '--color-danger-bg', TEXTE, 'Détail de message / fond erreur'],

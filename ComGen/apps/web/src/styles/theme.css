@@ -78,6 +78,8 @@
   --color-danger-solid: var(--color-danger-solid);
 
   --color-accent-bg: var(--color-accent-bg);
+  --color-highlight: var(--color-highlight);
+  --color-highlight-danger: var(--color-highlight-danger);
   --color-accent-line: var(--color-accent-line);
 
   --color-focus: var(--color-focus);
