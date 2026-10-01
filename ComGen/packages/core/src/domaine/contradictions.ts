@@ -10,6 +10,11 @@ import type { StatutFait, TypeValeur } from './enumerations.ts'
  * libellé humain du fait (« Heure de rétablissement du service ») ; deux
  * faits qui répondent à la même question avec deux valeurs se contredisent.
  *
+ * Deux valeurs tirées de la même citation de la même source ne se
+ * contredisent pas : une phrase qui porte deux heures (« de 22h00 à
+ * 02h00 ») donne deux faits candidats de même énoncé, la phrase elle-même.
+ * Il faut au moins deux valeurs différentes venues de citations différentes.
+ *
  * Trancher = retirer l'un des faits (RETIRE) ou amender sa valeur pour
  * qu'elle rejoigne l'autre. Un fait PERIME ne compte plus. L'ARBITRE
  * (lot 3) proposera des rapprochements sémantiques ; il ne remplace pas
@@ -22,6 +27,8 @@ export interface FaitComparable {
   typeValeur: TypeValeur | null
   valeur: string | null
   statut: StatutFait
+  sourceId: string
+  citation: string
 }
 
 export interface Contradiction {
@@ -70,7 +77,7 @@ export function detecterContradictions(faits: readonly FaitComparable[]): Contra
     const [premier, second] = groupe
     if (premier === undefined || second === undefined) continue
     const valeurs = [...new Set(groupe.map((fait) => fait.valeur ?? ''))]
-    if (valeurs.length < 2) continue
+    if (valeurs.length < 2 || !desaccordEntreCitations(groupe)) continue
     contradictions.push({
       enonce: normaliserEnonce(premier.enonce),
       typeValeur: premier.typeValeur,
@@ -79,4 +86,15 @@ export function detecterContradictions(faits: readonly FaitComparable[]): Contra
     })
   }
   return contradictions
+}
+
+function origine(fait: FaitComparable): string {
+  return `${fait.sourceId}\u0000${fait.citation}`
+}
+
+/** Vrai s'il existe deux faits de valeurs différentes venus de citations différentes. */
+function desaccordEntreCitations(groupe: readonly FaitComparable[]): boolean {
+  return groupe.some((a, i) =>
+    groupe.slice(i + 1).some((b) => a.valeur !== b.valeur && origine(a) !== origine(b)),
+  )
 }

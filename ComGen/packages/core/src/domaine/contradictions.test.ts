@@ -8,6 +8,8 @@ function fait(partiel: Partial<FaitComparable> & { id: string }): FaitComparable
     typeValeur: 'DATE',
     valeur: '15h10',
     statut: 'CONFIRME',
+    sourceId: `source-${partiel.id}`,
+    citation: `citation de ${partiel.id}`,
     ...partiel,
   }
 }
@@ -82,6 +84,36 @@ describe('detecterContradictions', () => {
     expect(resultat).toHaveLength(1)
     expect(resultat[0]?.faits).toHaveLength(4)
     expect(resultat[0]?.valeurs).toEqual(['15h10', '14h52', '16h00'])
+  })
+})
+
+describe('detecterContradictions — valeurs d’une même citation', () => {
+  it('deux valeurs tirées de la même phrase ne se contredisent pas', () => {
+    const phrase = 'Fenêtre : mercredi 14 octobre 2026 de 22h00 à 02h00.'
+    expect(
+      detecterContradictions([
+        fait({ id: 'a', enonce: phrase, valeur: '22h00', sourceId: 's', citation: phrase }),
+        fait({ id: 'b', enonce: phrase, valeur: '02h00', sourceId: 's', citation: phrase }),
+      ]),
+    ).toEqual([])
+  })
+
+  it('la même citation dans deux sources différentes peut se contredire', () => {
+    const resultat = detecterContradictions([
+      fait({ id: 'a', valeur: '15h10', sourceId: 's1', citation: 'rétabli à 15h10' }),
+      fait({ id: 'b', valeur: '14h52', sourceId: 's2', citation: 'rétabli à 15h10' }),
+    ])
+    expect(resultat).toHaveLength(1)
+  })
+
+  it('un troisième fait d’une autre citation suffit à révéler le désaccord', () => {
+    const resultat = detecterContradictions([
+      fait({ id: 'a', valeur: '22h00', sourceId: 's', citation: 'phrase' }),
+      fait({ id: 'b', valeur: '02h00', sourceId: 's', citation: 'phrase' }),
+      fait({ id: 'c', valeur: '22h00', sourceId: 't', citation: 'autre phrase' }),
+    ])
+    expect(resultat).toHaveLength(1)
+    expect(resultat[0]?.faits.map((f) => f.id)).toEqual(['a', 'b', 'c'])
   })
 })
 
