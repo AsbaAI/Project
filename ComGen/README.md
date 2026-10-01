@@ -72,22 +72,36 @@ Vitest · Playwright + axe-core · Storybook · oxlint · Prettier.
 
 ## Démarrage
 
-Prérequis : Node ≥ 22.12, pnpm 10, PostgreSQL 16, Chromium Playwright
-(Redis 7 à partir du lot 3).
+Prérequis : Node ≥ 22.12, pnpm 10, PostgreSQL 16 en service. Redis n'est
+pas nécessaire avant le lot 3 ; Chromium Playwright ne sert qu'aux tests.
+
+Le rôle PostgreSQL doit exister et pouvoir créer des bases : chaque suite
+de tests a la sienne, et `db:migrate` crée celle de développement.
+
+```bash
+psql -U postgres -c "CREATE ROLE comgen LOGIN PASSWORD 'comgen_dev' CREATEDB;"
+```
+
+Puis, depuis ce dossier :
 
 ```bash
 pnpm install
-cp .env.example .env     # puis renseigner AUTH_SECRET (openssl rand -base64 32)
-pnpm db:migrate          # crée la base si besoin et applique les migrations
-pnpm db:seed             # jeu de démonstration (§20) : 2 organisations, 6 communications
-pnpm dev                 # http://localhost:3000 — connexion par compte de démonstration
+cp .env.example .env      # un seul .env, ici, partagé par l'application et Prisma
+pnpm db:migrate           # crée comgen_dev et applique les migrations
+pnpm db:seed              # jeu de démonstration (§20) : 2 organisations, 6 communications
+pnpm dev                  # http://localhost:3000
 ```
 
-Le rôle PostgreSQL `comgen` doit pouvoir créer des bases (`CREATEDB`) :
-chaque suite de tests a la sienne, créée par Prisma au premier passage.
-Le compte de démonstration conseillé pour découvrir l'application est
-Claire Fontaine (rédactrice, Helvea) ; COM-2026-0002 porte une
-contradiction entre deux sources à trancher.
+Entre la copie et la migration, renseigner `AUTH_SECRET` dans `.env` :
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+La connexion se fait en choisissant un compte de démonstration, sans mot de
+passe. Prendre Claire Fontaine (rédactrice, Helvea) ; COM-2026-0002 porte
+une contradiction entre deux sources à trancher, qui bloque la suite et
+explique pourquoi.
 
 ## Commandes
 

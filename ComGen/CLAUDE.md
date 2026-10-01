@@ -213,6 +213,11 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   `apps/web`, projet Vitest `services`, migrée par son `globalSetup`),
   `comgen_e2e` (Playwright, migrée puis remise au seed par la commande du
   `webServer` — Playwright lance le serveur **avant** `globalSetup`).
+- **Un seul `.env`, à la racine de l'espace de travail.** Prisma 7 ne le
+  charge plus seul et Next ne lit que ceux de `apps/web` : il est chargé
+  explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+  `next.config.ts`, et par `--env-file-if-exists` pour le seed. Ces appels
+  n'écrasent aucune variable déjà posée (plateforme, shell, Playwright).
 - `.env.example` documente chaque variable. `COMGEN_ENV` sépare le lieu
   de déploiement du mode de build : `next start` vaut production, où le
   simulateur de connexion est refusé ; Playwright déclare `COMGEN_ENV=test`.
