@@ -131,6 +131,30 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 - **Stories Storybook** : contenu d'exemple français en dur autorisé (outil
   de développement, pas d'interface livrée). Titres `Composants/…`.
 
+## Couches de `apps/web` — où va quoi
+
+- **Pages** (`app/[locale]/(app)/…`, groupe protégé ; `(auth)/connexion`
+  hors session) : composants serveur. Elles obtiennent l'acteur par
+  `acteurDePage()` (`server/pages.ts`, renvoie vers la connexion), lisent
+  par un service, transforment l'absence en 404 par `ou404`. Aucune règle.
+- **Actions serveur** (`communications/actions.ts`) : relisent la session,
+  lisent le `FormData`, appellent un service, traduisent l'issue en
+  `EtatFormulaire` (`ok`, `erreur` + `champs`/`motifs`/`valeurs`). Elles ne
+  décident de rien.
+- **Services** (`server/services/*`) : toute la règle. Reçoivent un
+  `Acteur` (utilisateur relu en base + contexte cloisonné) et des **chaînes
+  brutes** validées par Zod ici seulement ; vérifient le droit par
+  `exigerDroit` (`server/auth/droits.ts`) ; lèvent `ErreurMetier(code, …)`.
+  Les transitions manuelles sont une liste blanche (`services/etat.ts`) :
+  aucun chemin manuel vers `EN_APPROBATION`, `APPROUVEE`, `ENVOYEE`.
+- **Formulaires** : React 19 réinitialise un formulaire après son action.
+  L'action renvoie les valeurs soumises, le formulaire se remonte avec
+  `key={cleFormulaire(etat)}` et relit `valeurSoumise(etat, champ)`.
+- **Clés de messages dynamiques** : `t.has(cle)` puis conversion vers une
+  union typée (`lib/cles-messages.ts`) ; jamais de ``t(`x.${y}`)`` non vérifié.
+- **Typographie française** : espace insécable (U+00A0) avant `: ; ? !` et
+  dans les guillemets « » de `messages/fr.json`.
+
 ## Commandes
 
 ```bash
@@ -174,7 +198,23 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
 ## Environnement de cette machine
 
 - Node 22, pnpm 10. PostgreSQL 16 et Redis 7 installés **localement**
-  (pas de démon Docker) : les lancer avec `pg_ctl` / `redis-server`.
+  (pas de démon Docker) : `pg_ctlcluster 16 main start`, `redis-server`.
+- Rôle `comgen` / `comgen_dev`, avec `CREATEDB`. Une base par usage :
+  `comgen_dev` (développement, `pnpm db:migrate && pnpm db:seed`),
+  `comgen_test` (tests de `packages/db`), `comgen_test_web` (services de
+  `apps/web`, projet Vitest `services`, migrée par son `globalSetup`),
+  `comgen_e2e` (Playwright, migrée puis remise au seed par la commande du
+  `webServer` — Playwright lance le serveur **avant** `globalSetup`).
+- `.env.example` documente chaque variable. `COMGEN_ENV` sépare le lieu
+  de déploiement du mode de build : `next start` vaut production, où le
+  simulateur de connexion est refusé ; Playwright déclare `COMGEN_ENV=test`.
+- E2E : la rédactrice Helvea (captures) et la rédactrice Kestrel
+  (parcours qui écrivent) se connectent par l'écran réel
+  (`e2e/connexion.setup.ts`) ; les écrans capturés ne changent donc pas
+  d'une passe à l'autre.
+- Le nom accessible d'un champ inclut sa mention (« Titre obligatoire ») ;
+  les suggestions `aka getByLabel('Titreobligatoire')` de Playwright
+  viennent du `textContent`, pas de l'arbre d'accessibilité.
 - Chromium Playwright préinstallé dans `/opt/pw-browsers` (build 1194 ↔
   Playwright 1.56) ; ne pas exécuter `playwright install`.
 - Pas d'accès réseau sortant direct depuis le navigateur headless

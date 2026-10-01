@@ -177,3 +177,151 @@ Le sélecteur de thème de la barre d'outils applique le même
 reçoivent `NextIntlClientProvider` (fr) et `ThemeProvider` comme les pages.
 Le contenu d'exemple des stories est en français en dur : outil de
 développement, pas d'interface livrée.
+
+## 2026-10-01 — Lot 1
+
+### Données et domaine
+
+**Contradiction = même énoncé, même type, valeurs différentes, citations
+différentes.** Deux faits vivants se contredisent quand leur énoncé
+normalisé et leur type de valeur coïncident, que leurs valeurs diffèrent
+et qu'ils ne viennent pas du même extrait (même source, même citation).
+Le dernier critère évite un faux positif vécu : deux valeurs d'une même
+phrase ne sont pas deux sources en désaccord. Une contradiction se tranche
+en retirant un fait ou en amendant sa valeur ; elle bloque
+`PRETE_A_GENERER`.
+
+**Garde `FAIT_NON_REVU`.** La spécification rend la revue de la fiche
+obligatoire (§10) ; la garde de `FAITS_A_VALIDER → PRETE_A_GENERER`
+refuse tant qu'un fait reste `PROPOSE`. Test écrit d'abord.
+
+**`PRETE_A_GENERER` est refusée au lot 1 (`AUCUN_PERSONA`).** Le choix
+des personas se stocke sur les variantes, qui naissent au lot 3 ; la
+garde existe déjà et le dit, plutôt que de laisser passer une
+communication sans audience.
+
+**Transitions manuelles en liste blanche** (`services/etat.ts`) :
+brouillon ↔ faits à valider ↔ prête à générer, et l'archivage depuis ces
+trois états. Tout le reste passe par son parcours propre (génération,
+contrôle, approbation) — un test vérifie qu'aucune requête manuelle
+n'atteint `APPROUVEE`, `ENVOI_PLANIFIE` ou `ENVOYEE`. Le changement
+d'état est un `updateMany … where etat = <attendu>` : verrou optimiste,
+`CONFLIT` si un autre l'a changé entre-temps.
+
+**Amendements seulement fiche ouverte.** Au lot 1, une valeur s'amende
+tant que la communication est en brouillon, faits à valider ou prête à
+générer (dans ce dernier cas elle revient à faits à valider). Le
+déclencheur SQL annule déjà les approbations des variantes qui citent le
+fait : le chemin d'amendement après génération est prêt pour le lot 4.
+
+**Reprise : lien enregistré, comportements au lot 8.** Le cadrage
+enregistre la communication d'origine (lue dans le contexte cloisonné) et
+l'intention (mise à jour, correctif, rappel) ; l'originale n'est jamais
+modifiée. Les effets propres à chaque intention viennent avec le lot 8.
+
+**Dates saisies dans le fuseau du site, sinon de l'organisation**,
+converties en UTC par `heureLocaleVersUtc` (`core/domaine/temps.ts`). Une
+heure inexistante (passage à l'heure d'été) ou ambiguë (retour à l'heure
+d'hiver) est refusée avec son motif, jamais devinée. Le fuseau est écrit
+à côté des champs.
+
+### Entrée des sources
+
+**Candidats de faits déterministes.** Au lot 1, sans modèle, l'extraction
+propose des faits par motifs (identifiants, versions, dates, nombres)
+avec citation vérifiée mot pour mot ; tous naissent `PROPOSE` et doivent
+être revus. L'EXTRACTEUR du lot 3 remplacera la source des candidats, pas
+la règle de citation.
+
+**Langue détectée par heuristique de mots-outils**, stockée sur la
+source ; en dessous d'un score de 3, la langue est « non détectée »
+plutôt que devinée.
+
+**Formats lus : docx (mammoth), pdf avec texte (pdf-parse), xlsx
+(SheetJS 0.20.3 depuis son CDN officiel, la version npm n'étant plus
+maintenue), csv, md, txt.** Le type est vérifié par signature (lecteur de
+répertoire central zip pour distinguer docx/xlsx/pptx), pas par
+extension. Un PDF sans couche texte est refusé (`TEXTE_ABSENT`) : l'OCR,
+pptx, eml et msg arrivent au lot 8 et sont aujourd'hui refusés et
+signalés comme tels.
+
+**Antivirus explicite.** `ANTIVIRUS_MODE` n'a pas de valeur par défaut :
+`clamd` ou `aucun`, écrit en toutes lettres. Avec `aucun`, chaque dépôt
+affiche « Aucune analyse antivirale ». Un démon injoignable refuse le
+fichier (`ANTIVIRUS_INDISPONIBLE`), jamais de passage silencieux.
+
+**Plafonds** : 20 fichiers, 25 Mio par fichier, 50 Mio par dépôt, 200 000
+caractères de texte saisi. Les limites de corps de Next
+(`serverActions.bodySizeLimit`, `proxyClientMaxBodySize`) sont alignées à
+52 Mio pour que le refus vienne du service, avec son message.
+
+**Stockage local** : `<racine>/<clé>` et un fichier compagnon `.type`
+pour le type de contenu ; clé `org/<organisation>/sources/<id>/<nom>`.
+L'adaptateur S3 suit la même interface. Les objets d'un dépôt dont la
+transaction échoue sont supprimés.
+
+**Doublons par empreinte SHA-256 du texte normalisé**, dans la
+communication : le même texte déposé sous deux formats (docx puis pdf)
+est un doublon, deux fichiers au texte différent n'en sont pas.
+
+### Authentification
+
+**Auth.js v5, session JWT, utilisateur relu en base à chaque requête** :
+rôles et rattachement ne vivent pas dans le jeton, une révocation prend
+effet immédiatement. Le simulateur de connexion (choix d'un compte du jeu
+de démonstration) n'existe qu'hors production.
+
+**`COMGEN_ENV`** distingue le lieu de déploiement du mode de build : les
+tests de bout en bout tournent sur `next start` (`NODE_ENV=production`)
+et déclarent `COMGEN_ENV=test` pour utiliser le simulateur ; sans
+déclaration, un build de production est la production.
+
+### Tests
+
+**Une base par suite** : `comgen_test` (db), `comgen_test_web` (services
+web, fichiers en série), `comgen_e2e` (Playwright). Une suite vide sa
+base ; partager une base ferait dépendre un test de l'ordre des autres.
+
+**E2E sur une base remise au seed à chaque passe**, préparée par la
+commande du serveur (Playwright démarre le `webServer` avant
+`globalSetup`). Les parcours qui écrivent tournent sous Kestrel, les
+captures sous Helvea : les écrans relus sont stables.
+
+**Le seed est aligné sur l'extraction réelle** : le texte de chaque
+source du jeu de démonstration est exactement celui que l'extracteur
+produit sur le fichier déposé (vérifié), sinon les citations du seed
+mentiraient sur leur source.
+
+### Interface
+
+**Les formulaires renvoient leurs valeurs.** React 19 réinitialise un
+formulaire après son action ; l'état d'erreur porte les valeurs soumises
+et le formulaire se remonte avec elles. Rien de ce qui a été saisi ne se
+perd sur un refus.
+
+**Actions d'un fait en une barre, un volet à la fois.** Trois `<details>`
+empilés par carte rendaient la fiche illisible (27 bandeaux pour 9
+faits). Un volet se referme après succès en comparant le jeton de
+réponse à celui de l'ouverture — sans effet de bord.
+
+**Modes d'entrée à venir nommés, pas grisés.** Cinq cartes désactivées
+noyaient les deux choix réels ; elles deviennent une ligne « Pas encore
+disponibles : … ».
+
+**Zone de dépôt maison autour d'un `<input type="file">` natif**,
+visuellement masqué : le texte du contrôle natif suit la langue du
+navigateur, pas celle de l'interface. Le glisser-déposer est un raccourci
+(directive oxlint motivée) ; le contrôle natif reste le chemin clavier.
+
+**Colonne des sources focalisable** (`tabIndex=0`) : elle défile seule sur
+grand écran ; sans focus, son contenu serait inatteignable au clavier
+(axe `scrollable-region-focusable`). La règle oxlint contraire est levée
+pour ce fichier, motif écrit.
+
+**Jeton `highlight`** pour le surlignage des citations : le fond accentué
+était presque invisible sur la surface de base. Deux couples de
+contraste ajoutés au vérificateur.
+
+**Typographie française** : espaces insécables avant `: ; ? !` et dans
+les guillemets, dans tout le catalogue fr (un « » : » isolé en fin de
+ligne a été vu sur téléphone).

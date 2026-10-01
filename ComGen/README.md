@@ -72,13 +72,22 @@ Vitest · Playwright + axe-core · Storybook · oxlint · Prettier.
 
 ## Démarrage
 
-Prérequis : Node ≥ 22.12, pnpm 10, PostgreSQL 16, Redis 7 (à partir du
-lot 1), Chromium Playwright.
+Prérequis : Node ≥ 22.12, pnpm 10, PostgreSQL 16, Chromium Playwright
+(Redis 7 à partir du lot 3).
 
 ```bash
 pnpm install
-pnpm dev                 # http://localhost:3000 — /design présente le système de design
+cp .env.example .env     # puis renseigner AUTH_SECRET (openssl rand -base64 32)
+pnpm db:migrate          # crée la base si besoin et applique les migrations
+pnpm db:seed             # jeu de démonstration (§20) : 2 organisations, 6 communications
+pnpm dev                 # http://localhost:3000 — connexion par compte de démonstration
 ```
+
+Le rôle PostgreSQL `comgen` doit pouvoir créer des bases (`CREATEDB`) :
+chaque suite de tests a la sienne, créée par Prisma au premier passage.
+Le compte de démonstration conseillé pour découvrir l'application est
+Claire Fontaine (rédactrice, Helvea) ; COM-2026-0002 porte une
+contradiction entre deux sources à trancher.
 
 ## Commandes
 
@@ -88,7 +97,7 @@ pnpm typecheck
 pnpm lint                # oxlint
 pnpm format              # prettier --write ; format:check pour vérifier
 pnpm test                # Vitest, tous les paquets
-pnpm test:e2e            # Playwright : parcours clavier, axe-core, captures 4 configurations
+pnpm test:e2e            # Playwright sur le build : parcours, clavier, axe-core, captures 4 configurations
 pnpm check:contrast      # couples de jetons, deux thèmes, seuils WCAG 2.2 AA
 pnpm storybook           # Storybook sur le port 6006
 pnpm check               # typecheck + lint + format:check + test + check:contrast
@@ -105,8 +114,8 @@ lot, jamais deux lots en parallèle.
 
 | Lot | Contenu                                                                             | État     |
 | --- | ----------------------------------------------------------------------------------- | -------- |
-| 0   | Système de design, internationalisation, `FournisseurModele` + adaptateur Anthropic | en cours |
-| 1   | Schéma, machine à états, cloisonnement, authentification, dépôt, fiche de faits     | à venir  |
+| 0   | Système de design, internationalisation, `FournisseurModele` + adaptateur Anthropic | livré    |
+| 1   | Schéma, machine à états, cloisonnement, authentification, dépôt, fiche de faits     | en revue |
 | 2   | Contrôles déterministes de `core`, sans modèle                                      | à venir  |
 | 3   | Agents EXTRACTEUR, REDACTEUR, VERIFICATEUR, ARBITRE ; orchestration par file        | à venir  |
 | 4   | Atelier de rédaction, revérification sur édition, versions, différentiels           | à venir  |
