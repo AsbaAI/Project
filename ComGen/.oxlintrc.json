@@ -10,7 +10,12 @@
     "typescript/no-explicit-any": "error",
     "typescript/no-non-null-assertion": "error",
     "typescript/consistent-type-imports": "error",
-    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
     "eqeqeq": "error",
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/anchor-is-valid": "error",
@@ -23,7 +28,15 @@
     "import/no-cycle": "error",
     "import/no-unassigned-import": [
       "warn",
-      { "allow": ["**/*.css", "@testing-library/jest-dom/vitest"] }
+      {
+        "allow": ["**/*.css", "@testing-library/jest-dom/vitest"]
+      }
+    ],
+    "eslint/no-underscore-dangle": [
+      "warn",
+      {
+        "allow": ["_count"]
+      }
     ]
   },
   "ignorePatterns": [
@@ -39,11 +52,15 @@
   "overrides": [
     {
       "files": ["**/scripts/**/*.mjs", "**/e2e/**/*.ts", "**/*.config.*"],
-      "rules": { "no-console": "off" }
+      "rules": {
+        "no-console": "off"
+      }
     },
     {
       "files": ["**/*.test.ts", "**/*.test.tsx"],
-      "rules": { "typescript/no-non-null-assertion": "off" }
+      "rules": {
+        "typescript/no-non-null-assertion": "off"
+      }
     }
   ]
 }

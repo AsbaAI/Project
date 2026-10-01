@@ -5,7 +5,8 @@
   "description": "Schéma Prisma de ComGen et contexte d'accès aux données cloisonné par organisation.",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./test": "./src/test/base-de-test.ts"
   },
   "scripts": {
     "generate": "prisma generate",
