@@ -4,16 +4,23 @@ import { useTranslations } from 'next-intl'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { Link } from '@/i18n/navigation'
+import type { AvancementAssistant } from '@/server/services/assistant'
 
+import { Assistant } from './assistant'
 import { CriticiteBadge, EtatBadge } from './badges'
-import { NavigationCommunication } from './navigation-communication'
 
 /*
  * En-tête commun aux vues d'une communication : retour à la liste, titre,
- * référence en chasse fixe, état et criticité, puis la sous-navigation.
+ * référence en chasse fixe, état et criticité, puis le fil des cinq
+ * étapes.
+ *
+ * Le fil a remplacé la sous-navigation : les deux côte à côte posaient
+ * deux fois la même question (« où suis-je ? ») avec deux réponses
+ * différentes, l'une tirée de l'adresse, l'autre de l'état réel.
  */
 export interface EnTeteCommunicationProps {
-  id: string
+  /** Avancement lu en base ; absent dans les stories et tests de composants. */
+  avancement?: AvancementAssistant
   reference: string
   titre: string
   etat: EtatCommunication
@@ -22,7 +29,7 @@ export interface EnTeteCommunicationProps {
 }
 
 export function EnTeteCommunication({
-  id,
+  avancement,
   reference,
   titre,
   etat,
@@ -51,7 +58,7 @@ export function EnTeteCommunication({
         }
         actions={actions}
       />
-      <NavigationCommunication id={id} />
+      {avancement ? <Assistant avancement={avancement} /> : null}
     </>
   )
 }

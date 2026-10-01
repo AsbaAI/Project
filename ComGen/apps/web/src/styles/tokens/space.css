@@ -23,7 +23,6 @@
      * Gabarits de mise en page
      * ----------------------------------------------------------------- */
     --layout-header-height: 3rem; /* 48px */
-    --layout-sidebar-width: 15rem; /* 240px */
     --layout-gutter: 1.5rem; /* 24px, 16px sur téléphone (voir base.css) */
     --layout-max-width: 90rem; /* 1440px */
     /* Bandeau de démonstration publique (COMGEN_ENV=demo), une ligne. */

@@ -1,6 +1,9 @@
+/* oxlint-disable eslint/no-await-in-loop -- redimensionner une fenêtre puis
+ * la mesurer est séquentiel par nature : paralléliser mesurerait la même
+ * fenêtre à plusieurs largeurs à la fois. */
 import { expect, test } from '@playwright/test'
 
-import { attendreRendu, estTelephone } from './outils'
+import { attendreRendu, estTelephone, ouvrirPreferences } from './outils'
 
 /*
  * Parcours au clavier (§14.2 : « tout est atteignable et actionnable au
@@ -49,6 +52,7 @@ test('la bascule de thème est un groupe radio, persiste et se remet à « syst�
 }, testInfo) => {
   await page.goto('/')
   await attendreRendu(page)
+  await ouvrirPreferences(page)
   const html = page.locator('html')
   const systemeSombre = testInfo.project.use.colorScheme === 'dark'
 
@@ -68,6 +72,8 @@ test('la bascule de thème est un groupe radio, persiste et se remet à « syst�
   await page.reload()
   await attendreRendu(page)
   await expect(html).toHaveAttribute('data-theme', systemeSombre ? 'light' : 'dark')
+  // Le rechargement a refermé le tiroir sur téléphone : on le rouvre.
+  await ouvrirPreferences(page)
   await expect(groupe.getByRole('radio', { name: contraire })).toBeChecked()
 
   // Navigation aux flèches dans le groupe : la flèche déplace le focus ET
@@ -92,6 +98,7 @@ test('la bascule de thème est un groupe radio, persiste et se remet à « syst�
 test('le sélecteur de langue conserve la page courante', async ({ page }) => {
   await page.goto('/design')
   await attendreRendu(page)
+  await ouvrirPreferences(page)
 
   await page
     .getByRole('navigation', { name: 'Langue' })
@@ -101,6 +108,8 @@ test('le sélecteur de langue conserve la page courante', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Design system')
 
+  // Sur téléphone, la navigation a refermé le tiroir : on le rouvre.
+  await ouvrirPreferences(page)
   await page
     .getByRole('navigation', { name: 'Language' })
     .getByRole('link', { name: 'Français' })
@@ -109,43 +118,106 @@ test('le sélecteur de langue conserve la page courante', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
 })
 
-test('la page courante est marquée dans la navigation', async ({ page }) => {
-  test.skip(estTelephone(), 'la barre latérale est masquée sur téléphone')
-  await page.goto('/design')
+test('l’onglet courant est marqué dans la barre', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/analyses')
   await attendreRendu(page)
   const nav = page.getByRole('navigation', { name: 'Navigation principale' })
-  await expect(nav.getByRole('link', { name: 'Système de design' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Analyses' })).toHaveAttribute('aria-current', 'page')
+  await expect(nav.getByRole('link', { name: 'Générateur' })).not.toHaveAttribute('aria-current')
+})
+
+test('le constructeur se marque lui-même, pas la bibliothèque', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/gabarits/constructeur')
+  await attendreRendu(page)
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' })
+  await expect(nav.getByRole('link', { name: 'Constructeur' })).toHaveAttribute(
     'aria-current',
     'page',
   )
-  await expect(nav.getByRole('link', { name: 'Tableau de bord' })).not.toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Gabarits', exact: true })).not.toHaveAttribute(
     'aria-current',
   )
 })
 
-test('la création se marque elle-même, pas l’historique', async ({ page }) => {
-  test.skip(estTelephone(), 'la barre latérale est masquée sur téléphone')
-  await page.goto('/communications/nouvelle')
+test('une communication ouverte garde le générateur allumé', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/communications/com_2026_0002/faits')
   await attendreRendu(page)
   const nav = page.getByRole('navigation', { name: 'Navigation principale' })
-  await expect(nav.getByRole('link', { name: 'Nouvelle communication' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Générateur' })).toHaveAttribute(
     'aria-current',
     'page',
   )
-  await expect(nav.getByRole('link', { name: 'Historique' })).not.toHaveAttribute('aria-current')
 })
 
-test('l’accueil mène aux deux parcours', async ({ page }) => {
+test('la racine mène au générateur, qui ouvre les deux parcours', async ({ page }) => {
   await page.goto('/')
   await attendreRendu(page)
+  await expect(page).toHaveURL(/\/generateur$/)
+
   const principal = page.getByRole('main')
   await principal.getByRole('link', { name: /^Communication existante/ }).click()
   await expect(page).toHaveURL(/\/communications$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Historique')
 
-  await page.goto('/')
+  await page.goto('/generateur')
   await principal.getByRole('link', { name: /^Nouvelle communication/ }).click()
   await expect(page).toHaveURL(/\/communications\/nouvelle$/)
+})
+
+test('l’état du moteur est dit à toute largeur d’écran', async ({ page }) => {
+  await page.goto('/generateur')
+  await attendreRendu(page)
+  // Sur téléphone la pastille vit dans le tiroir, pas sur la barre : l'état
+  // du moteur n'a le droit de disparaître d'aucune largeur.
+  await ouvrirPreferences(page)
+  // Aucune clé de fournisseur n’est configurée en test : la pastille le dit.
+  // Exactement une est visible — la barre et le tiroir portent chacun la
+  // leur, mais jamais les deux en même temps, et jamais aucune.
+  await expect(page.getByText('Mode démonstration').filter({ visible: true })).toHaveCount(1)
+})
+
+test('la barre ne se chevauche jamais, à toute largeur de bureau', async ({ page }) => {
+  test.skip(estTelephone(), 'la barre d’onglets n’existe pas sur téléphone')
+  await page.goto('/generateur')
+  await attendreRendu(page)
+
+  /*
+   * Six onglets, la marque, l'état du moteur, la langue, le thème et le
+   * compte se disputent une barre d'une seule ligne. Quand ça ne tient
+   * pas, rien ne proteste : les boîtes se superposent et le dernier
+   * onglet passe sous la pastille — invisible aux tests de rôle, visible
+   * à l'œil. Ce test mesure, à chaque largeur de la plage bureau, que
+   * l'ensemble des éléments de la barre reste dans l'ordre et disjoint.
+   */
+  for (const largeur of [1024, 1152, 1280, 1366, 1440, 1600, 1920]) {
+    await page.setViewportSize({ width: largeur, height: 760 })
+    await attendreRendu(page)
+
+    const boites = await page.evaluate(() =>
+      // Les boîtes de la barre : chaque onglet, puis chaque groupe de droite.
+      [
+        ...document.querySelectorAll(
+          '[data-barre="onglets"] li, [data-barre="moteur"], [data-barre="langue"], [data-barre="theme"], [data-barre="compte"]',
+        ),
+      ]
+        .map((e) => {
+          const r = e.getBoundingClientRect()
+          return { nom: (e.textContent ?? '').trim().slice(0, 24), x: r.left, droite: r.right }
+        })
+        .filter((b) => b.droite > b.x)
+        .toSorted((a, b) => a.x - b.x),
+    )
+
+    expect(boites.length, `largeur ${largeur} : la barre est vide`).toBeGreaterThan(6)
+    const chevauchements = boites
+      .map((boite, i) => ({ boite, avant: boites[i - 1] }))
+      .filter(({ boite, avant }) => avant !== undefined && boite.x < avant.droite)
+      .map(({ boite, avant }) => `« ${avant?.nom} » chevauche « ${boite.nom} »`)
+    expect(chevauchements, `largeur ${largeur}`).toEqual([])
+  }
 })
 
 test('le tiroir de navigation piège le focus et se ferme à Échap', async ({ page }) => {

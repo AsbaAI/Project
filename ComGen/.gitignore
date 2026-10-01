@@ -17,6 +17,11 @@ apps/web/e2e/captures/**/*.png
 !apps/web/e2e/captures/.gitkeep
 apps/web/e2e/.auth/
 
+# consignes d'agent regénérées par `next dev` à chaque lancement : la
+# mémoire de travail tenue à la main est à la racine, pas ici
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
+
 # environnement — jamais de secret dans le dépôt
 .env
 .env.*

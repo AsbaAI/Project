@@ -175,9 +175,9 @@ describe('cloisonnement par organisation (§13.2, §17)', () => {
 
   it('la liste ne montre que les communications de l’organisation', async () => {
     await creerCommunication(autre.redacteur, { ...CADRAGE, titre: 'Communication étrangère' })
-    const liste = await listerCommunications(helvea.redacteur)
-    expect(liste.length).toBeGreaterThan(0)
-    expect(liste.some((c) => c.titre === 'Communication étrangère')).toBe(false)
+    const page = await listerCommunications(helvea.redacteur)
+    expect(page.lignes.length).toBeGreaterThan(0)
+    expect(page.lignes.some((c) => c.titre === 'Communication étrangère')).toBe(false)
     const ids = new Set(
       (
         await clientDeTest(connexion).communication.findMany({
@@ -186,7 +186,21 @@ describe('cloisonnement par organisation (§13.2, §17)', () => {
         })
       ).map((c) => c.id),
     )
-    expect(liste.every((c) => ids.has(c.id))).toBe(true)
+    expect(page.lignes.every((c) => ids.has(c.id))).toBe(true)
+    // Le total est celui de l'organisation, pas le nombre de lignes rendues.
+    expect(page.total).toBe(ids.size)
+  })
+
+  it('borne l’historique et dit combien il en existe en tout', async () => {
+    for (let i = 0; i < 4; i += 1) {
+      // eslint-disable-next-line no-await-in-loop -- les références sont attribuées en série
+      await creerCommunication(helvea.redacteur, { ...CADRAGE, titre: `Communication ${i}` })
+    }
+    const page = await listerCommunications(helvea.redacteur, 2)
+
+    expect(page.lignes).toHaveLength(2)
+    expect(page.limite).toBe(2)
+    expect(page.total).toBeGreaterThan(2)
   })
 })
 

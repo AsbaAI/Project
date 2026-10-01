@@ -9,6 +9,7 @@ import { Panel } from '@/components/ui/panel'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage, ou404 } from '@/server/pages'
+import { chargerAvancement } from '@/server/services/assistant'
 import { chargerCommunication } from '@/server/services/communications'
 import { ETATS_ENTREE_OUVERTE } from '@/server/services/etat'
 
@@ -31,7 +32,10 @@ export default async function EntreePage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications.entree')
   const acteur = await acteurDePage()
-  const { communication: c } = await ou404(chargerCommunication(acteur, id))
+  const [{ communication: c }, avancement] = await Promise.all([
+    ou404(chargerCommunication(acteur, id)),
+    chargerAvancement(acteur, id),
+  ])
   const ouverte = ETATS_ENTREE_OUVERTE.has(c.etat)
   const peutEditer = verifierDroit(acteur.utilisateur, 'EDITER').autorise
 
@@ -49,7 +53,7 @@ export default async function EntreePage({ params }: PageProps) {
   return (
     <>
       <EnTeteCommunication
-        id={c.id}
+        avancement={avancement}
         reference={c.reference}
         titre={c.titre}
         etat={c.etat}

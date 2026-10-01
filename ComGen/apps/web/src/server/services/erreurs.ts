@@ -31,6 +31,8 @@ export type CodeErreurMetier =
   | 'SOURCE_EN_DOUBLE'
   | 'TEXTE_ABSENT'
   | 'FICHIER_REFUSE'
+  /** Le rédacteur, l'injection ou la relecture des valeurs a refusé de produire. */
+  | 'GENERATION_REFUSEE'
 
 export interface DetailsErreurMetier {
   /** Champ de formulaire → code de message. */

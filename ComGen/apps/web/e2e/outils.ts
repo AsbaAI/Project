@@ -6,7 +6,10 @@ import { type Page, expect, test } from '@playwright/test'
  * contradiction non résolue ; COM-2026-0001 est en cours de revue.
  */
 export const PAGES = [
-  { nom: 'accueil', chemin: '/' },
+  { nom: 'generateur', chemin: '/generateur' },
+  { nom: 'approbations', chemin: '/approbations' },
+  { nom: 'gabarits', chemin: '/gabarits' },
+  { nom: 'constructeur', chemin: '/gabarits/constructeur' },
   { nom: 'tableau-de-bord', chemin: '/tableau-de-bord' },
   { nom: 'communications', chemin: '/communications' },
   { nom: 'cadrage', chemin: '/communications/nouvelle' },
@@ -14,6 +17,8 @@ export const PAGES = [
   { nom: 'entree', chemin: '/communications/com_2026_0001/entree' },
   { nom: 'fiche-de-faits', chemin: '/communications/com_2026_0002/faits' },
   { nom: 'fiche-de-faits-revue', chemin: '/communications/com_2026_0001/faits' },
+  { nom: 'destinataires', chemin: '/communications/com_2026_0001/destinataires' },
+  { nom: 'generation', chemin: '/communications/com_2026_0031/generation' },
   { nom: 'analyses', chemin: '/analyses' },
   { nom: 'parametres', chemin: '/parametres' },
   { nom: 'design', chemin: '/design' },
@@ -38,4 +43,19 @@ export async function verifierAucunDebordement(page: Page) {
 
 export function estTelephone(): boolean {
   return test.info().project.name.startsWith('telephone')
+}
+
+/**
+ * Rend langue et thème atteignables quelle que soit la taille d'écran : sur
+ * la barre au-delà de `lg`, dans le tiroir en deçà. Sur téléphone, ouvre
+ * donc le tiroir ; sur bureau, ne fait rien.
+ *
+ * Le tiroir se referme à chaque navigation ET à chaque rechargement : le
+ * rouvrir après l'un ou l'autre. Le libellé du bouton suit la langue de la
+ * page — après une bascule vers l'anglais, c'est « Open menu ».
+ */
+export async function ouvrirPreferences(page: Page) {
+  if (!estTelephone()) return
+  await page.getByRole('button', { name: /Ouvrir le menu|Open menu/ }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
 }

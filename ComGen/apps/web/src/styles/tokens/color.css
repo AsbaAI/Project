@@ -117,6 +117,16 @@
     --p-ai-700: oklch(0.44 0.19 301);
     --p-ai-900: oklch(0.29 0.1 301);
 
+    /* Marine de la barre de navigation. Même teinte que l'action (267) mais
+     * très sombre : c'est la nuance « proche du marine » que la charte
+     * autorise pour la barre supérieure, là où le bleu profond #3055FC
+     * serait trop clair pour porter du texte blanc sur toute sa surface. */
+    --p-navy-950: oklch(0.17 0.055 267);
+    --p-navy-900: oklch(0.21 0.065 267);
+    --p-navy-800: oklch(0.27 0.077 267);
+    --p-navy-700: oklch(0.33 0.088 267);
+    --p-navy-200: oklch(0.845 0.035 267);
+
     /* Transparences — pour les survols et les sélections, qui doivent
      * composer avec la surface au lieu de la remplacer. */
     --p-alpha-ink-4: oklch(0.248 0.006 271 / 0.04);
@@ -228,6 +238,22 @@
     --color-brand-start: var(--p-accent-500);
     --color-brand-end: var(--p-emphasis-500);
 
+    /* ---------------------------------------------------------------
+     * Barre de navigation supérieure. Sombre dans les DEUX thèmes : c'est
+     * une surface de marque, pas une surface de contenu, et elle ne suit
+     * donc pas le thème. Distincte de `surface-inverse`, qui s'inverse.
+     * --------------------------------------------------------------- */
+    --color-nav-surface: var(--p-navy-900);
+    --color-nav-hover: var(--p-navy-800);
+    --color-nav-sunken: var(--p-navy-950);
+    --color-nav-selected: var(--p-navy-700);
+    --color-nav-ink: var(--p-neutral-0);
+    --color-nav-ink-muted: var(--p-navy-200);
+    /* Pastille d'état du moteur : la couleur est portée par un point, le
+     * sens par son libellé (« IA prête » / « Mode démonstration »). */
+    --color-nav-ok: var(--p-success-400);
+    --color-nav-alert: var(--p-emphasis-300);
+
     /* Focus — un seul anneau dans toute l'application */
     --color-focus: var(--p-accent-600);
   }
@@ -316,6 +342,22 @@
       --color-brand-start: var(--p-accent-500);
       --color-brand-end: var(--p-emphasis-500);
 
+      /* ---------------------------------------------------------------
+       * Barre de navigation supérieure. Sombre dans les DEUX thèmes : c'est
+       * une surface de marque, pas une surface de contenu, et elle ne suit
+       * donc pas le thème. Distincte de `surface-inverse`, qui s'inverse.
+       * --------------------------------------------------------------- */
+      --color-nav-surface: var(--p-navy-900);
+      --color-nav-hover: var(--p-navy-800);
+      --color-nav-sunken: var(--p-navy-950);
+      --color-nav-selected: var(--p-navy-700);
+      --color-nav-ink: var(--p-neutral-0);
+      --color-nav-ink-muted: var(--p-navy-200);
+      /* Pastille d'état du moteur : la couleur est portée par un point, le
+       * sens par son libellé (« IA prête » / « Mode démonstration »). */
+      --color-nav-ok: var(--p-success-400);
+      --color-nav-alert: var(--p-emphasis-300);
+
       --color-focus: var(--p-accent-400);
     }
   }
@@ -398,6 +440,22 @@
 
     --color-brand-start: var(--p-accent-500);
     --color-brand-end: var(--p-emphasis-500);
+
+    /* ---------------------------------------------------------------
+     * Barre de navigation supérieure. Sombre dans les DEUX thèmes : c'est
+     * une surface de marque, pas une surface de contenu, et elle ne suit
+     * donc pas le thème. Distincte de `surface-inverse`, qui s'inverse.
+     * --------------------------------------------------------------- */
+    --color-nav-surface: var(--p-navy-900);
+    --color-nav-hover: var(--p-navy-800);
+    --color-nav-sunken: var(--p-navy-950);
+    --color-nav-selected: var(--p-navy-700);
+    --color-nav-ink: var(--p-neutral-0);
+    --color-nav-ink-muted: var(--p-navy-200);
+    /* Pastille d'état du moteur : la couleur est portée par un point, le
+     * sens par son libellé (« IA prête » / « Mode démonstration »). */
+    --color-nav-ok: var(--p-success-400);
+    --color-nav-alert: var(--p-emphasis-300);
 
     --color-focus: var(--p-accent-400);
   }

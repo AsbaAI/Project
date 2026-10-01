@@ -27,10 +27,7 @@ export default async function CommunicationsPage({ params }: PageProps) {
   const t = await getTranslations('communications.list')
   const tDashboard = await getTranslations('dashboard')
   const acteur = await acteurDePage()
-  const [communications, fuseau] = await Promise.all([
-    listerCommunications(acteur),
-    fuseauDeSaisie(acteur),
-  ])
+  const [page, fuseau] = await Promise.all([listerCommunications(acteur), fuseauDeSaisie(acteur)])
   const nouvelle = verifierDroit(acteur.utilisateur, 'CREER').autorise ? (
     <Button asChild variant="primary" icon={<Plus aria-hidden="true" />}>
       <Link href="/communications/nouvelle">{tDashboard('newCommunication')}</Link>
@@ -39,9 +36,18 @@ export default async function CommunicationsPage({ params }: PageProps) {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={nouvelle} />
+      <PageHeader
+        title={t('title')}
+        description={
+          // L'extrait dit toujours qu'il est un extrait : « 25 sur 104 ».
+          page.total > page.lignes.length
+            ? t('extrait', { montrees: page.lignes.length, total: page.total })
+            : t('description')
+        }
+        actions={nouvelle}
+      />
       <Panel flush>
-        {communications.length === 0 ? (
+        {page.lignes.length === 0 ? (
           <EmptyState
             icon={FileStack}
             title={t('empty.title')}
@@ -50,7 +56,7 @@ export default async function CommunicationsPage({ params }: PageProps) {
           />
         ) : (
           <TableauCommunications
-            communications={communications}
+            communications={page.lignes}
             fuseau={fuseau}
             legende={t('caption')}
           />

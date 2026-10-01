@@ -427,3 +427,135 @@ simple. Procédure dans `docs/DEPLOIEMENT.md`.
 - **Limites acceptées, écrites dans la procédure** : 4,5 Mo par dépôt
   (plafond des fonctions Vercel), fichiers déposés éphémères (`/tmp` ; le
   texte de la source est en base), pas d'antivirus, pas de modèle.
+
+## 2026-10-01 — Un seul `.env`, chargé explicitement
+
+Le démarrage décrit par le README ne fonctionnait pas sur une installation
+neuve : Prisma 7 ne charge plus `.env` de lui-même, et Next ne lit que les
+`.env` de `apps/web`. `pnpm db:migrate` échouait donc sur
+« datasource.url property is required ».
+
+Le dépôt garde **un seul `.env`, à la racine de l'espace de travail** —
+l'application et les outils de base partagent la même configuration. Il est
+chargé explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+`next.config.ts`, et par `--env-file-if-exists` pour le seed, qui est un
+processus distinct. Les trois sont natifs à Node 22 : aucune dépendance
+ajoutée.
+
+`loadEnvFile` **n'écrase jamais** une variable déjà posée : les variables de
+Vercel, celles du shell et celles que Playwright injecte gardent la main sur
+le fichier. Un `.env` absent est toléré sans erreur (c'est le cas en
+production).
+
+## 2026-10-01 — Refonte, étape 2 : la fondation de démonstration
+
+### Un seul contrat d'agent, et la trace dit toujours qui a répondu
+
+Agents réels et simulés portent la même interface `Agent<E, S>`. Rien
+au-dessus ne sait lequel a travaillé — sauf la trace, qui porte `simule` et
+ne le cache jamais. La sortie est validée par son schéma Zod **à la
+frontière de l'orchestrateur**, quoi qu'en dise l'agent : c'est là qu'une
+structure proposée devient une donnée de confiance.
+
+La fabrique nomme la raison du mode (`AUCUN_FOURNISSEUR` quand aucune clé
+n'est configurée, `AGENT_REEL_ABSENT` tant que l'agent réel n'est pas
+écrit). Une clé posée ne fera donc pas croire qu'un modèle a parlé.
+
+### L'orchestrateur n'a pas de demi-résultat
+
+Une étape qui échoue arrête la chaîne ; les suivantes sont marquées
+`ANNULEE`, pas « en attente ». L'échec lève `ErreurOrchestration`, qui
+**porte** l'état partiel pour l'afficher : il faut l'ouvrir pour y accéder,
+on ne tombe pas dessus par mégarde. Chaque événement porte l'état de
+toutes les étapes, pour que l'interface dessine la chronologie entière dès
+le premier et n'ait aucun delta à recoller.
+
+Horloge et attente sont injectées : la simulation échelonne ses paliers
+(1 à 3 s, déterministes — une démonstration doit se dérouler deux fois de la
+même façon), les tests ne patientent pas.
+
+### Les agents simulés dérivent de la source, jamais d'un canevas
+
+Arbitrage retenu : **données de démonstration dérivées du fichier
+réellement déposé**. L'extracteur simulé appelle `proposerFaitsCandidats`,
+la fonction pure du domaine ; l'analyste ne propose une audience que si la
+source la nomme, et porte la phrase qui le dit ; le suggesteur préremplit
+titre, nature et criticité, chacun adossé à un extrait, et chaque
+proposition peut être nulle.
+
+Une source sans aucun fait relevable **échoue** (`SOURCE_INEXPLOITABLE`).
+C'est le garde-fou « pas de sortie générique mais crédible » écrit en code :
+un spectateur qui dépose sa propre note ne doit pas lire des valeurs venues
+de nulle part.
+
+### L'historique engendré dit la vérité sur lui-même
+
+Six mois, 150 communications, numéros 7 à 156. Le texte de la source est
+composé d'abord ; les faits en sont ensuite **relevés**, jamais recopiés :
+une citation ne peut pas diverger de sa source puisqu'elle en est extraite.
+
+Une communication marquée `ENVOYEE` porte sa variante, ses affirmations
+appuyées, son approbation et son envoi. L'alternative — poser l'état seul —
+aurait mis en base une affirmation fausse, que le tableau de bord aurait
+comptée comme vraie. Le seed refuse une affirmation `SOUTENUE` sans fait
+d'appui, et un envoi sans approbation accordée.
+
+Rien n'est tiré au hasard : tout dérive de l'indice, et deux exécutions du
+seed produisent le même historique — une capture d'écran reste valable.
+
+### L'historique affiché est borné, et le dit
+
+`listerCommunications` rend les 25 plus récentes avec le **total**. La page
+affiche « 25 communications sur 105 » : un extrait qui ne dit pas qu'il est
+un extrait est un résultat partiel présenté comme complet. Le filtrage et
+la pagination arrivent avec l'onglet Analyses.
+
+## Étape 3 — le générateur : un assistant en cinq étapes
+
+### L'assistant remplace la navigation par onglets
+
+`server/services/assistant.ts` lit l'avancement **en base** — nombre de
+sources, de faits restant à revoir, de destinataires retenus, de variantes
+— et en déduit l'étape courante : la première qui n'est pas faite. Rien
+n'est stocké : un avancement mémorisé pourrait mentir sur l'état réel.
+
+Une étape non atteignable n'est pas un lien. Tant qu'un fait reste à
+revoir, « Destinataires » est un libellé inerte : la revue de la fiche de
+faits (§10) n'est pas sautable, et l'écran le montre au lieu de refuser
+après coup.
+
+### Le rédacteur ne peut pas écrire une valeur
+
+Il ne rend pas du texte mais des **segments** : du texte sans valeur, et
+des références de faits. `domaine/injection.ts` recompose la phrase et
+refuse tout segment libre où `proposerFaitsCandidats` trouve une valeur
+(`VALEUR_DANS_TEXTE_LIBRE`). La contrainte cardinale est donc structurelle,
+pas surveillée : il n'existe pas de chemin par lequel un modèle écrirait un
+nombre, une date, une version.
+
+Conséquence tenue pendant cette étape : une phrase qui porte **deux**
+valeurs les référence **toutes les deux**. N'en référencer qu'une laissait
+l'autre au fil du texte — et `injecter` refusait, à juste titre. Le test de
+bout en bout `parcours.spec.ts` lit les trois valeurs de la source dans le
+rapport de vérification, pas dans `main` : le titre de la communication
+porte lui aussi le numéro de version, et l'assertion aurait passé sans
+texte généré.
+
+### Le texte bloqué est montré, pas caché
+
+Une variante dont une phrase n'est pas appuyée s'affiche avec son rapport
+et ses blocages. La masquer empêcherait de corriger ; la laisser partir
+violerait la contrainte cardinale. L'approbation, elle, reste fermée tant
+qu'un `Controle` bloquant subsiste — et c'est la base qui le garantit, pas
+l'écran.
+
+### Ce que les captures ont corrigé
+
+Trois défauts invisibles aux tests de rôle, trouvés en relisant les
+captures : les appuis répétés (« F-02, F-03, F-02, F-03 » — une citation
+était listée une fois par fait au lieu d'une fois tout court), un titre
+« Agents » sans contenu sur une variante sans trace d'exécution, et les
+canaux affichés en constantes (`MESSAGERIE_INSTANTANEE`). Les trois sont
+corrigés à la source : dédoublonnage dans le seed **et** aux deux
+frontières de `generation.ts`, section masquée quand elle est vide,
+libellés de canal passés par `next-intl`.

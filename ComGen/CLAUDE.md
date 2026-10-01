@@ -43,7 +43,8 @@ factuelle impossible, pas celle qui rend l'usage plus fluide.
 ```
 apps/web          Next.js (App Router) — interface et routes API
 packages/core     domaine : machine à états, contrôles déterministes, types
-packages/agents   agents : schémas Zod, prompts versionnés, FournisseurModele
+packages/agents   agents : contrat `Agent`, orchestrateur, agents simulés,
+                  schémas Zod, prompts versionnés, FournisseurModele
 packages/workers  consommateurs BullMQ, un worker par rôle d'agent
 packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 ```
@@ -52,6 +53,9 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 - Les contrôles déterministes sont des **fonctions pures** dans `core`,
   testées unitairement, sans modèle.
 - Aucun SDK de fournisseur hors de son adaptateur (`packages/agents/src/fournisseurs/*`).
+- Un seul contrat d'agent (`Agent<E, S>`), réel ou simulé ; la sortie est
+  validée par son schéma Zod à la frontière de l'orchestrateur, et la trace
+  dit toujours `simule`. La fabrique nomme la raison du mode.
 - Aucun client Prisma nu dans le code applicatif : accès via un contexte
   porteur de l'organisation.
 - Aucune logique métier dans un composant React. Aucune décision de droit
@@ -213,6 +217,15 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   `apps/web`, projet Vitest `services`, migrée par son `globalSetup`),
   `comgen_e2e` (Playwright, migrée puis remise au seed par la commande du
   `webServer` — Playwright lance le serveur **avant** `globalSetup`).
+- Le seed charge 6 communications écrites à la main puis 150 engendrées
+  (`prisma/seed/historique.ts`), six mois, déterministes. Les faits y sont
+  **relevés** du texte, jamais recopiés ; une communication `ENVOYEE` porte
+  sa variante, son approbation et son envoi, sinon le seed refuse.
+- **Un seul `.env`, à la racine de l'espace de travail.** Prisma 7 ne le
+  charge plus seul et Next ne lit que ceux de `apps/web` : il est chargé
+  explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+  `next.config.ts`, et par `--env-file-if-exists` pour le seed. Ces appels
+  n'écrasent aucune variable déjà posée (plateforme, shell, Playwright).
 - `.env.example` documente chaque variable. `COMGEN_ENV` sépare le lieu
   de déploiement du mode de build : `next start` vaut production, où le
   simulateur de connexion est refusé ; Playwright déclare `COMGEN_ENV=test`.

@@ -1,113 +1,4 @@
 {
-  "app": {
-    "name": "ComGen",
-    "tagline": "Communications inter-entreprises vérifiées",
-    "skipToContent": "Aller au contenu principal",
-    "demo": {
-      "label": "Démonstration.",
-      "message": "Données fictives, visibles de tous : n’y saisissez aucune information réelle.",
-      "short": "Données fictives uniquement."
-    }
-  },
-  "nav": {
-    "label": "Navigation principale",
-    "newCommunication": "Nouvelle communication",
-    "dashboard": "Tableau de bord",
-    "history": "Historique",
-    "analytics": "Analyses",
-    "settings": "Paramètres",
-    "design": "Système de design"
-  },
-  "theme": {
-    "label": "Thème",
-    "system": "Système",
-    "light": "Clair",
-    "dark": "Sombre"
-  },
-  "locale": {
-    "label": "Langue",
-    "fr": "Français",
-    "en": "English"
-  },
-  "common": {
-    "loading": "Chargement…",
-    "retry": "Réessayer",
-    "cancel": "Annuler",
-    "close": "Fermer",
-    "save": "Enregistrer",
-    "actions": "Actions",
-    "state": "État",
-    "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu",
-    "back": "Retour",
-    "optional": "facultatif",
-    "required": "obligatoire",
-    "none": "Aucun",
-    "yes": "Oui",
-    "no": "Non",
-    "unknown": "Inconnue"
-  },
-  "states": {
-    "BROUILLON": "Brouillon",
-    "FAITS_A_VALIDER": "Faits à valider",
-    "PRETE_A_GENERER": "Prête à générer",
-    "EN_GENERATION": "En génération",
-    "EN_CONTROLE": "En contrôle",
-    "A_CORRIGER": "À corriger",
-    "EN_RELECTURE": "En relecture",
-    "EN_APPROBATION": "En approbation",
-    "APPROUVEE": "Approuvée",
-    "ENVOI_PLANIFIE": "Envoi planifié",
-    "ENVOYEE": "Envoyée",
-    "REJETEE": "Rejetée",
-    "ARCHIVEE": "Archivée"
-  },
-  "home": {
-    "metaTitle": "Accueil",
-    "greeting": "Bonjour {prenom}",
-    "question": "Que voulez-vous faire ?",
-    "new": {
-      "title": "Nouvelle communication",
-      "description": "Partir d'un document, d'un texte ou d'un modèle."
-    },
-    "existing": {
-      "title": "Communication existante",
-      "description": "Reprendre, suivre ou dupliquer depuis l'historique."
-    },
-    "todo": {
-      "title": "À traiter",
-      "blocked": "{count, plural, =0 {Aucune bloquée} one {# bloquée} other {# bloquées}}",
-      "approval": "{count, plural, =0 {Rien à approuver} one {# à approuver} other {# à approuver}}",
-      "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
-    }
-  },
-  "dashboard": {
-    "title": "Tableau de bord",
-    "description": "Vos communications par étape, ce qui attend votre approbation, ce qui est bloqué.",
-    "newCommunication": "Nouvelle communication",
-    "mine": {
-      "title": "Mes communications",
-      "description": "Celles dont vous êtes l'auteur, hors archives.",
-      "empty": {
-        "title": "Vous n'avez aucune communication en cours",
-        "description": "Une communication commence par son cadrage : nature, criticité, portée, langue et mode d'entrée."
-      }
-    },
-    "approval": {
-      "title": "En attente de mon approbation",
-      "empty": "Rien n'attend votre approbation."
-    },
-    "blocked": {
-      "title": "Bloquées",
-      "empty": "Aucune de vos communications n'est bloquée.",
-      "CONTRADICTION_NON_TRANCHEE": "{count, plural, one {Une contradiction entre sources à trancher} other {# contradictions entre sources à trancher}}",
-      "A_CORRIGER": "Corrections demandées",
-      "REJETEE": "Rejetée par un approbateur"
-    },
-    "byState": "Répartition par état",
-    "stateCount": "{count, plural, one {# communication} other {# communications}}",
-    "seeAll": "Toutes les communications"
-  },
   "analytics": {
     "title": "Analyses",
     "description": "Envois, attentes, rejets et taux d'approbation, par persona et par format.",
@@ -116,173 +7,42 @@
       "description": "Ils apparaîtront ici dès que des communications auront été approuvées et envoyées : aucun chiffre n'est estimé."
     }
   },
-  "settings": {
-    "title": "Paramètres",
-    "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
-    "soon": "Bientôt",
-    "sections": {
-      "models": {
-        "title": "Modèles d'IA",
-        "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
-      },
-      "personas": {
-        "title": "Personas",
-        "description": "Ton, niveau de détail, angle et longueur de chaque audience."
-      },
-      "lists": {
-        "title": "Listes de diffusion",
-        "description": "Destinataires de chaque persona."
-      },
-      "templates": {
-        "title": "Gabarits",
-        "description": "Formats et variantes de mise en page."
-      }
+  "app": {
+    "name": "ComGen",
+    "tagline": "Communications inter-entreprises vérifiées",
+    "skipToContent": "Aller au contenu principal",
+    "demo": {
+      "label": "Démonstration.",
+      "message": "Données fictives, visibles de tous : n’y saisissez aucune information réelle.",
+      "short": "Données fictives uniquement."
+    },
+    "version": "Version {version}",
+    "poweredBy": "Propulsé par Multi-Provider AI"
+  },
+  "approvals": {
+    "title": "Approbations",
+    "description": "Ce qui attend une décision, et les décisions déjà prises.",
+    "pending": {
+      "title": "En attente de votre approbation",
+      "description": "D’après vos droits, relus en base à chaque requête.",
+      "empty": "Rien n’attend votre approbation."
+    },
+    "wip": {
+      "title": "Vue approbateur en construction",
+      "description": "Approuver ou rejeter avec un motif, l’historique des décisions et les réglages de notification arrivent à l’étape 4. Aucun raccourci ne permettra d’envoyer sans approbation humaine."
     }
   },
-  "notFound": {
-    "title": "Page introuvable",
-    "description": "L'adresse demandée ne correspond à aucune page. Vérifiez le lien ou revenez au tableau de bord.",
-    "action": "Retour au tableau de bord"
-  },
-  "error": {
-    "title": "Une erreur s'est produite",
-    "description": "L'application n'a pas pu afficher cette page. Aucune donnée n'a été modifiée. Vous pouvez réessayer.",
-    "reference": "Référence de l'incident"
-  },
-  "design": {
-    "title": "Système de design",
-    "description": "Fondations et composants de ComGen, dans leur état réel. Cette page sert de référence visuelle et de banc d'essai d'accessibilité.",
-    "sections": {
-      "foundations": "Fondations",
-      "components": "Composants",
-      "states": "États d'écran"
-    },
-    "colors": {
-      "title": "Couleurs",
-      "intro": "Une seule teinte d'accent. Les autres couleurs portent un sens et rien d'autre : succès, avertissement, erreur.",
-      "surfaces": "Surfaces",
-      "ink": "Texte",
-      "lines": "Bordures",
-      "semantic": "Sémantiques"
-    },
-    "typography": {
-      "title": "Typographie",
-      "intro": "Échelle fixe à partir de 14 px. Chaque taille est appariée à son interligne.",
-      "sample": "Les versions, dates et identifiants sont recopiés, jamais régénérés.",
-      "mono": "Identifiants et versions en chasse fixe : INC-2025-0342, v4.2.1"
-    },
-    "spacing": {
-      "title": "Espacement et forme",
-      "intro": "Grille de 4 px. Rayons volontairement petits : la séparation se fait par la bordure, pas par l'ombre."
-    },
-    "buttons": {
-      "title": "Boutons",
-      "intro": "Une seule action principale par vue. Les actions destructives sont toujours nommées.",
-      "primary": "Générer les variantes",
-      "secondary": "Enregistrer le brouillon",
-      "ghost": "Annuler",
-      "danger": "Rejeter la communication",
-      "loading": "Génération en cours",
-      "disabled": "Envoyer",
-      "iconOnly": "Fermer le panneau",
-      "sizes": "Tailles"
-    },
-    "fields": {
-      "title": "Champs",
-      "intro": "Libellé au-dessus, aide en dessous, erreur après l'aide. Le champ en erreur est annoncé au lecteur d'écran.",
-      "subjectLabel": "Objet de la communication",
-      "subjectHint": "Tel qu'il apparaîtra dans le courriel envoyé.",
-      "subjectPlaceholder": "Migration de la plateforme de paiement — fenêtre du 14 mars",
-      "audienceLabel": "Audience",
-      "audienceHint": "Une liste par persona. Les destinataires sont validés à l'envoi.",
-      "audienceError": "L'audience « Fournisseurs Tier 2 » n'existe plus dans le référentiel.",
-      "audienceValue": "Fournisseurs Tier 2",
-      "notesLabel": "Notes internes",
-      "notesHint": "Jamais incluses dans la communication.",
-      "required": "obligatoire",
-      "optional": "facultatif"
-    },
-    "badges": {
-      "title": "Badges d'état",
-      "intro": "Chaque état a une forme et un texte. La couleur est un renfort, jamais le seul signal."
-    },
-    "notices": {
-      "title": "Messages",
-      "intro": "Trois niveaux. Le niveau bloquant explique toujours ce qui manque et ce qu'il faut faire.",
-      "info": {
-        "title": "Extraction terminée",
-        "body": "12 faits ont été extraits de la source. Validez-les avant de générer."
-      },
-      "warning": {
-        "title": "Registre incomplet",
-        "body": "Le ton « rassurant » n'a pas de correspondance pour la langue allemande. La variante allemande utilisera le registre par défaut."
-      },
-      "blocking": {
-        "title": "Envoi bloqué : 2 affirmations sans fait d'appui",
-        "body": "Les affirmations A-07 et A-11 ne se rattachent à aucun fait de la fiche. Rattachez-les à un fait existant ou supprimez-les de la variante.",
-        "action": "Ouvrir la variante"
-      }
-    },
-    "tabs": {
-      "title": "Onglets",
-      "intro": "Pour des vues parallèles d'un même objet, jamais pour des étapes séquentielles.",
-      "facts": "Faits",
-      "variants": "Variantes",
-      "checks": "Contrôles",
-      "history": "Historique",
-      "factsBody": "Fiche de faits : 12 faits, 2 amendements en attente.",
-      "variantsBody": "3 variantes générées, 1 en correction.",
-      "checksBody": "7 contrôles exécutés, 1 bloquant.",
-      "historyBody": "Dernière modification il y a 4 minutes."
-    },
-    "table": {
-      "title": "Tableau",
-      "intro": "Chiffres alignés à droite en chasse tabulaire. La ligne entière est cliquable ; l'en-tête trié est annoncé.",
-      "columns": {
-        "subject": "Objet",
-        "audience": "Audience",
-        "state": "État",
-        "assertions": "Affirmations",
-        "updated": "Modifiée"
-      },
-      "rows": {
-        "r1": {
-          "subject": "Migration de la plateforme de paiement",
-          "audience": "Fournisseurs Tier 1",
-          "assertions": "18 / 18",
-          "updated": "il y a 4 min"
-        },
-        "r2": {
-          "subject": "Incident INC-2025-0342 : résolution",
-          "audience": "Clients Entreprise",
-          "assertions": "9 / 11",
-          "updated": "il y a 1 h"
-        },
-        "r3": {
-          "subject": "Nouvelle politique de facturation",
-          "audience": "Partenaires intégrateurs",
-          "assertions": "22 / 22",
-          "updated": "hier"
-        }
-      }
-    },
-    "progress": {
-      "title": "Progression",
-      "intro": "Toujours accompagnée d'un libellé et d'une valeur chiffrée.",
-      "label": "Génération des variantes",
-      "value": "{done} sur {total}"
-    },
-    "screenStates": {
-      "empty": "Vide",
-      "loading": "Chargement",
-      "error": "Erreur",
-      "blocking": "Bloquant",
-      "emptyTitle": "Aucune source déposée",
-      "emptyDescription": "Déposez un document, un courriel ou un ticket pour en extraire les faits.",
-      "emptyAction": "Déposer une source",
-      "loadingLabel": "Chargement des communications",
-      "errorTitle": "Impossible de charger les communications",
-      "errorDescription": "Le service de données n'a pas répondu. Vos brouillons sont intacts."
+  "assistant": {
+    "label": "Étapes de la génération",
+    "cadrage": "Cadrage",
+    "source": "Source",
+    "faits": "Fiche de faits",
+    "destinataires": "Destinataires",
+    "generation": "Génération",
+    "etat": {
+      "faite": "Fait",
+      "courante": "À faire",
+      "aVenir": "À venir"
     }
   },
   "auth": {
@@ -320,17 +80,29 @@
       }
     }
   },
-  "roles": {
-    "REDACTEUR": "Rédacteur",
-    "RELECTEUR": "Relecteur",
-    "APPROBATEUR": "Approbateur",
-    "ADMINISTRATEUR": "Administrateur",
-    "AUDITEUR": "Auditeur"
+  "common": {
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "actions": "Actions",
+    "state": "État",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "back": "Retour",
+    "optional": "facultatif",
+    "required": "obligatoire",
+    "none": "Aucun",
+    "yes": "Oui",
+    "no": "Non",
+    "unknown": "Inconnue"
   },
   "communications": {
     "list": {
       "title": "Historique",
-      "description": "Toutes les communications de votre organisation, de la plus récente à la plus ancienne.",
+      "description": "Les communications de votre organisation, de la plus récente à la plus ancienne.",
+      "extrait": "{montrees} communications sur {total} — les plus récentes d’abord.",
       "empty": {
         "title": "Aucune communication",
         "description": "Rien n'a encore été cadré dans votre organisation."
@@ -368,6 +140,12 @@
       "INTERNE": "Interne",
       "INTER_ORG": "Inter-organisations",
       "EXTERNE": "Externe"
+    },
+    "canaux": {
+      "COURRIEL": "Courriel",
+      "MESSAGERIE_INSTANTANEE": "Messagerie instantanée",
+      "PORTAIL": "Portail",
+      "DOCUMENT": "Document"
     },
     "langues": {
       "fr": "Français",
@@ -708,5 +486,352 @@
       "faits": "Fiche de faits"
     },
     "modesLater": "Pas encore disponibles : {modes}."
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "description": "Vos communications par étape, ce qui attend votre approbation, ce qui est bloqué.",
+    "newCommunication": "Nouvelle communication",
+    "mine": {
+      "title": "Mes communications",
+      "description": "Celles dont vous êtes l'auteur, hors archives.",
+      "empty": {
+        "title": "Vous n'avez aucune communication en cours",
+        "description": "Une communication commence par son cadrage : nature, criticité, portée, langue et mode d'entrée."
+      }
+    },
+    "approval": {
+      "title": "En attente de mon approbation",
+      "empty": "Rien n'attend votre approbation."
+    },
+    "blocked": {
+      "title": "Bloquées",
+      "empty": "Aucune de vos communications n'est bloquée.",
+      "CONTRADICTION_NON_TRANCHEE": "{count, plural, one {Une contradiction entre sources à trancher} other {# contradictions entre sources à trancher}}",
+      "A_CORRIGER": "Corrections demandées",
+      "REJETEE": "Rejetée par un approbateur"
+    },
+    "byState": "Répartition par état",
+    "stateCount": "{count, plural, one {# communication} other {# communications}}",
+    "seeAll": "Toutes les communications"
+  },
+  "design": {
+    "title": "Système de design",
+    "description": "Fondations et composants de ComGen, dans leur état réel. Cette page sert de référence visuelle et de banc d'essai d'accessibilité.",
+    "sections": {
+      "foundations": "Fondations",
+      "components": "Composants",
+      "states": "États d'écran"
+    },
+    "colors": {
+      "title": "Couleurs",
+      "intro": "Une seule teinte d'accent. Les autres couleurs portent un sens et rien d'autre : succès, avertissement, erreur.",
+      "surfaces": "Surfaces",
+      "ink": "Texte",
+      "lines": "Bordures",
+      "semantic": "Sémantiques"
+    },
+    "typography": {
+      "title": "Typographie",
+      "intro": "Échelle fixe à partir de 14 px. Chaque taille est appariée à son interligne.",
+      "sample": "Les versions, dates et identifiants sont recopiés, jamais régénérés.",
+      "mono": "Identifiants et versions en chasse fixe : INC-2025-0342, v4.2.1"
+    },
+    "spacing": {
+      "title": "Espacement et forme",
+      "intro": "Grille de 4 px. Rayons volontairement petits : la séparation se fait par la bordure, pas par l'ombre."
+    },
+    "buttons": {
+      "title": "Boutons",
+      "intro": "Une seule action principale par vue. Les actions destructives sont toujours nommées.",
+      "primary": "Générer les variantes",
+      "secondary": "Enregistrer le brouillon",
+      "ghost": "Annuler",
+      "danger": "Rejeter la communication",
+      "loading": "Génération en cours",
+      "disabled": "Envoyer",
+      "iconOnly": "Fermer le panneau",
+      "sizes": "Tailles"
+    },
+    "fields": {
+      "title": "Champs",
+      "intro": "Libellé au-dessus, aide en dessous, erreur après l'aide. Le champ en erreur est annoncé au lecteur d'écran.",
+      "subjectLabel": "Objet de la communication",
+      "subjectHint": "Tel qu'il apparaîtra dans le courriel envoyé.",
+      "subjectPlaceholder": "Migration de la plateforme de paiement — fenêtre du 14 mars",
+      "audienceLabel": "Audience",
+      "audienceHint": "Une liste par persona. Les destinataires sont validés à l'envoi.",
+      "audienceError": "L'audience « Fournisseurs Tier 2 » n'existe plus dans le référentiel.",
+      "audienceValue": "Fournisseurs Tier 2",
+      "notesLabel": "Notes internes",
+      "notesHint": "Jamais incluses dans la communication.",
+      "required": "obligatoire",
+      "optional": "facultatif"
+    },
+    "badges": {
+      "title": "Badges d'état",
+      "intro": "Chaque état a une forme et un texte. La couleur est un renfort, jamais le seul signal."
+    },
+    "notices": {
+      "title": "Messages",
+      "intro": "Trois niveaux. Le niveau bloquant explique toujours ce qui manque et ce qu'il faut faire.",
+      "info": {
+        "title": "Extraction terminée",
+        "body": "12 faits ont été extraits de la source. Validez-les avant de générer."
+      },
+      "warning": {
+        "title": "Registre incomplet",
+        "body": "Le ton « rassurant » n'a pas de correspondance pour la langue allemande. La variante allemande utilisera le registre par défaut."
+      },
+      "blocking": {
+        "title": "Envoi bloqué : 2 affirmations sans fait d'appui",
+        "body": "Les affirmations A-07 et A-11 ne se rattachent à aucun fait de la fiche. Rattachez-les à un fait existant ou supprimez-les de la variante.",
+        "action": "Ouvrir la variante"
+      }
+    },
+    "tabs": {
+      "title": "Onglets",
+      "intro": "Pour des vues parallèles d'un même objet, jamais pour des étapes séquentielles.",
+      "facts": "Faits",
+      "variants": "Variantes",
+      "checks": "Contrôles",
+      "history": "Historique",
+      "factsBody": "Fiche de faits : 12 faits, 2 amendements en attente.",
+      "variantsBody": "3 variantes générées, 1 en correction.",
+      "checksBody": "7 contrôles exécutés, 1 bloquant.",
+      "historyBody": "Dernière modification il y a 4 minutes."
+    },
+    "table": {
+      "title": "Tableau",
+      "intro": "Chiffres alignés à droite en chasse tabulaire. La ligne entière est cliquable ; l'en-tête trié est annoncé.",
+      "columns": {
+        "subject": "Objet",
+        "audience": "Audience",
+        "state": "État",
+        "assertions": "Affirmations",
+        "updated": "Modifiée"
+      },
+      "rows": {
+        "r1": {
+          "subject": "Migration de la plateforme de paiement",
+          "audience": "Fournisseurs Tier 1",
+          "assertions": "18 / 18",
+          "updated": "il y a 4 min"
+        },
+        "r2": {
+          "subject": "Incident INC-2025-0342 : résolution",
+          "audience": "Clients Entreprise",
+          "assertions": "9 / 11",
+          "updated": "il y a 1 h"
+        },
+        "r3": {
+          "subject": "Nouvelle politique de facturation",
+          "audience": "Partenaires intégrateurs",
+          "assertions": "22 / 22",
+          "updated": "hier"
+        }
+      }
+    },
+    "progress": {
+      "title": "Progression",
+      "intro": "Toujours accompagnée d'un libellé et d'une valeur chiffrée.",
+      "label": "Génération des variantes",
+      "value": "{done} sur {total}"
+    },
+    "screenStates": {
+      "empty": "Vide",
+      "loading": "Chargement",
+      "error": "Erreur",
+      "blocking": "Bloquant",
+      "emptyTitle": "Aucune source déposée",
+      "emptyDescription": "Déposez un document, un courriel ou un ticket pour en extraire les faits.",
+      "emptyAction": "Déposer une source",
+      "loadingLabel": "Chargement des communications",
+      "errorTitle": "Impossible de charger les communications",
+      "errorDescription": "Le service de données n'a pas répondu. Vos brouillons sont intacts."
+    }
+  },
+  "destinataires": {
+    "title": "Destinataires",
+    "description": "Une audience retenue, une version à produire. Chacune sera vérifiée séparément.",
+    "legende": "Audiences à qui adresser cette communication",
+    "canal": "Canal : {canal}",
+    "sansGabarit": "Aucun gabarit ne sert le canal {canal} : cette audience ne peut pas être servie.",
+    "valider": "Enregistrer les destinataires",
+    "figee": "La génération a commencé : la liste des destinataires est figée.",
+    "vide": {
+      "title": "Aucune audience",
+      "description": "Aucun persona actif n'est défini pour votre organisation."
+    }
+  },
+  "engine": {
+    "label": "État du moteur",
+    "ready": "IA prête",
+    "demo": "Mode démonstration",
+    "readyHint": "Moteur configuré : la variable {reference} est renseignée.",
+    "demoHint": "Aucune clé de modèle : la variable {reference} est absente. La génération est simulée et étiquetée comme telle."
+  },
+  "error": {
+    "title": "Une erreur s'est produite",
+    "description": "L'application n'a pas pu afficher cette page. Aucune donnée n'a été modifiée. Vous pouvez réessayer.",
+    "reference": "Référence de l'incident"
+  },
+  "generation": {
+    "title": "Version générée",
+    "description": "Chaque phrase est rattachée aux faits qui l'appuient. Les valeurs viennent de la source, mot pour mot.",
+    "generer": "Générer cette version",
+    "regenerer": "Regénérer",
+    "attente": {
+      "title": "Rien n'est encore rédigé",
+      "description": "Lancez la génération pour chaque destinataire retenu."
+    },
+    "vide": {
+      "title": "Aucun destinataire",
+      "description": "Choisissez d'abord à qui cette communication s'adresse."
+    },
+    "score": "Phrases appuyées",
+    "scoreValeur": "{soutenues} sur {factuelles}",
+    "mots": "{mots} mots",
+    "agents": "Agents",
+    "agentSimule": "simulé",
+    "duree": "{ms} ms",
+    "blocages": {
+      "title": "Envoi bloqué",
+      "description": "Tant qu'une phrase factuelle n'est pas appuyée par un fait, cette version ne peut pas être approuvée ni envoyée."
+    },
+    "conforme": {
+      "title": "Toutes les phrases sont appuyées",
+      "description": "Cette version peut passer en approbation."
+    },
+    "rapport": "Rapport de vérification",
+    "appuis": "Appuis : {references}",
+    "sansAppui": "Aucun appui",
+    "verdict": {
+      "SOUTENUE": "Appuyée",
+      "CONTREDITE": "Contredite",
+      "SANS_APPUI": "Sans appui",
+      "NON_FACTUELLE": "Non factuelle"
+    }
+  },
+  "generator": {
+    "title": "Générateur",
+    "description": "Produire une communication par audience, à partir d’une source vérifiée.",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d’un document, d’un texte ou d’un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l’historique."
+    },
+    "wip": {
+      "title": "Assistant en cours de construction",
+      "description": "Les cinq étapes — départ, vérification des faits, destinataires, sortie, approbation — arrivent à l’étape 3 de la refonte. Les deux portes ci-dessus mènent aux écrans existants, qui fonctionnent déjà."
+    }
+  },
+  "home": {
+    "metaTitle": "Accueil",
+    "greeting": "Bonjour {prenom}",
+    "question": "Que voulez-vous faire ?",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d'un document, d'un texte ou d'un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l'historique."
+    },
+    "todo": {
+      "title": "À traiter",
+      "blocked": "{count, plural, =0 {Aucune bloquée} one {# bloquée} other {# bloquées}}",
+      "approval": "{count, plural, =0 {Rien à approuver} one {# à approuver} other {# à approuver}}",
+      "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
+    }
+  },
+  "locale": {
+    "label": "Langue",
+    "fr": "Français",
+    "en": "English"
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "generator": "Générateur",
+    "approvals": "Approbations",
+    "templates": "Gabarits",
+    "templateBuilder": "Constructeur",
+    "analytics": "Analyses",
+    "settings": "Paramètres",
+    "design": "Système de design"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "L'adresse demandée ne correspond à aucune page. Vérifiez le lien ou revenez au tableau de bord.",
+    "action": "Retour au tableau de bord"
+  },
+  "roles": {
+    "REDACTEUR": "Rédacteur",
+    "RELECTEUR": "Relecteur",
+    "APPROBATEUR": "Approbateur",
+    "ADMINISTRATEUR": "Administrateur",
+    "AUDITEUR": "Auditeur"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
+    "soon": "Bientôt",
+    "sections": {
+      "models": {
+        "title": "Modèles d'IA",
+        "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
+      },
+      "personas": {
+        "title": "Personas",
+        "description": "Ton, niveau de détail, angle et longueur de chaque audience."
+      },
+      "lists": {
+        "title": "Listes de diffusion",
+        "description": "Destinataires de chaque persona."
+      },
+      "templates": {
+        "title": "Gabarits",
+        "description": "Formats et variantes de mise en page."
+      }
+    }
+  },
+  "states": {
+    "BROUILLON": "Brouillon",
+    "FAITS_A_VALIDER": "Faits à valider",
+    "PRETE_A_GENERER": "Prête à générer",
+    "EN_GENERATION": "En génération",
+    "EN_CONTROLE": "En contrôle",
+    "A_CORRIGER": "À corriger",
+    "EN_RELECTURE": "En relecture",
+    "EN_APPROBATION": "En approbation",
+    "APPROUVEE": "Approuvée",
+    "ENVOI_PLANIFIE": "Envoi planifié",
+    "ENVOYEE": "Envoyée",
+    "REJETEE": "Rejetée",
+    "ARCHIVEE": "Archivée"
+  },
+  "templateBuilder": {
+    "title": "Constructeur de gabarits",
+    "description": "Composer un gabarit à partir de blocs.",
+    "empty": {
+      "title": "Le constructeur arrive à l’étape 5",
+      "description": "Bibliothèque de blocs, zone de travail, variables et sections conditionnelles. Rien n’en existe encore : livrer une zone de travail inerte ferait perdre du temps à qui essaierait d’y glisser un bloc."
+    }
+  },
+  "templates": {
+    "title": "Gabarits",
+    "description": "Les mises en page dont une communication peut hériter.",
+    "empty": {
+      "title": "La bibliothèque arrive à l’étape 5",
+      "description": "Le schéma porte déjà les gabarits et leurs emplacements, mais aucun écran ne les lit encore. Plutôt qu’une liste vide qui se lirait comme « aucun gabarit n’existe », cette page dit où on en est."
+    }
+  },
+  "theme": {
+    "label": "Thème",
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre"
   }
 }
