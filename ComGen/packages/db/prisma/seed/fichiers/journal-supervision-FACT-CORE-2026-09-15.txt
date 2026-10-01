@@ -1,0 +1,12 @@
+Extrait du journal de supervision — plateforme FACT-CORE — 2026-09-15
+Fuseau : Europe/Paris. Export réalisé le 2026-09-15 à 16:20 par superv-export v2.3.
+
+2026-09-15 13:41:57 CRITIQUE fact-core-db-01 Espace disque du volume /var/lib/postgresql/journaux : 100 % utilisé
+2026-09-15 13:42:04 CRITIQUE fact-core-api-01 Sonde HTTP /sante : échec (code 503) — service de facturation indisponible
+2026-09-15 13:42:04 INFO astreinte Ticket INC-2026-0187 ouvert automatiquement, priorité P1
+2026-09-15 13:58:30 INFO fact-core-db-01 Purge des journaux archivés lancée par l'astreinte (m.delaunay)
+2026-09-15 14:21:12 INFO fact-core-db-01 Extension du volume de journaux : 200 Go -> 400 Go
+2026-09-15 14:49:40 INFO fact-core-api-01 Redémarrage du service de facturation
+2026-09-15 14:52:18 INFO fact-core-api-01 Sonde HTTP /sante : succès (code 200) — service de facturation rétabli à 14h52
+2026-09-15 15:10:00 INFO fact-core-batch-01 Reprise de l'émission différée : 1 398 factures en file
+2026-09-15 16:47:33 INFO fact-core-batch-01 File d'émission vide : 1 398 factures émises

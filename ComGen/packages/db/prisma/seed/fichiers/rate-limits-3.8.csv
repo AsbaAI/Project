@@ -1,0 +1,4 @@
+plan,requests_per_minute,burst_per_second,retry_after_seconds
+Standard,600,20,30
+Premium,3000,100,10
+Enterprise,on request,on request,10
