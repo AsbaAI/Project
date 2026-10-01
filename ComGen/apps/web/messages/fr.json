@@ -7,13 +7,16 @@
       "label": "Démonstration.",
       "message": "Données fictives, visibles de tous : n’y saisissez aucune information réelle.",
       "short": "Données fictives uniquement."
-    }
+    },
+    "version": "Version {version}",
+    "poweredBy": "Propulsé par Multi-Provider AI"
   },
   "nav": {
     "label": "Navigation principale",
-    "newCommunication": "Nouvelle communication",
-    "dashboard": "Tableau de bord",
-    "history": "Historique",
+    "generator": "Générateur",
+    "approvals": "Approbations",
+    "templates": "Gabarits",
+    "templateBuilder": "Constructeur",
     "analytics": "Analyses",
     "settings": "Paramètres",
     "design": "Système de design"
@@ -708,5 +711,57 @@
       "faits": "Fiche de faits"
     },
     "modesLater": "Pas encore disponibles : {modes}."
+  },
+  "engine": {
+    "label": "État du moteur",
+    "ready": "IA prête",
+    "demo": "Mode démonstration",
+    "readyHint": "Moteur configuré : la variable {reference} est renseignée.",
+    "demoHint": "Aucune clé de modèle : la variable {reference} est absente. La génération est simulée et étiquetée comme telle."
+  },
+  "generator": {
+    "title": "Générateur",
+    "description": "Produire une communication par audience, à partir d’une source vérifiée.",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d’un document, d’un texte ou d’un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l’historique."
+    },
+    "wip": {
+      "title": "Assistant en cours de construction",
+      "description": "Les cinq étapes — départ, vérification des faits, destinataires, sortie, approbation — arrivent à l’étape 3 de la refonte. Les deux portes ci-dessus mènent aux écrans existants, qui fonctionnent déjà."
+    }
+  },
+  "approvals": {
+    "title": "Approbations",
+    "description": "Ce qui attend une décision, et les décisions déjà prises.",
+    "pending": {
+      "title": "En attente de votre approbation",
+      "description": "D’après vos droits, relus en base à chaque requête.",
+      "empty": "Rien n’attend votre approbation."
+    },
+    "wip": {
+      "title": "Vue approbateur en construction",
+      "description": "Approuver ou rejeter avec un motif, l’historique des décisions et les réglages de notification arrivent à l’étape 4. Aucun raccourci ne permettra d’envoyer sans approbation humaine."
+    }
+  },
+  "templates": {
+    "title": "Gabarits",
+    "description": "Les mises en page dont une communication peut hériter.",
+    "empty": {
+      "title": "La bibliothèque arrive à l’étape 5",
+      "description": "Le schéma porte déjà les gabarits et leurs emplacements, mais aucun écran ne les lit encore. Plutôt qu’une liste vide qui se lirait comme « aucun gabarit n’existe », cette page dit où on en est."
+    }
+  },
+  "templateBuilder": {
+    "title": "Constructeur de gabarits",
+    "description": "Composer un gabarit à partir de blocs.",
+    "empty": {
+      "title": "Le constructeur arrive à l’étape 5",
+      "description": "Bibliothèque de blocs, zone de travail, variables et sections conditionnelles. Rien n’en existe encore : livrer une zone de travail inerte ferait perdre du temps à qui essaierait d’y glisser un bloc."
+    }
   }
 }

@@ -23,6 +23,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1137.0
         version: 3.1137.0
+      '@comgen/agents':
+        specifier: workspace:*
+        version: link:../../packages/agents
       '@comgen/core':
         specifier: workspace:*
         version: link:../../packages/core

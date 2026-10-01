@@ -7,13 +7,16 @@
       "label": "Demo.",
       "message": "Fictional data, visible to everyone: do not enter any real information.",
       "short": "Fictional data only."
-    }
+    },
+    "version": "Version {version}",
+    "poweredBy": "Powered by Multi-Provider AI"
   },
   "nav": {
     "label": "Main navigation",
-    "newCommunication": "New communication",
-    "dashboard": "Dashboard",
-    "history": "History",
+    "generator": "Generator",
+    "approvals": "Approvals",
+    "templates": "Templates",
+    "templateBuilder": "Template Builder",
     "analytics": "Analytics",
     "settings": "Settings",
     "design": "Design system"
@@ -708,5 +711,57 @@
       "faits": "Fact sheet"
     },
     "modesLater": "Not available yet: {modes}."
+  },
+  "engine": {
+    "label": "Engine status",
+    "ready": "AI ready",
+    "demo": "Demo mode",
+    "readyHint": "Engine configured: the {reference} variable is set.",
+    "demoHint": "No model key: the {reference} variable is missing. Generation is simulated and labelled as such."
+  },
+  "generator": {
+    "title": "Generator",
+    "description": "Produce one communication per audience, from a verified source.",
+    "new": {
+      "title": "New communication",
+      "description": "Start from a document, a text or a template."
+    },
+    "existing": {
+      "title": "Existing communication",
+      "description": "Resume, track or duplicate from history."
+    },
+    "wip": {
+      "title": "Wizard under construction",
+      "description": "The five steps — start, fact check, recipients, output, approval — arrive at step 3 of the redesign. The two doors above lead to the existing screens, which already work."
+    }
+  },
+  "approvals": {
+    "title": "Approvals",
+    "description": "What is waiting for a decision, and the decisions already made.",
+    "pending": {
+      "title": "Awaiting your approval",
+      "description": "Based on your rights, re-read from the database on every request.",
+      "empty": "Nothing is awaiting your approval."
+    },
+    "wip": {
+      "title": "Reviewer view under construction",
+      "description": "Approving or rejecting with a reason, the decision history and notification settings arrive at step 4. No shortcut will ever allow sending without human approval."
+    }
+  },
+  "templates": {
+    "title": "Templates",
+    "description": "The layouts a communication can inherit from.",
+    "empty": {
+      "title": "The library arrives at step 5",
+      "description": "The schema already holds templates and their slots, but no screen reads them yet. Rather than an empty list that would read as “no template exists”, this page says where things stand."
+    }
+  },
+  "templateBuilder": {
+    "title": "Template Builder",
+    "description": "Compose a template from blocks.",
+    "empty": {
+      "title": "The builder arrives at step 5",
+      "description": "Block library, canvas, variables and conditional sections. None of it exists yet: shipping an inert canvas would waste the time of anyone trying to drop a block into it."
+    }
   }
 }

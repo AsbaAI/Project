@@ -109,43 +109,61 @@ test('le sélecteur de langue conserve la page courante', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
 })
 
-test('la page courante est marquée dans la navigation', async ({ page }) => {
-  test.skip(estTelephone(), 'la barre latérale est masquée sur téléphone')
-  await page.goto('/design')
+test('l’onglet courant est marqué dans la barre', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/analyses')
   await attendreRendu(page)
   const nav = page.getByRole('navigation', { name: 'Navigation principale' })
-  await expect(nav.getByRole('link', { name: 'Système de design' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Analyses' })).toHaveAttribute('aria-current', 'page')
+  await expect(nav.getByRole('link', { name: 'Générateur' })).not.toHaveAttribute('aria-current')
+})
+
+test('le constructeur se marque lui-même, pas la bibliothèque', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/gabarits/constructeur')
+  await attendreRendu(page)
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' })
+  await expect(nav.getByRole('link', { name: 'Constructeur' })).toHaveAttribute(
     'aria-current',
     'page',
   )
-  await expect(nav.getByRole('link', { name: 'Tableau de bord' })).not.toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Gabarits', exact: true })).not.toHaveAttribute(
     'aria-current',
   )
 })
 
-test('la création se marque elle-même, pas l’historique', async ({ page }) => {
-  test.skip(estTelephone(), 'la barre latérale est masquée sur téléphone')
-  await page.goto('/communications/nouvelle')
+test('une communication ouverte garde le générateur allumé', async ({ page }) => {
+  test.skip(estTelephone(), 'les onglets sont masqués sur téléphone')
+  await page.goto('/communications/com_2026_0002/faits')
   await attendreRendu(page)
   const nav = page.getByRole('navigation', { name: 'Navigation principale' })
-  await expect(nav.getByRole('link', { name: 'Nouvelle communication' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Générateur' })).toHaveAttribute(
     'aria-current',
     'page',
   )
-  await expect(nav.getByRole('link', { name: 'Historique' })).not.toHaveAttribute('aria-current')
 })
 
-test('l’accueil mène aux deux parcours', async ({ page }) => {
+test('la racine mène au générateur, qui ouvre les deux parcours', async ({ page }) => {
   await page.goto('/')
   await attendreRendu(page)
+  await expect(page).toHaveURL(/\/generateur$/)
+
   const principal = page.getByRole('main')
   await principal.getByRole('link', { name: /^Communication existante/ }).click()
   await expect(page).toHaveURL(/\/communications$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Historique')
 
-  await page.goto('/')
+  await page.goto('/generateur')
   await principal.getByRole('link', { name: /^Nouvelle communication/ }).click()
   await expect(page).toHaveURL(/\/communications\/nouvelle$/)
+})
+
+test('la barre dit l’état du moteur', async ({ page }) => {
+  test.skip(estTelephone(), 'la pastille est masquée sous sm')
+  await page.goto('/generateur')
+  await attendreRendu(page)
+  // Aucune clé de fournisseur n’est configurée en test : la pastille le dit.
+  await expect(page.getByText('Mode démonstration')).toBeVisible()
 })
 
 test('le tiroir de navigation piège le focus et se ferme à Échap', async ({ page }) => {

@@ -95,6 +95,16 @@
   --color-ai-ink: var(--color-ai-ink);
   --color-ai-solid: var(--color-ai-solid);
 
+  /* Barre de navigation supérieure (sombre dans les deux thèmes) */
+  --color-nav-surface: var(--color-nav-surface);
+  --color-nav-hover: var(--color-nav-hover);
+  --color-nav-sunken: var(--color-nav-sunken);
+  --color-nav-selected: var(--color-nav-selected);
+  --color-nav-ink: var(--color-nav-ink);
+  --color-nav-ink-muted: var(--color-nav-ink-muted);
+  --color-nav-ok: var(--color-nav-ok);
+  --color-nav-alert: var(--color-nav-alert);
+
   --color-brand-start: var(--color-brand-start);
   --color-brand-end: var(--color-brand-end);
 
@@ -157,11 +167,10 @@
   --ease-in: var(--ease-in);
   --ease-in-out: var(--ease-in-out);
 
-  /* Gabarits : exposés comme espacements nommés (`w-sidebar`, `h-header`, `max-w-page`) */
+  /* Gabarits : exposés comme espacements nommés (`h-header`, `h-chrome`, `max-w-page`) */
   --spacing-header: var(--layout-header-height);
   --spacing-chrome: var(--layout-chrome-height);
   --spacing-demo: var(--layout-demo-height);
-  --spacing-sidebar: var(--layout-sidebar-width);
   --spacing-page: var(--layout-max-width);
   --spacing-control-sm: var(--control-height-sm);
   --spacing-control-md: var(--control-height-md);

@@ -2,31 +2,35 @@ import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
+import type { EtatMoteur } from '@/server/moteur'
 
 import { BandeauDemo } from './bandeau-demo'
-import { LocaleSwitcher } from './locale-switcher'
-import { MainNav } from './main-nav'
+import { BadgeMoteur } from './badge-moteur'
 import { MobileNav } from './mobile-nav'
+import { PiedDePage } from './pied-de-page'
+import { TopNav } from './top-nav'
 import { UserMenu, type UserMenuProps } from './user-menu'
 
 /*
  * Coquille de l'application.
  *
- *   ┌──────────────────────────────────────────────┐
- *   │ en-tête 48px : menu (tél.) · marque · langue · thème · compte │
- *   │ filet bleu → orange en pied d'en-tête                         │
- *   │ (précédé du bandeau de démonstration si COMGEN_ENV=demo)      │
- *   ├──────────┬───────────────────────────────────┤
- *   │ barre    │ <main id="contenu">               │
- *   │ latérale │                                   │
- *   │ 240px    │                                   │
- *   │ (≥ lg)   │                                   │
- *   └──────────┴───────────────────────────────────┘
+ *   ┌──────────────────────────────────────────────────────────────┐
+ *   │ bandeau de démonstration (si COMGEN_ENV=demo)                │
+ *   ├──────────────────────────────────────────────────────────────┤
+ *   │ barre marine : menu (tél.) · marque · onglets ·              │
+ *   │                état du moteur · compte                       │
+ *   │ filet bleu → orange en pied de barre                         │
+ *   ├──────────────────────────────────────────────────────────────┤
+ *   │ <main id="contenu">                                          │
+ *   ├──────────────────────────────────────────────────────────────┤
+ *   │ pied : version · Powered by Multi-Provider AI                │
+ *   └──────────────────────────────────────────────────────────────┘
  *
- * Le lien d'évitement est le premier élément focalisable. La barre
- * latérale est collante sous l'en-tête et défile indépendamment. Le
- * contenu est limité à `max-w-page` (1440px) et centré au-delà.
+ * La barre est sombre dans les deux thèmes : c'est une surface de marque.
+ * Elle est collante ; sa hauteur, bandeau compris, est portée par
+ * `--layout-chrome-height`, dont partent tous les décalages (défilement
+ * d'ancre, panneaux collants). Le lien d'évitement reste le premier élément
+ * focalisable. Le contenu est limité à `max-w-page` (1440px) et centré.
  */
 export interface AppShellProps {
   children: ReactNode
@@ -34,9 +38,13 @@ export interface AppShellProps {
   utilisateur?: UserMenuProps['utilisateur']
   /** Démonstration publique : bandeau d'avertissement en tête de page. */
   demo?: boolean
+  /** État du moteur de génération, lu côté serveur (`server/moteur.ts`). */
+  moteur?: { etat: EtatMoteur; reference: string }
+  /** Version affichée en pied de page. */
+  version?: string | undefined
 }
 
-export function AppShell({ children, utilisateur, demo = false }: AppShellProps) {
+export function AppShell({ children, utilisateur, demo = false, moteur, version }: AppShellProps) {
   const t = useTranslations('app')
 
   return (
@@ -47,17 +55,17 @@ export function AppShell({ children, utilisateur, demo = false }: AppShellProps)
 
       <div className="sticky top-0 z-header">
         {demo ? <BandeauDemo /> : null}
-        <header className="relative h-header bg-surface-raised">
+        <div className="relative h-header bg-nav-surface">
           {/* Filet de marque bleu → orange : l'un des rares emplois du dégradé. */}
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-brand-gradient"
           />
-          <div className="mx-auto flex h-full w-full max-w-page items-center gap-3 px-gutter">
+          <div className="mx-auto flex h-full w-full max-w-page items-center gap-2 px-gutter">
             <MobileNav />
             <Link
-              href="/"
-              className="flex items-center gap-2 rounded-xs text-base font-semibold tracking-tight text-ink-primary no-underline focus-ring"
+              href="/generateur"
+              className="flex shrink-0 items-center gap-2 rounded-xs text-base font-semibold tracking-tight text-nav-ink no-underline focus-ring"
             >
               <span
                 aria-hidden="true"
@@ -67,28 +75,32 @@ export function AppShell({ children, utilisateur, demo = false }: AppShellProps)
               </span>
               {t('name')}
             </Link>
-            <p className="hidden text-sm text-ink-tertiary md:block">{t('tagline')}</p>
-            <div className="ml-auto flex items-center gap-2">
-              <LocaleSwitcher />
-              <ThemeToggle />
+
+            <TopNav className="ml-4 min-w-0 flex-1" />
+
+            <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
+              {moteur ? (
+                <BadgeMoteur
+                  etat={moteur.etat}
+                  reference={moteur.reference}
+                  className="hidden sm:inline-flex"
+                />
+              ) : null}
               {utilisateur ? <UserMenu utilisateur={utilisateur} /> : null}
             </div>
           </div>
-        </header>
+        </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-page flex-1">
-        <aside className="sticky top-chrome hidden h-[calc(100dvh-var(--layout-chrome-height))] w-sidebar shrink-0 overflow-y-auto border-r-w border-line-default px-4 py-4 lg:block">
-          <MainNav />
-        </aside>
-        <main
-          id="contenu"
-          tabIndex={-1}
-          className="min-w-0 flex-1 px-gutter py-6 outline-none lg:py-8"
-        >
-          {children}
-        </main>
-      </div>
+      <main
+        id="contenu"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-page flex-1 px-gutter py-6 outline-none lg:py-8"
+      >
+        {children}
+      </main>
+
+      <PiedDePage version={version} />
     </div>
   )
 }

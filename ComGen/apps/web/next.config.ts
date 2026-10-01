@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -16,10 +16,17 @@ if (existsSync(FICHIER_ENV)) process.loadEnvFile(FICHIER_ENV)
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
+/* La version affichée en pied de page vient du manifeste, à la construction :
+ * une constante recopiée à la main finit toujours par mentir. */
+const version = JSON.parse(
+  readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json'), 'utf8'),
+).version
+
 const nextConfig: NextConfig = {
+  env: { COMGEN_VERSION: version },
   // Les paquets du dépôt sont publiés en sources TypeScript : Next les
   // transpile lui-même, il n'y a pas d'étape de build intermédiaire.
-  transpilePackages: ['@comgen/core', '@comgen/db'],
+  transpilePackages: ['@comgen/agents', '@comgen/core', '@comgen/db'],
   typescript: {
     // Un avertissement de type est une erreur de build (définition de « terminé »).
     ignoreBuildErrors: false,

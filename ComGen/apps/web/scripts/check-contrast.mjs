@@ -261,6 +261,21 @@ const PAIRS = [
   ['--color-ink-tertiary', '--color-surface-sunken', UI, 'Icône d’état vide / zone enfoncée'],
   ['--color-ai-solid', '--color-surface-raised', UI, 'Indicateur d’agent / panneau'],
 
+  // Barre de navigation supérieure : sombre dans les deux thèmes, donc les
+  // mêmes couples y sont vérifiés deux fois — c'est voulu, une divergence
+  // entre les blocs serait une régression.
+  ['--color-nav-ink', '--color-nav-surface', TEXTE, 'Onglet courant / barre'],
+  ['--color-nav-ink-muted', '--color-nav-surface', TEXTE, 'Onglet au repos / barre'],
+  ['--color-nav-ink', '--color-nav-selected', TEXTE, 'Onglet courant / fond d’onglet'],
+  ['--color-nav-ink', '--color-nav-hover', TEXTE, 'Onglet survolé / fond de survol'],
+  ['--color-nav-ink-muted', '--color-nav-hover', TEXTE, 'Libellé survolé / fond de survol'],
+  ['--color-nav-ink', '--color-nav-sunken', TEXTE, 'Segment actif / piste de contrôle'],
+  ['--color-nav-ink-muted', '--color-nav-sunken', TEXTE, 'Segment au repos / piste de contrôle'],
+  ['--color-nav-ok', '--color-nav-surface', UI, 'Point « IA prête » / barre'],
+  ['--color-nav-alert', '--color-nav-surface', UI, 'Point « mode démonstration » / barre'],
+  ['--color-nav-ok', '--color-nav-selected', UI, 'Point d’état / fond d’onglet'],
+  ['--color-nav-alert', '--color-nav-selected', UI, 'Point d’état / fond d’onglet'],
+
   // Texte désactivé : seuil abaissé (contrôle inactif, 1.4.3)
   ['--color-ink-disabled', '--color-surface-raised', INACTIF, 'Texte désactivé / panneau'],
   ['--color-ink-disabled', '--color-surface-sunken', INACTIF, 'Texte désactivé / champ désactivé'],

@@ -6,7 +6,10 @@ import { type Page, expect, test } from '@playwright/test'
  * contradiction non résolue ; COM-2026-0001 est en cours de revue.
  */
 export const PAGES = [
-  { nom: 'accueil', chemin: '/' },
+  { nom: 'generateur', chemin: '/generateur' },
+  { nom: 'approbations', chemin: '/approbations' },
+  { nom: 'gabarits', chemin: '/gabarits' },
+  { nom: 'constructeur', chemin: '/gabarits/constructeur' },
   { nom: 'tableau-de-bord', chemin: '/tableau-de-bord' },
   { nom: 'communications', chemin: '/communications' },
   { nom: 'cadrage', chemin: '/communications/nouvelle' },
