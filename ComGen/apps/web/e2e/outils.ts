@@ -6,13 +6,16 @@ import { type Page, expect, test } from '@playwright/test'
  * contradiction non résolue ; COM-2026-0001 est en cours de revue.
  */
 export const PAGES = [
-  { nom: 'tableau-de-bord', chemin: '/' },
+  { nom: 'accueil', chemin: '/' },
+  { nom: 'tableau-de-bord', chemin: '/tableau-de-bord' },
   { nom: 'communications', chemin: '/communications' },
   { nom: 'cadrage', chemin: '/communications/nouvelle' },
   { nom: 'communication', chemin: '/communications/com_2026_0002' },
   { nom: 'entree', chemin: '/communications/com_2026_0001/entree' },
   { nom: 'fiche-de-faits', chemin: '/communications/com_2026_0002/faits' },
   { nom: 'fiche-de-faits-revue', chemin: '/communications/com_2026_0001/faits' },
+  { nom: 'analyses', chemin: '/analyses' },
+  { nom: 'parametres', chemin: '/parametres' },
   { nom: 'design', chemin: '/design' },
 ] as const
 
