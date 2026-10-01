@@ -51,6 +51,8 @@ export interface ContexteTransition {
   criticite: Criticite
   sourcesFigees: number
   faitsConfirmes: number
+  /** Faits encore PROPOSE : ni confirmés, ni retirés. */
+  faitsProposes: number
   faitsDeclares: number
   contradictionsNonTranchees: number
   personas: number
@@ -62,6 +64,7 @@ export type MotifRefus =
   | 'TRANSITION_INCONNUE'
   | 'AUCUNE_SOURCE_FIGEE'
   | 'AUCUN_FAIT_CONFIRME'
+  | 'FAIT_NON_REVU'
   | 'CONTRADICTION_NON_TRANCHEE'
   | 'AUCUN_PERSONA'
   | 'PERSONA_SANS_TEMPLATE'
@@ -84,11 +87,16 @@ export interface Transition {
 
 const libre: Garde = () => []
 
-/** §7 : PRETE_A_GENERER exige source figée, fait CONFIRME, persona, un template par persona. */
+/**
+ * §7 : PRETE_A_GENERER exige source figée, fait CONFIRME, persona, un
+ * template par persona. §10 ajoute la « revue obligatoire de la fiche de
+ * faits avant génération » : aucun fait ne reste PROPOSE.
+ */
 const gardePreteAGenerer: Garde = (c) => {
   const motifs: MotifRefus[] = []
   if (c.sourcesFigees < 1) motifs.push('AUCUNE_SOURCE_FIGEE')
   if (c.faitsConfirmes < 1) motifs.push('AUCUN_FAIT_CONFIRME')
+  if (c.faitsProposes > 0) motifs.push('FAIT_NON_REVU')
   if (c.contradictionsNonTranchees > 0) motifs.push('CONTRADICTION_NON_TRANCHEE')
   if (c.personas < 1) motifs.push('AUCUN_PERSONA')
   if (c.personasSansTemplate > 0) motifs.push('PERSONA_SANS_TEMPLATE')

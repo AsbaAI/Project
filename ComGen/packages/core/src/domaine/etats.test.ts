@@ -19,6 +19,7 @@ const contexteSain: ContexteTransition = {
   criticite: 'COURANTE',
   sourcesFigees: 1,
   faitsConfirmes: 3,
+  faitsProposes: 0,
   faitsDeclares: 0,
   contradictionsNonTranchees: 0,
   personas: 2,
@@ -127,6 +128,11 @@ describe('garde PRETE_A_GENERER (§7)', () => {
       contradictionsNonTranchees: 2,
     })
     expect(r).toEqual({ autorisee: false, motifs: ['CONTRADICTION_NON_TRANCHEE'] })
+  })
+
+  it('bloque tant qu’un fait proposé n’a été ni confirmé ni retiré (§10 : revue obligatoire)', () => {
+    const r = evaluerTransition(depuis, 'PRETE_A_GENERER', { ...contexteSain, faitsProposes: 1 })
+    expect(r).toEqual({ autorisee: false, motifs: ['FAIT_NON_REVU'] })
   })
 
   it('cumule tous les motifs au lieu de s’arrêter au premier', () => {
