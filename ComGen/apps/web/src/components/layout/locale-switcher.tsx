@@ -13,14 +13,25 @@ import { cn } from '@/lib/cn'
  * Chaque lien porte la langue cible dans `hreflang` et `lang`, pour que la
  * synthèse vocale prononce « English » en anglais.
  */
-export function LocaleSwitcher({ className }: { className?: string }) {
+export interface LocaleSwitcherProps {
+  className?: string
+  /** `barre` : posé sur la barre marine, qui ne suit pas le thème. */
+  ton?: 'surface' | 'barre'
+}
+
+export function LocaleSwitcher({ className, ton = 'surface' }: LocaleSwitcherProps) {
   const t = useTranslations('locale')
   const current = useLocale()
   const pathname = usePathname()
 
   return (
     <nav aria-label={t('label')} className={className}>
-      <ul className="inline-flex h-control-md items-center gap-0.5 rounded-sm border-w border-line-default bg-surface-sunken p-0.5">
+      <ul
+        className={cn(
+          'inline-flex h-control-md items-center gap-0.5 rounded-sm p-0.5',
+          ton === 'barre' ? 'bg-nav-sunken' : 'border-w border-line-default bg-surface-sunken',
+        )}
+      >
         {routing.locales.map((locale) => {
           const active = locale === current
           return (
@@ -34,8 +45,14 @@ export function LocaleSwitcher({ className }: { className?: string }) {
                 aria-label={t(locale)}
                 className={cn(
                   'inline-flex h-7 min-w-7 items-center justify-center rounded-xs px-1.5 text-xs font-semibold uppercase tracking-caps no-underline',
-                  'text-ink-secondary transition-colors-token focus-ring hover:text-ink-primary',
-                  active && 'bg-surface-raised text-ink-primary shadow-sm',
+                  'transition-colors-token focus-ring',
+                  ton === 'barre'
+                    ? 'text-nav-ink-muted hover:text-nav-ink'
+                    : 'text-ink-secondary hover:text-ink-primary',
+                  active &&
+                    (ton === 'barre'
+                      ? 'bg-nav-selected text-nav-ink'
+                      : 'bg-surface-raised text-ink-primary shadow-sm'),
                 )}
               >
                 {locale}

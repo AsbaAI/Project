@@ -21,7 +21,13 @@ const ICONS: Record<ThemePreference, LucideIcon> = {
   dark: Moon,
 }
 
-export function ThemeToggle({ className }: { className?: string }) {
+export interface ThemeToggleProps {
+  className?: string
+  /** `barre` : posé sur la barre marine, qui ne suit pas le thème. */
+  ton?: 'surface' | 'barre'
+}
+
+export function ThemeToggle({ className, ton = 'surface' }: ThemeToggleProps) {
   const t = useTranslations('theme')
   const { preference, setPreference } = useTheme()
 
@@ -34,7 +40,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={t('label')}
       orientation="horizontal"
       className={cn(
-        'inline-flex h-control-md items-center gap-0.5 rounded-sm border-w border-line-default bg-surface-sunken p-0.5',
+        'inline-flex h-control-md items-center gap-0.5 rounded-sm p-0.5',
+        ton === 'barre' ? 'bg-nav-sunken' : 'border-w border-line-default bg-surface-sunken',
         className,
       )}
     >
@@ -47,9 +54,10 @@ export function ThemeToggle({ className }: { className?: string }) {
             aria-label={t(value)}
             className={cn(
               'inline-flex h-full min-w-7 items-center justify-center gap-1.5 rounded-xs px-1.5 text-xs font-medium',
-              'text-ink-secondary transition-colors-token focus-ring',
-              'hover:text-ink-primary',
-              'data-[state=checked]:bg-surface-raised data-[state=checked]:text-ink-primary data-[state=checked]:shadow-sm',
+              'transition-colors-token focus-ring',
+              ton === 'barre'
+                ? 'text-nav-ink-muted hover:text-nav-ink data-[state=checked]:bg-nav-selected data-[state=checked]:text-nav-ink'
+                : 'text-ink-secondary hover:text-ink-primary data-[state=checked]:bg-surface-raised data-[state=checked]:text-ink-primary data-[state=checked]:shadow-sm',
             )}
           >
             <Icon aria-hidden="true" className="size-3.5" strokeWidth={2} />

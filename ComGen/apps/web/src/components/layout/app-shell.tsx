@@ -4,8 +4,11 @@ import type { ReactNode } from 'react'
 import { Link } from '@/i18n/navigation'
 import type { EtatMoteur } from '@/server/moteur'
 
+import { ThemeToggle } from '@/components/ui/theme-toggle'
+
 import { BandeauDemo } from './bandeau-demo'
 import { BadgeMoteur } from './badge-moteur'
+import { LocaleSwitcher } from './locale-switcher'
 import { MobileNav } from './mobile-nav'
 import { PiedDePage } from './pied-de-page'
 import { TopNav } from './top-nav'
@@ -86,6 +89,8 @@ export function AppShell({ children, utilisateur, demo = false, moteur, version 
                   className="hidden sm:inline-flex"
                 />
               ) : null}
+              <LocaleSwitcher ton="barre" className="hidden lg:block" />
+              <ThemeToggle ton="barre" className="hidden lg:inline-flex" />
               {utilisateur ? <UserMenu utilisateur={utilisateur} /> : null}
             </div>
           </div>
