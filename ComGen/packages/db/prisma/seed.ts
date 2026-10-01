@@ -195,7 +195,7 @@ function preparerCommunication(
     })
 
     for (const [indice, affirmation] of variante.affirmations.entries()) {
-      const faitIds = affirmation.citationsAppui.flatMap((citation) => {
+      const faitIds = [...new Set(affirmation.citationsAppui)].flatMap((citation) => {
         const trouves = faitsParCitation.get(citation)
         if (trouves === undefined) {
           throw new ErreurSeed(

@@ -253,12 +253,21 @@ function etatPour(indice: number): EtatCommunication {
   return 'ENVOYEE'
 }
 
+/*
+ * État de la variante déduit de celui de la communication.
+ *
+ * EN_CONTROLE donne CONFORME, et non A_REVOIR : toutes les affirmations
+ * engendrées sont appuyées par construction, et aucun contrôle bloquant
+ * n'est écrit. Une variante « à revoir » sans rien à revoir serait une
+ * donnée qui se contredit — l'écran afficherait « tout est appuyé » sous un
+ * état qui dit l'inverse.
+ */
 const ETAT_VARIANTE: Readonly<Partial<Record<EtatCommunication, EtatVariante>>> = {
   ENVOYEE: 'ENVOYEE',
   ARCHIVEE: 'ENVOYEE',
   APPROUVEE: 'APPROUVEE',
   EN_APPROBATION: 'CONFORME',
-  EN_CONTROLE: 'A_REVOIR',
+  EN_CONTROLE: 'CONFORME',
 }
 
 interface Appartenance {
@@ -403,12 +412,15 @@ function varianteDe(
   const affirmations: DescriptionAffirmation[] = paragraphes.map((texte) => {
     const offsetDebut = curseur
     curseur += texte.length + 1
-    const appuis = faits.filter((fait) => fait.citation === texte)
+    // Une citation, pas une par fait : la phrase porte parfois deux
+    // valeurs, et la citer deux fois lui donnerait deux fois les mêmes
+    // appuis à l'écran.
+    const appuyee = faits.some((fait) => fait.citation === texte)
     return {
       texte,
       position: { offsetDebut, offsetFin: offsetDebut + texte.length },
-      verdict: appuis.length > 0 ? 'SOUTENUE' : 'NON_FACTUELLE',
-      citationsAppui: appuis.map((fait) => fait.citation),
+      verdict: appuyee ? 'SOUTENUE' : 'NON_FACTUELLE',
+      citationsAppui: appuyee ? [texte] : [],
     }
   })
 

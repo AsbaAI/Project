@@ -65,22 +65,45 @@ const CLOTURE = {
 } as const
 
 /**
- * Découpe une citation autour de sa valeur : « Le service concerne 4 500
- * utilisateurs. » devient trois segments, dont le milieu est une référence.
+ * Découpe une citation autour de TOUTES ses valeurs.
  *
- * Si la valeur ne se retrouve pas telle quelle dans la citation, on ne
- * bricole pas : le fait est écarté. Une citation qui ne contient pas sa
- * propre valeur est une donnée abîmée, pas un cas à rattraper.
+ * Une phrase porte souvent plusieurs valeurs — « La version 3.9.2 sera
+ * déployée le 12 novembre 2026. » en porte deux. N'en référencer qu'une
+ * laisserait l'autre en texte libre, et `injecter` refuserait à juste
+ * titre : une valeur laissée au fil du texte n'est plus rattachée à rien.
+ *
+ * Les occurrences qui se chevauchent sont ignorées après la première : on
+ * ne coupe pas une valeur en deux pour en caser une autre.
+ *
+ * `null` quand aucune valeur ne se retrouve dans la citation. Une citation
+ * qui ne contient pas ses propres valeurs est une donnée abîmée, pas un
+ * cas à rattraper.
  */
-function segmenter(citation: string, valeur: string, reference: string): SegmentRedige[] | null {
-  const position = citation.indexOf(valeur)
-  if (position < 0) return null
+function segmenter(
+  citation: string,
+  faits: readonly { reference: string; valeur: string }[],
+): SegmentRedige[] | null {
+  const occurrences = faits
+    .flatMap((fait) => {
+      const debut = citation.indexOf(fait.valeur)
+      return debut < 0
+        ? []
+        : [{ debut, fin: debut + fait.valeur.length, reference: fait.reference }]
+    })
+    .toSorted((a, b) => a.debut - b.debut)
+  if (occurrences.length === 0) return null
+
   const segments: SegmentRedige[] = []
-  const avant = citation.slice(0, position)
-  const apres = citation.slice(position + valeur.length)
-  if (avant.length > 0) segments.push({ type: 'texte', texte: avant })
-  segments.push({ type: 'reference', reference })
-  if (apres.length > 0) segments.push({ type: 'texte', texte: apres })
+  let curseur = 0
+  for (const occurrence of occurrences) {
+    if (occurrence.debut < curseur) continue
+    const avant = citation.slice(curseur, occurrence.debut)
+    if (avant.length > 0) segments.push({ type: 'texte', texte: avant })
+    segments.push({ type: 'reference', reference: occurrence.reference })
+    curseur = occurrence.fin
+  }
+  const reste = citation.slice(curseur)
+  if (reste.length > 0) segments.push({ type: 'texte', texte: reste })
   return segments
 }
 
@@ -93,16 +116,27 @@ export function creerRedacteurSimule(): Agent<EntreeRedacteur, SortieRedacteur> 
     async executer(entree, contexte) {
       await contexte.attendre?.(lecture)
 
-      const corps: SortieRedacteur['paragraphes'] = []
-      const citationsVues = new Set<string>()
+      /*
+       * Une phrase par citation, dans l'ordre où les faits arrivent, avec
+       * toutes les valeurs de cette phrase référencées d'un coup.
+       */
+      const parCitation = new Map<string, { reference: string; valeur: string }[]>()
+      const ordre: string[] = []
       for (const fait of entree.faits) {
         if (fait.valeur === null) continue
-        // Une même phrase ne se répète pas, même si elle porte deux valeurs :
-        // le premier fait l'emporte et les suivants n'ajouteraient rien.
-        if (citationsVues.has(fait.citation)) continue
-        const segments = segmenter(fait.citation, fait.valeur, fait.reference)
+        const existants = parCitation.get(fait.citation)
+        if (existants === undefined) {
+          parCitation.set(fait.citation, [{ reference: fait.reference, valeur: fait.valeur }])
+          ordre.push(fait.citation)
+        } else {
+          existants.push({ reference: fait.reference, valeur: fait.valeur })
+        }
+      }
+
+      const corps: SortieRedacteur['paragraphes'] = []
+      for (const citation of ordre) {
+        const segments = segmenter(citation, parCitation.get(citation) ?? [])
         if (segments === null) continue
-        citationsVues.add(fait.citation)
         corps.push({ role: 'corps', segments })
       }
 

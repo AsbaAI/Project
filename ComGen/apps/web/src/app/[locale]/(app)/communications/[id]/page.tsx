@@ -10,6 +10,7 @@ import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { formaterInstant } from '@/lib/dates'
 import { acteurDePage, ou404 } from '@/server/pages'
+import { chargerAvancement } from '@/server/services/assistant'
 import { chargerCommunication, fuseauDeSaisie } from '@/server/services/communications'
 import { ETATS_ENTREE_OUVERTE, ETATS_FICHE_OUVERTE } from '@/server/services/etat'
 
@@ -38,9 +39,10 @@ export default async function CommunicationPage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications')
   const acteur = await acteurDePage()
-  const [detail, fuseau] = await Promise.all([
+  const [detail, fuseau, avancement] = await Promise.all([
     ou404(chargerCommunication(acteur, id)),
     fuseauDeSaisie(acteur),
+    chargerAvancement(acteur, id),
   ])
   const { communication: c, compteurs, transitions, droits } = detail
   const date = (d: Date | null) => (d ? formaterInstant(d, locale, fuseau) : t('detail.notSet'))
@@ -52,7 +54,7 @@ export default async function CommunicationPage({ params }: PageProps) {
   return (
     <>
       <EnTeteCommunication
-        id={c.id}
+        avancement={avancement}
         reference={c.reference}
         titre={c.titre}
         etat={c.etat}

@@ -509,3 +509,53 @@ seed produisent le même historique — une capture d'écran reste valable.
 affiche « 25 communications sur 105 » : un extrait qui ne dit pas qu'il est
 un extrait est un résultat partiel présenté comme complet. Le filtrage et
 la pagination arrivent avec l'onglet Analyses.
+
+## Étape 3 — le générateur : un assistant en cinq étapes
+
+### L'assistant remplace la navigation par onglets
+
+`server/services/assistant.ts` lit l'avancement **en base** — nombre de
+sources, de faits restant à revoir, de destinataires retenus, de variantes
+— et en déduit l'étape courante : la première qui n'est pas faite. Rien
+n'est stocké : un avancement mémorisé pourrait mentir sur l'état réel.
+
+Une étape non atteignable n'est pas un lien. Tant qu'un fait reste à
+revoir, « Destinataires » est un libellé inerte : la revue de la fiche de
+faits (§10) n'est pas sautable, et l'écran le montre au lieu de refuser
+après coup.
+
+### Le rédacteur ne peut pas écrire une valeur
+
+Il ne rend pas du texte mais des **segments** : du texte sans valeur, et
+des références de faits. `domaine/injection.ts` recompose la phrase et
+refuse tout segment libre où `proposerFaitsCandidats` trouve une valeur
+(`VALEUR_DANS_TEXTE_LIBRE`). La contrainte cardinale est donc structurelle,
+pas surveillée : il n'existe pas de chemin par lequel un modèle écrirait un
+nombre, une date, une version.
+
+Conséquence tenue pendant cette étape : une phrase qui porte **deux**
+valeurs les référence **toutes les deux**. N'en référencer qu'une laissait
+l'autre au fil du texte — et `injecter` refusait, à juste titre. Le test de
+bout en bout `parcours.spec.ts` lit les trois valeurs de la source dans le
+rapport de vérification, pas dans `main` : le titre de la communication
+porte lui aussi le numéro de version, et l'assertion aurait passé sans
+texte généré.
+
+### Le texte bloqué est montré, pas caché
+
+Une variante dont une phrase n'est pas appuyée s'affiche avec son rapport
+et ses blocages. La masquer empêcherait de corriger ; la laisser partir
+violerait la contrainte cardinale. L'approbation, elle, reste fermée tant
+qu'un `Controle` bloquant subsiste — et c'est la base qui le garantit, pas
+l'écran.
+
+### Ce que les captures ont corrigé
+
+Trois défauts invisibles aux tests de rôle, trouvés en relisant les
+captures : les appuis répétés (« F-02, F-03, F-02, F-03 » — une citation
+était listée une fois par fait au lieu d'une fois tout court), un titre
+« Agents » sans contenu sur une variante sans trace d'exécution, et les
+canaux affichés en constantes (`MESSAGERIE_INSTANTANEE`). Les trois sont
+corrigés à la source : dédoublonnage dans le seed **et** aux deux
+frontières de `generation.ts`, section masquée quand elle est vide,
+libellés de canal passés par `next-intl`.

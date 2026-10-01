@@ -1,10 +1,14 @@
 import { type EtapeOrchestration, agentsSimules, estErreurOrchestration } from '@comgen/agents'
 import {
+  type EtatVariante,
   type FaitInjectable,
   type LangueDetectable,
+  type RoleAgent,
   type SegmentRedige,
+  type Verdict,
   choisirGabarit,
   injecter,
+  texteDuDocument,
   verifierValeursInjectees,
 } from '@comgen/core'
 import { z } from 'zod'
@@ -367,7 +371,9 @@ export async function genererVariante(
         texte: affirmation.texte,
         position: { offsetDebut, offsetFin: offsetDebut + affirmation.texte.length },
         verdict: affirmation.verdict,
-        faitIds: affirmation.appuis.flatMap((reference) => {
+        // Dédoublonné : le vérificateur peut citer deux fois la même
+        // référence quand une phrase porte deux valeurs du même fait.
+        faitIds: [...new Set(affirmation.appuis)].flatMap((reference) => {
           const id = faitIdParReference.get(reference)
           return id === undefined ? [] : [id]
         }),
@@ -450,4 +456,115 @@ function enErreurMetier(erreur: unknown): ErreurMetier {
   }
   if (erreur instanceof Error) return new ErreurMetier('GENERATION_REFUSEE', erreur.message)
   return new ErreurMetier('GENERATION_REFUSEE', 'Génération impossible')
+}
+
+// ---------------------------------------------------------------------------
+// Lecture de l'écran de génération
+// ---------------------------------------------------------------------------
+
+export interface AffirmationLue {
+  id: string
+  texte: string
+  verdict: Verdict
+  explication: string | null
+  /** Références `F-nn` des faits d'appui, pas leurs identifiants techniques. */
+  appuis: readonly string[]
+}
+
+export interface VarianteLue {
+  id: string
+  personaNom: string
+  etat: EtatVariante
+  score: number | null
+  longueurMots: number
+  texte: string
+  affirmations: readonly AffirmationLue[]
+  /** Contrôles bloquants non résolus : ce qui empêche l'approbation. */
+  blocages: readonly { id: string; message: string }[]
+  executions: readonly { id: string; agent: RoleAgent; dureeMs: number; simule: boolean }[]
+}
+
+export interface EcranGeneration {
+  variantes: readonly VarianteLue[]
+  /** Vrai quand au moins une variante reste à rédiger. */
+  resteARediger: boolean
+  /** Vrai quand au moins un blocage subsiste : l'envoi est impossible. */
+  bloquee: boolean
+}
+
+export async function chargerGeneration(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<EcranGeneration> {
+  exigerDroit(acteur.utilisateur, 'CONSULTER')
+
+  const [variantes, faits] = await Promise.all([
+    acteur.contexte.variante.findMany({
+      where: { communicationId },
+      orderBy: { creeLe: 'asc' },
+      select: {
+        id: true,
+        etat: true,
+        score: true,
+        longueurMots: true,
+        contenu: true,
+        persona: { select: { nom: true } },
+        affirmations: {
+          select: { id: true, texte: true, verdict: true, explication: true, faitIds: true },
+        },
+        controles: {
+          where: { bloquant: true, resoluLe: null },
+          select: { id: true, message: true },
+        },
+        executions: {
+          select: { id: true, agent: true, dureeMs: true, parametres: true },
+          orderBy: { creeLe: 'asc' },
+        },
+      },
+    }),
+    acteur.contexte.fait.findMany({
+      where: { communicationId },
+      select: { id: true, reference: true },
+    }),
+  ])
+  const referenceParId = new Map(faits.map((fait) => [fait.id, fait.reference]))
+
+  const lues = variantes.map((variante): VarianteLue => {
+    return {
+      id: variante.id,
+      personaNom: variante.persona.nom,
+      etat: variante.etat,
+      score: variante.score,
+      longueurMots: variante.longueurMots,
+      texte: texteDuDocument(variante.contenu),
+      affirmations: variante.affirmations.map((affirmation) => ({
+        id: affirmation.id,
+        texte: affirmation.texte,
+        verdict: affirmation.verdict,
+        explication: affirmation.explication,
+        appuis: [...new Set(affirmation.faitIds)].flatMap((id) => {
+          const reference = referenceParId.get(id)
+          return reference === undefined ? [] : [reference]
+        }),
+      })),
+      blocages: variante.controles,
+      executions: variante.executions.map((execution) => ({
+        id: execution.id,
+        agent: execution.agent,
+        dureeMs: execution.dureeMs,
+        // `parametres.simule` est posé à l'écriture ; on ne le devine pas.
+        simule:
+          typeof execution.parametres === 'object' &&
+          execution.parametres !== null &&
+          'simule' in execution.parametres &&
+          execution.parametres.simule === true,
+      })),
+    }
+  })
+
+  return {
+    variantes: lues,
+    resteARediger: lues.some((variante) => variante.etat === 'EN_GENERATION'),
+    bloquee: lues.some((variante) => variante.blocages.length > 0),
+  }
 }

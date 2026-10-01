@@ -1,18 +1,22 @@
-import { Info, OctagonX, TriangleAlert } from 'lucide-react'
+import { CircleCheckBig, Info, OctagonX, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/cn'
 
 /*
- * Message contextuel. Trois niveaux, trois formes :
+ * Message contextuel. Quatre niveaux, quatre formes :
  *   - info : cercle « i », fond accent, `role="status"` ;
+ *   - success : coche, fond succès, `role="status"` — dire qu'un contrôle
+ *     est passé vaut autant que dire qu'il a échoué : sans ce niveau, un
+ *     écran conforme ne se distingue que par l'absence de message, ce qui
+ *     ressemble trop à un écran qui n'a rien vérifié ;
  *   - warning : triangle, fond alerte, `role="status"` ;
  *   - blocking : octogone barré, fond erreur, `role="alert"` — annoncé
  *     immédiatement. Un message bloquant a toujours un titre qui dit CE
  *     QUI bloque et un corps qui dit QUOI FAIRE (§2, « bloquer et
  *     expliquer »).
  */
-export type NoticeLevel = 'info' | 'warning' | 'blocking'
+export type NoticeLevel = 'info' | 'success' | 'warning' | 'blocking'
 
 export interface NoticeProps {
   level: NoticeLevel
@@ -27,6 +31,11 @@ const STYLES: Record<NoticeLevel, { icon: typeof Info; container: string; iconCo
     icon: Info,
     container: 'border-accent-line bg-accent-bg',
     iconColor: 'text-ink-accent',
+  },
+  success: {
+    icon: CircleCheckBig,
+    container: 'border-success-line bg-success-bg',
+    iconColor: 'text-success-ink',
   },
   warning: {
     icon: TriangleAlert,

@@ -17,6 +17,8 @@ export const PAGES = [
   { nom: 'entree', chemin: '/communications/com_2026_0001/entree' },
   { nom: 'fiche-de-faits', chemin: '/communications/com_2026_0002/faits' },
   { nom: 'fiche-de-faits-revue', chemin: '/communications/com_2026_0001/faits' },
+  { nom: 'destinataires', chemin: '/communications/com_2026_0001/destinataires' },
+  { nom: 'generation', chemin: '/communications/com_2026_0031/generation' },
   { nom: 'analyses', chemin: '/analyses' },
   { nom: 'parametres', chemin: '/parametres' },
   { nom: 'design', chemin: '/design' },

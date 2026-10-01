@@ -282,6 +282,12 @@ const PAIRS = [
   ['--color-success-solid', '--color-surface-sunken', UI, 'Point « IA prête » / tiroir'],
   ['--color-warning-solid', '--color-surface-sunken', UI, 'Point « démonstration » / tiroir'],
 
+  // Fil des cinq étapes de l'assistant : la coche d'une étape faite et le
+  // rang de l'étape courante sont posés sur une pastille pleine.
+  ['--color-on-action', '--color-success-solid', TEXTE, 'Coche d’étape faite / pastille'],
+  ['--color-on-action', '--color-action', TEXTE, 'Rang d’étape courante / pastille'],
+  ['--color-ink-primary', '--color-surface-selected', TEXTE, 'Étape courante / surface retenue'],
+
   // Texte désactivé : seuil abaissé (contrôle inactif, 1.4.3)
   ['--color-ink-disabled', '--color-surface-raised', INACTIF, 'Texte désactivé / panneau'],
   ['--color-ink-disabled', '--color-surface-sunken', INACTIF, 'Texte désactivé / champ désactivé'],

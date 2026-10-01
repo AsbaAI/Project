@@ -1,4 +1,12 @@
 {
+  "analytics": {
+    "title": "Analytics",
+    "description": "Sent, pending, rejected and approval rate, by persona and format.",
+    "empty": {
+      "title": "Indicators will come from real sends",
+      "description": "They will appear here once communications have been approved and sent: no figure is estimated."
+    }
+  },
   "app": {
     "name": "ComGen",
     "tagline": "Verified business-to-business communications",
@@ -11,281 +19,30 @@
     "version": "Version {version}",
     "poweredBy": "Powered by Multi-Provider AI"
   },
-  "nav": {
-    "label": "Main navigation",
-    "generator": "Generator",
-    "approvals": "Approvals",
-    "templates": "Templates",
-    "templateBuilder": "Template Builder",
-    "analytics": "Analytics",
-    "settings": "Settings",
-    "design": "Design system"
-  },
-  "theme": {
-    "label": "Theme",
-    "system": "System",
-    "light": "Light",
-    "dark": "Dark"
-  },
-  "locale": {
-    "label": "Language",
-    "fr": "Français",
-    "en": "English"
-  },
-  "common": {
-    "loading": "Loading…",
-    "retry": "Retry",
-    "cancel": "Cancel",
-    "close": "Close",
-    "save": "Save",
-    "actions": "Actions",
-    "state": "State",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "back": "Back",
-    "optional": "optional",
-    "required": "required",
-    "none": "None",
-    "yes": "Yes",
-    "no": "No",
-    "unknown": "Unknown"
-  },
-  "states": {
-    "BROUILLON": "Draft",
-    "FAITS_A_VALIDER": "Facts to validate",
-    "PRETE_A_GENERER": "Ready to generate",
-    "EN_GENERATION": "Generating",
-    "EN_CONTROLE": "Under review",
-    "A_CORRIGER": "Needs correction",
-    "EN_RELECTURE": "In proofreading",
-    "EN_APPROBATION": "Awaiting approval",
-    "APPROUVEE": "Approved",
-    "ENVOI_PLANIFIE": "Scheduled",
-    "ENVOYEE": "Sent",
-    "REJETEE": "Rejected",
-    "ARCHIVEE": "Archived"
-  },
-  "home": {
-    "metaTitle": "Home",
-    "greeting": "Hello {prenom}",
-    "question": "What would you like to do?",
-    "new": {
-      "title": "New communication",
-      "description": "Start from a document, a text or a template."
+  "approvals": {
+    "title": "Approvals",
+    "description": "What is waiting for a decision, and the decisions already made.",
+    "pending": {
+      "title": "Awaiting your approval",
+      "description": "Based on your rights, re-read from the database on every request.",
+      "empty": "Nothing is awaiting your approval."
     },
-    "existing": {
-      "title": "Existing communication",
-      "description": "Resume, follow up or duplicate from history."
-    },
-    "todo": {
-      "title": "To do",
-      "blocked": "{count, plural, =0 {None blocked} one {# blocked} other {# blocked}}",
-      "approval": "{count, plural, =0 {Nothing to approve} one {# to approve} other {# to approve}}",
-      "inProgress": "{count, plural, =0 {None in progress} one {# in progress} other {# in progress}}"
+    "wip": {
+      "title": "Reviewer view under construction",
+      "description": "Approving or rejecting with a reason, the decision history and notification settings arrive at step 4. No shortcut will ever allow sending without human approval."
     }
   },
-  "dashboard": {
-    "title": "Dashboard",
-    "description": "Your communications by stage, what awaits your approval, what is blocked.",
-    "newCommunication": "New communication",
-    "mine": {
-      "title": "My communications",
-      "description": "Those you authored, archives excluded.",
-      "empty": {
-        "title": "You have no communication in progress",
-        "description": "A communication starts with its framing: nature, criticality, scope, language and input mode."
-      }
-    },
-    "approval": {
-      "title": "Awaiting my approval",
-      "empty": "Nothing awaits your approval."
-    },
-    "blocked": {
-      "title": "Blocked",
-      "empty": "None of your communications is blocked.",
-      "CONTRADICTION_NON_TRANCHEE": "{count, plural, one {One contradiction between sources to resolve} other {# contradictions between sources to resolve}}",
-      "A_CORRIGER": "Corrections requested",
-      "REJETEE": "Rejected by an approver"
-    },
-    "byState": "Breakdown by state",
-    "stateCount": "{count, plural, one {# communication} other {# communications}}",
-    "seeAll": "All communications"
-  },
-  "analytics": {
-    "title": "Analytics",
-    "description": "Sent, pending, rejected and approval rate, by persona and format.",
-    "empty": {
-      "title": "Indicators will come from real sends",
-      "description": "They will appear here once communications have been approved and sent: no figure is estimated."
-    }
-  },
-  "settings": {
-    "title": "Settings",
-    "description": "AI models, personas, mailing lists and templates.",
-    "soon": "Soon",
-    "sections": {
-      "models": {
-        "title": "AI models",
-        "description": "Provider and model, per agent. Keys stay in the vault."
-      },
-      "personas": {
-        "title": "Personas",
-        "description": "Tone, level of detail, angle and length for each audience."
-      },
-      "lists": {
-        "title": "Mailing lists",
-        "description": "Each persona's recipients."
-      },
-      "templates": {
-        "title": "Templates",
-        "description": "Formats and layout variants."
-      }
-    }
-  },
-  "notFound": {
-    "title": "Page not found",
-    "description": "The requested address does not match any page. Check the link or return to the dashboard.",
-    "action": "Back to the dashboard"
-  },
-  "error": {
-    "title": "Something went wrong",
-    "description": "The application could not display this page. No data was changed. You can try again.",
-    "reference": "Incident reference"
-  },
-  "design": {
-    "title": "Design system",
-    "description": "ComGen's foundations and components, in their real state. This page is the visual reference and the accessibility test bench.",
-    "sections": {
-      "foundations": "Foundations",
-      "components": "Components",
-      "states": "Screen states"
-    },
-    "colors": {
-      "title": "Colours",
-      "intro": "One accent hue. Every other colour carries a meaning and nothing else: success, warning, error.",
-      "surfaces": "Surfaces",
-      "ink": "Text",
-      "lines": "Borders",
-      "semantic": "Semantic"
-    },
-    "typography": {
-      "title": "Typography",
-      "intro": "Fixed scale from 14 px. Every size is paired with its line height.",
-      "sample": "Versions, dates and identifiers are copied, never regenerated.",
-      "mono": "Identifiers and versions in monospace: INC-2025-0342, v4.2.1"
-    },
-    "spacing": {
-      "title": "Spacing and shape",
-      "intro": "4 px grid. Deliberately small radii: separation comes from the border, not the shadow."
-    },
-    "buttons": {
-      "title": "Buttons",
-      "intro": "A single primary action per view. Destructive actions are always named.",
-      "primary": "Generate variants",
-      "secondary": "Save draft",
-      "ghost": "Cancel",
-      "danger": "Reject communication",
-      "loading": "Generating",
-      "disabled": "Send",
-      "iconOnly": "Close panel",
-      "sizes": "Sizes"
-    },
-    "fields": {
-      "title": "Fields",
-      "intro": "Label above, hint below, error after the hint. A field in error is announced to screen readers.",
-      "subjectLabel": "Communication subject",
-      "subjectHint": "As it will appear in the sent email.",
-      "subjectPlaceholder": "Payment platform migration — 14 March window",
-      "audienceLabel": "Audience",
-      "audienceHint": "One list per persona. Recipients are validated at send time.",
-      "audienceError": "The audience “Tier 2 suppliers” no longer exists in the directory.",
-      "audienceValue": "Tier 2 suppliers",
-      "notesLabel": "Internal notes",
-      "notesHint": "Never included in the communication.",
-      "required": "required",
-      "optional": "optional"
-    },
-    "badges": {
-      "title": "State badges",
-      "intro": "Every state has a shape and a text. Colour reinforces, it is never the only signal."
-    },
-    "notices": {
-      "title": "Messages",
-      "intro": "Three levels. The blocking level always explains what is missing and what to do.",
-      "info": {
-        "title": "Extraction complete",
-        "body": "12 facts were extracted from the source. Validate them before generating."
-      },
-      "warning": {
-        "title": "Incomplete register",
-        "body": "The “reassuring” tone has no equivalent for German. The German variant will use the default register."
-      },
-      "blocking": {
-        "title": "Sending blocked: 2 assertions without supporting fact",
-        "body": "Assertions A-07 and A-11 are not linked to any fact in the fact sheet. Link them to an existing fact or remove them from the variant.",
-        "action": "Open the variant"
-      }
-    },
-    "tabs": {
-      "title": "Tabs",
-      "intro": "For parallel views of the same object, never for sequential steps.",
-      "facts": "Facts",
-      "variants": "Variants",
-      "checks": "Checks",
-      "history": "History",
-      "factsBody": "Fact sheet: 12 facts, 2 pending amendments.",
-      "variantsBody": "3 variants generated, 1 under correction.",
-      "checksBody": "7 checks run, 1 blocking.",
-      "historyBody": "Last modified 4 minutes ago."
-    },
-    "table": {
-      "title": "Table",
-      "intro": "Numbers right-aligned in tabular figures. The whole row is clickable; the sorted header is announced.",
-      "columns": {
-        "subject": "Subject",
-        "audience": "Audience",
-        "state": "State",
-        "assertions": "Assertions",
-        "updated": "Updated"
-      },
-      "rows": {
-        "r1": {
-          "subject": "Payment platform migration",
-          "audience": "Tier 1 suppliers",
-          "assertions": "18 / 18",
-          "updated": "4 min ago"
-        },
-        "r2": {
-          "subject": "Incident INC-2025-0342: resolution",
-          "audience": "Enterprise customers",
-          "assertions": "9 / 11",
-          "updated": "1 h ago"
-        },
-        "r3": {
-          "subject": "New invoicing policy",
-          "audience": "Integration partners",
-          "assertions": "22 / 22",
-          "updated": "yesterday"
-        }
-      }
-    },
-    "progress": {
-      "title": "Progress",
-      "intro": "Always accompanied by a label and a numeric value.",
-      "label": "Generating variants",
-      "value": "{done} of {total}"
-    },
-    "screenStates": {
-      "empty": "Empty",
-      "loading": "Loading",
-      "error": "Error",
-      "blocking": "Blocking",
-      "emptyTitle": "No source uploaded",
-      "emptyDescription": "Upload a document, an email or a ticket to extract its facts.",
-      "emptyAction": "Upload a source",
-      "loadingLabel": "Loading communications",
-      "errorTitle": "Could not load communications",
-      "errorDescription": "The data service did not respond. Your drafts are intact."
+  "assistant": {
+    "label": "Generation steps",
+    "cadrage": "Framing",
+    "source": "Source",
+    "faits": "Fact sheet",
+    "destinataires": "Recipients",
+    "generation": "Generation",
+    "etat": {
+      "faite": "Done",
+      "courante": "To do",
+      "aVenir": "Upcoming"
     }
   },
   "auth": {
@@ -323,12 +80,23 @@
       }
     }
   },
-  "roles": {
-    "REDACTEUR": "Writer",
-    "RELECTEUR": "Reviewer",
-    "APPROBATEUR": "Approver",
-    "ADMINISTRATEUR": "Administrator",
-    "AUDITEUR": "Auditor"
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "actions": "Actions",
+    "state": "State",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "back": "Back",
+    "optional": "optional",
+    "required": "required",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "unknown": "Unknown"
   },
   "communications": {
     "list": {
@@ -372,6 +140,12 @@
       "INTERNE": "Internal",
       "INTER_ORG": "Inter-organisation",
       "EXTERNE": "External"
+    },
+    "canaux": {
+      "COURRIEL": "Email",
+      "MESSAGERIE_INSTANTANEE": "Instant messaging",
+      "PORTAIL": "Portal",
+      "DOCUMENT": "Document"
     },
     "langues": {
       "fr": "French",
@@ -713,12 +487,230 @@
     },
     "modesLater": "Not available yet: {modes}."
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Your communications by stage, what awaits your approval, what is blocked.",
+    "newCommunication": "New communication",
+    "mine": {
+      "title": "My communications",
+      "description": "Those you authored, archives excluded.",
+      "empty": {
+        "title": "You have no communication in progress",
+        "description": "A communication starts with its framing: nature, criticality, scope, language and input mode."
+      }
+    },
+    "approval": {
+      "title": "Awaiting my approval",
+      "empty": "Nothing awaits your approval."
+    },
+    "blocked": {
+      "title": "Blocked",
+      "empty": "None of your communications is blocked.",
+      "CONTRADICTION_NON_TRANCHEE": "{count, plural, one {One contradiction between sources to resolve} other {# contradictions between sources to resolve}}",
+      "A_CORRIGER": "Corrections requested",
+      "REJETEE": "Rejected by an approver"
+    },
+    "byState": "Breakdown by state",
+    "stateCount": "{count, plural, one {# communication} other {# communications}}",
+    "seeAll": "All communications"
+  },
+  "design": {
+    "title": "Design system",
+    "description": "ComGen's foundations and components, in their real state. This page is the visual reference and the accessibility test bench.",
+    "sections": {
+      "foundations": "Foundations",
+      "components": "Components",
+      "states": "Screen states"
+    },
+    "colors": {
+      "title": "Colours",
+      "intro": "One accent hue. Every other colour carries a meaning and nothing else: success, warning, error.",
+      "surfaces": "Surfaces",
+      "ink": "Text",
+      "lines": "Borders",
+      "semantic": "Semantic"
+    },
+    "typography": {
+      "title": "Typography",
+      "intro": "Fixed scale from 14 px. Every size is paired with its line height.",
+      "sample": "Versions, dates and identifiers are copied, never regenerated.",
+      "mono": "Identifiers and versions in monospace: INC-2025-0342, v4.2.1"
+    },
+    "spacing": {
+      "title": "Spacing and shape",
+      "intro": "4 px grid. Deliberately small radii: separation comes from the border, not the shadow."
+    },
+    "buttons": {
+      "title": "Buttons",
+      "intro": "A single primary action per view. Destructive actions are always named.",
+      "primary": "Generate variants",
+      "secondary": "Save draft",
+      "ghost": "Cancel",
+      "danger": "Reject communication",
+      "loading": "Generating",
+      "disabled": "Send",
+      "iconOnly": "Close panel",
+      "sizes": "Sizes"
+    },
+    "fields": {
+      "title": "Fields",
+      "intro": "Label above, hint below, error after the hint. A field in error is announced to screen readers.",
+      "subjectLabel": "Communication subject",
+      "subjectHint": "As it will appear in the sent email.",
+      "subjectPlaceholder": "Payment platform migration — 14 March window",
+      "audienceLabel": "Audience",
+      "audienceHint": "One list per persona. Recipients are validated at send time.",
+      "audienceError": "The audience “Tier 2 suppliers” no longer exists in the directory.",
+      "audienceValue": "Tier 2 suppliers",
+      "notesLabel": "Internal notes",
+      "notesHint": "Never included in the communication.",
+      "required": "required",
+      "optional": "optional"
+    },
+    "badges": {
+      "title": "State badges",
+      "intro": "Every state has a shape and a text. Colour reinforces, it is never the only signal."
+    },
+    "notices": {
+      "title": "Messages",
+      "intro": "Three levels. The blocking level always explains what is missing and what to do.",
+      "info": {
+        "title": "Extraction complete",
+        "body": "12 facts were extracted from the source. Validate them before generating."
+      },
+      "warning": {
+        "title": "Incomplete register",
+        "body": "The “reassuring” tone has no equivalent for German. The German variant will use the default register."
+      },
+      "blocking": {
+        "title": "Sending blocked: 2 assertions without supporting fact",
+        "body": "Assertions A-07 and A-11 are not linked to any fact in the fact sheet. Link them to an existing fact or remove them from the variant.",
+        "action": "Open the variant"
+      }
+    },
+    "tabs": {
+      "title": "Tabs",
+      "intro": "For parallel views of the same object, never for sequential steps.",
+      "facts": "Facts",
+      "variants": "Variants",
+      "checks": "Checks",
+      "history": "History",
+      "factsBody": "Fact sheet: 12 facts, 2 pending amendments.",
+      "variantsBody": "3 variants generated, 1 under correction.",
+      "checksBody": "7 checks run, 1 blocking.",
+      "historyBody": "Last modified 4 minutes ago."
+    },
+    "table": {
+      "title": "Table",
+      "intro": "Numbers right-aligned in tabular figures. The whole row is clickable; the sorted header is announced.",
+      "columns": {
+        "subject": "Subject",
+        "audience": "Audience",
+        "state": "State",
+        "assertions": "Assertions",
+        "updated": "Updated"
+      },
+      "rows": {
+        "r1": {
+          "subject": "Payment platform migration",
+          "audience": "Tier 1 suppliers",
+          "assertions": "18 / 18",
+          "updated": "4 min ago"
+        },
+        "r2": {
+          "subject": "Incident INC-2025-0342: resolution",
+          "audience": "Enterprise customers",
+          "assertions": "9 / 11",
+          "updated": "1 h ago"
+        },
+        "r3": {
+          "subject": "New invoicing policy",
+          "audience": "Integration partners",
+          "assertions": "22 / 22",
+          "updated": "yesterday"
+        }
+      }
+    },
+    "progress": {
+      "title": "Progress",
+      "intro": "Always accompanied by a label and a numeric value.",
+      "label": "Generating variants",
+      "value": "{done} of {total}"
+    },
+    "screenStates": {
+      "empty": "Empty",
+      "loading": "Loading",
+      "error": "Error",
+      "blocking": "Blocking",
+      "emptyTitle": "No source uploaded",
+      "emptyDescription": "Upload a document, an email or a ticket to extract its facts.",
+      "emptyAction": "Upload a source",
+      "loadingLabel": "Loading communications",
+      "errorTitle": "Could not load communications",
+      "errorDescription": "The data service did not respond. Your drafts are intact."
+    }
+  },
+  "destinataires": {
+    "title": "Recipients",
+    "description": "One audience selected, one version to produce. Each is verified separately.",
+    "legende": "Audiences to address this communication to",
+    "canal": "Channel: {canal}",
+    "sansGabarit": "No template serves the {canal} channel: this audience cannot be served.",
+    "valider": "Save recipients",
+    "figee": "Generation has started: the recipient list is frozen.",
+    "vide": {
+      "title": "No audience",
+      "description": "No active persona is defined for your organisation."
+    }
+  },
   "engine": {
     "label": "Engine status",
     "ready": "AI ready",
     "demo": "Demo mode",
     "readyHint": "Engine configured: the {reference} variable is set.",
     "demoHint": "No model key: the {reference} variable is missing. Generation is simulated and labelled as such."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "The application could not display this page. No data was changed. You can try again.",
+    "reference": "Incident reference"
+  },
+  "generation": {
+    "title": "Generated version",
+    "description": "Every sentence is tied to the facts that support it. Values come from the source, word for word.",
+    "generer": "Generate this version",
+    "regenerer": "Regenerate",
+    "attente": {
+      "title": "Nothing written yet",
+      "description": "Start generation for each selected recipient."
+    },
+    "vide": {
+      "title": "No recipient",
+      "description": "First choose who this communication is for."
+    },
+    "score": "Supported sentences",
+    "scoreValeur": "{soutenues} of {factuelles}",
+    "mots": "{mots} words",
+    "agents": "Agents",
+    "agentSimule": "simulated",
+    "duree": "{ms} ms",
+    "blocages": {
+      "title": "Sending blocked",
+      "description": "While a factual sentence lacks a supporting fact, this version cannot be approved or sent."
+    },
+    "conforme": {
+      "title": "Every sentence is supported",
+      "description": "This version can move to approval."
+    },
+    "rapport": "Verification report",
+    "appuis": "Support: {references}",
+    "sansAppui": "No support",
+    "verdict": {
+      "SOUTENUE": "Supported",
+      "CONTREDITE": "Contradicted",
+      "SANS_APPUI": "Unsupported",
+      "NON_FACTUELLE": "Non-factual"
+    }
   },
   "generator": {
     "title": "Generator",
@@ -736,17 +728,96 @@
       "description": "The five steps — start, fact check, recipients, output, approval — arrive at step 3 of the redesign. The two doors above lead to the existing screens, which already work."
     }
   },
-  "approvals": {
-    "title": "Approvals",
-    "description": "What is waiting for a decision, and the decisions already made.",
-    "pending": {
-      "title": "Awaiting your approval",
-      "description": "Based on your rights, re-read from the database on every request.",
-      "empty": "Nothing is awaiting your approval."
+  "home": {
+    "metaTitle": "Home",
+    "greeting": "Hello {prenom}",
+    "question": "What would you like to do?",
+    "new": {
+      "title": "New communication",
+      "description": "Start from a document, a text or a template."
     },
-    "wip": {
-      "title": "Reviewer view under construction",
-      "description": "Approving or rejecting with a reason, the decision history and notification settings arrive at step 4. No shortcut will ever allow sending without human approval."
+    "existing": {
+      "title": "Existing communication",
+      "description": "Resume, follow up or duplicate from history."
+    },
+    "todo": {
+      "title": "To do",
+      "blocked": "{count, plural, =0 {None blocked} one {# blocked} other {# blocked}}",
+      "approval": "{count, plural, =0 {Nothing to approve} one {# to approve} other {# to approve}}",
+      "inProgress": "{count, plural, =0 {None in progress} one {# in progress} other {# in progress}}"
+    }
+  },
+  "locale": {
+    "label": "Language",
+    "fr": "Français",
+    "en": "English"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "generator": "Generator",
+    "approvals": "Approvals",
+    "templates": "Templates",
+    "templateBuilder": "Template Builder",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "design": "Design system"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The requested address does not match any page. Check the link or return to the dashboard.",
+    "action": "Back to the dashboard"
+  },
+  "roles": {
+    "REDACTEUR": "Writer",
+    "RELECTEUR": "Reviewer",
+    "APPROBATEUR": "Approver",
+    "ADMINISTRATEUR": "Administrator",
+    "AUDITEUR": "Auditor"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "AI models, personas, mailing lists and templates.",
+    "soon": "Soon",
+    "sections": {
+      "models": {
+        "title": "AI models",
+        "description": "Provider and model, per agent. Keys stay in the vault."
+      },
+      "personas": {
+        "title": "Personas",
+        "description": "Tone, level of detail, angle and length for each audience."
+      },
+      "lists": {
+        "title": "Mailing lists",
+        "description": "Each persona's recipients."
+      },
+      "templates": {
+        "title": "Templates",
+        "description": "Formats and layout variants."
+      }
+    }
+  },
+  "states": {
+    "BROUILLON": "Draft",
+    "FAITS_A_VALIDER": "Facts to validate",
+    "PRETE_A_GENERER": "Ready to generate",
+    "EN_GENERATION": "Generating",
+    "EN_CONTROLE": "Under review",
+    "A_CORRIGER": "Needs correction",
+    "EN_RELECTURE": "In proofreading",
+    "EN_APPROBATION": "Awaiting approval",
+    "APPROUVEE": "Approved",
+    "ENVOI_PLANIFIE": "Scheduled",
+    "ENVOYEE": "Sent",
+    "REJETEE": "Rejected",
+    "ARCHIVEE": "Archived"
+  },
+  "templateBuilder": {
+    "title": "Template Builder",
+    "description": "Compose a template from blocks.",
+    "empty": {
+      "title": "The builder arrives at step 5",
+      "description": "Block library, canvas, variables and conditional sections. None of it exists yet: shipping an inert canvas would waste the time of anyone trying to drop a block into it."
     }
   },
   "templates": {
@@ -757,12 +828,10 @@
       "description": "The schema already holds templates and their slots, but no screen reads them yet. Rather than an empty list that would read as “no template exists”, this page says where things stand."
     }
   },
-  "templateBuilder": {
-    "title": "Template Builder",
-    "description": "Compose a template from blocks.",
-    "empty": {
-      "title": "The builder arrives at step 5",
-      "description": "Block library, canvas, variables and conditional sections. None of it exists yet: shipping an inert canvas would waste the time of anyone trying to drop a block into it."
-    }
+  "theme": {
+    "label": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

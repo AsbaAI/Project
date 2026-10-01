@@ -22,6 +22,8 @@ import {
 } from '@/server/services/faits'
 import { type ResultatDepot, deposerFichiers, saisirTexte } from '@/server/services/sources'
 
+import { choisirDestinataires, genererVariante } from '@/server/services/generation'
+
 import type { EtatFormulaire } from './etat-formulaire'
 
 /*
@@ -235,5 +237,33 @@ export async function actionAjouterFait(
       valeur: texte(formulaire, 'valeur'),
       confidentialite: texte(formulaire, 'confidentialite'),
     })
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Destinataires et génération
+// ---------------------------------------------------------------------------
+
+export async function actionChoisirDestinataires(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const communicationId = texte(formulaire, 'communicationId') ?? ''
+  // Plusieurs cases du même nom : `getAll`, pas `get`.
+  const personaIds = formulaire
+    .getAll('personaIds')
+    .filter((valeur): valeur is string => typeof valeur === 'string')
+  return executer(formulaire, async (acteur) => {
+    await choisirDestinataires(acteur, { communicationId, personaIds })
+  })
+}
+
+export async function actionGenererVariante(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const varianteId = texte(formulaire, 'varianteId') ?? ''
+  return executer(formulaire, async (acteur) => {
+    await genererVariante(acteur, { varianteId })
   })
 }

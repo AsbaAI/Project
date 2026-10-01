@@ -4,7 +4,6 @@ import { getTranslations } from 'next-intl/server'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { ActionCard } from '@/components/ui/action-card'
-import { Notice } from '@/components/ui/notice'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage } from '@/server/pages'
@@ -21,10 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
 /*
  * Générateur — départ. Deux portes : créer, ou reprendre.
  *
- * L'assistant complet (départ, vérification des faits, destinataires,
- * sortie, approbation) arrive à l'étape 3 de la refonte. En attendant, ces
- * deux cartes mènent aux écrans existants, qui fonctionnent : la page ne
- * promet rien qu'elle ne tienne, et l'avis dit où on en est.
+ * L'assistant à cinq étapes commence derrière ces cartes ; son fil
+ * d'avancement est porté par la communication elle-même, puisque c'est
+ * elle qui sait où elle en est.
  */
 export default async function GenerateurPage({ params }: PageProps) {
   await resolveLocale(params)
@@ -53,10 +51,6 @@ export default async function GenerateurPage({ params }: PageProps) {
           description={t('existing.description')}
         />
       </div>
-
-      <Notice level="info" title={t('wip.title')}>
-        {t('wip.description')}
-      </Notice>
     </div>
   )
 }
