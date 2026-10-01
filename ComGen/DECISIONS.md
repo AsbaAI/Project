@@ -325,3 +325,77 @@ contraste ajoutés au vérificateur.
 **Typographie française** : espaces insécables avant `: ; ? !` et dans
 les guillemets, dans tout le catalogue fr (un « » : » isolé en fin de
 ligne a été vu sur téléphone).
+
+## 2026-10-01 — Refonte du parcours (validée par le propriétaire)
+
+Le propriétaire a demandé une refonte du parcours et de l'interface :
+assistant pas à pas, agents visibles, approbation, paramètres, analyses,
+palette inspirée de TotalEnergies. Elle remplace l'ordre des lots 2 à 10
+par six étapes (`refonte-1` … `refonte-6`, une branche chacune, issue de
+`lot-1`). Arbitrages validés tels que recommandés :
+
+- **D1 — La revue des faits reste une étape de l'assistant** (« Vérifier
+  les faits », après le contenu brut). Sans elle, la contrainte cardinale
+  tombe.
+- **D2 — Les clés d'API ne se saisissent pas dans l'interface.** Les
+  paramètres montrent fournisseur, modèle, modèle par agent et une
+  _référence_ de secret (variable d'environnement ou coffre) avec son état.
+- **D3 — Palette ajustée pour l'AA** (détail ci-dessous).
+- **D4 — Treize états internes, cinq statuts affichés** (Brouillon, En
+  attente d'approbation, Approuvée, Envoyée, Rejetée) plus un marqueur
+  « Bloquée » qui dit pourquoi.
+- **D5 — Une communication existante déposée au départ est une référence
+  de style**, jamais une source de faits.
+- **D6 — Modèle simulé, étiqueté, hors production seulement**, pour
+  démontrer la génération sans clé (même principe que le simulateur de
+  connexion).
+- **D7 — Une branche par étape de refonte**, rien de fusionné sans accord.
+
+Défauts tenus : interface bilingue, données de démonstration fictives
+(aucune donnée TotalEnergies inventée, aucun logo sans fourniture), un
+écran bloqué dit toujours pourquoi.
+
+### R1 — jetons et mise en page
+
+**Palette.** Les teintes de la charte sont les ancres des rampes OKLCH ;
+les paliers qui portent du texte sont ajustés pour tenir 4,5:1, vérifiés
+par `check:contrast` (207 couples, deux thèmes) :
+
+| Rôle                      | Charte                          | Employé comme                                                                                   |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Action, liens             | `#3055FC`                       | aplat sous libellé blanc (5,48:1), texte de lien                                                |
+| Bleu                      | `#0186F4`                       | bordure active, grands aplats, début du dégradé ; jamais sous texte blanc (3,67:1)              |
+| Orange                    | `#FE7F00`                       | aplat d'action secondaire sous texte sombre (6,3:1), fin du dégradé ; texte orange = palier 700 |
+| Orange clair / très clair | `#FFB366` / `#FFF4E8`           | bordure et fond de carte mise en avant                                                          |
+| Bleu très clair           | `#EAF4FE`                       | sélection, fond accentué                                                                        |
+| Turquoise                 | `#35C1B0`                       | bordure des badges de succès ; texte succès = palier 700                                        |
+| Jaune                     | `#FDD600`                       | bordure des badges d'attente ; texte = brun 700                                                 |
+| Rouge                     | `#FB0103`                       | indicateur de blocage ; bouton destructif au palier 600                                         |
+| Violet                    | `#8434D5`                       | ce qui vient d'un agent (badge `ai`, chronologie)                                               |
+| Texte, fonds              | `#202124`, `#F7F8FA`, `#FFFFFF` | encre principale, fond de page, panneaux                                                        |
+
+Le thème sombre est dérivé des mêmes rampes (les deux blocs sombres
+restent identiques, vérifié). Nouveaux jetons : `emphasis-*` (orange),
+`ai-*` (violet), `brand-start/end` et l'utilitaire `bg-brand-gradient`,
+réservé au filet d'en-tête et, en R3, à la chronologie des agents.
+
+**Statut « en attente » en jaune** (badge `pending`), conformément à la
+charte ; génération et contrôle en violet (badge `ai`).
+
+**Navigation.** « Nouvelle communication » est un bouton en tête de la
+barre latérale ; puis Tableau de bord, Historique, Analyses, Paramètres ;
+le système de design passe en pied. L'entrée courante se décide une fois
+pour toute la liste (le plus long préfixe de segment) : sur
+`/communications/nouvelle`, c'est la création qui est marquée, pas
+l'historique.
+
+**Accueil à deux cartes** (`ActionCard`, nouveau : `ChoixCartes` choisit
+une valeur de formulaire, ici on navigue) et trois compteurs « à traiter »
+calculés par le service du tableau de bord.
+
+**Historique = la liste existante** (`/communications`), renommée ; elle
+s'enrichira en R6. Le tableau de bord passe à `/tableau-de-bord`.
+
+**Analyses et Paramètres existent avec un état vide qui dit ce qui
+viendra**, plutôt que des zéros qui passeraient pour une mesure ou des
+liens vers des pages vides.

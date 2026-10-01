@@ -71,6 +71,13 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 - Composants shadcn/Radix copiés et **entièrement restylés** : livrer
   l'apparence par défaut est interdit.
 - Une seule famille d'icônes (Lucide). Polices auto-hébergées (Fontsource).
+- Palette inspirée de TotalEnergies (voir `DECISIONS.md`, R1) : bleu
+  profond pour l'action et les liens, bleu vif pour les grandes surfaces,
+  orange (`emphasis-*`) pour l'action secondaire sous texte sombre, violet
+  (`ai-*`) pour ce qui vient d'un agent, jaune pour l'attente. Une couleur
+  vive ne porte jamais de texte sans passer par son palier 700. Dégradé
+  `bg-brand-gradient` : filet d'en-tête et chronologie des agents, nulle
+  part ailleurs. Une seule action principale par écran.
 - Aucune chaîne codée en dur : tout passe par `next-intl` (fr, en).
 - Chaque écran est capturé (clair/sombre × bureau/téléphone) et **relu**
   avant d'être déclaré fini.
@@ -182,7 +189,8 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
 
 ## Méthode
 
-- Un lot = une branche (`lot-N`), petits commits lisibles. Jamais deux lots
+- Un lot = une branche (`lot-N`, puis `refonte-N` pour les étapes de la
+  refonte), petits commits lisibles. Jamais deux lots
   en parallèle. Le lot suivant ne commence pas tant que le courant n'est
   pas vert.
 - Pour tout critère de §17 : **le test d'abord**, il doit échouer, puis le
