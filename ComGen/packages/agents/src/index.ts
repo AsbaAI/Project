@@ -21,6 +21,30 @@ export type {
 } from './fournisseurs/types.ts'
 export { ErreurFournisseur, estErreurFournisseur } from './fournisseurs/types.ts'
 
+export type {
+  Agent,
+  CodeErreurAgent,
+  ContexteAgent,
+  ResultatAgent,
+  TraceAgent,
+} from './agents/types.ts'
+export { ErreurAgent, estErreurAgent, validerSortie, verifierAnnulation } from './agents/types.ts'
+
+export type {
+  EtapeOrchestration,
+  EtapePlan,
+  EtatEtape,
+  EvenementOrchestration,
+  OptionsOrchestration,
+  ResultatOrchestration,
+} from './agents/orchestrateur.ts'
+export {
+  ErreurOrchestration,
+  estErreurOrchestration,
+  etape,
+  orchestrer,
+} from './agents/orchestrateur.ts'
+
 export type { ResolveurSecret } from './secrets/index.ts'
 export {
   MARQUEUR_SECRET_MASQUE,
