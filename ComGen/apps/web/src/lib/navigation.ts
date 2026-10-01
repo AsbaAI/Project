@@ -1,4 +1,4 @@
-import { LayoutDashboard, type LucideIcon, SwatchBook } from 'lucide-react'
+import { FileStack, LayoutDashboard, type LucideIcon, SwatchBook } from 'lucide-react'
 
 /*
  * Entrées de la navigation principale.
@@ -8,14 +8,17 @@ import { LayoutDashboard, type LucideIcon, SwatchBook } from 'lucide-react'
  * personas, modèles, administration) sont ajoutées par le lot qui les
  * livre, pas avant.
  */
+export type NavHref = '/' | '/communications' | '/design'
+
 export interface NavEntry {
   /** Clé de traduction sous `nav.*`. */
-  key: 'dashboard' | 'design'
-  href: '/' | '/design'
+  key: 'dashboard' | 'communications' | 'design'
+  href: NavHref
   icon: LucideIcon
 }
 
 export const NAV_ENTRIES: readonly NavEntry[] = [
   { key: 'dashboard', href: '/', icon: LayoutDashboard },
+  { key: 'communications', href: '/communications', icon: FileStack },
   { key: 'design', href: '/design', icon: SwatchBook },
 ]

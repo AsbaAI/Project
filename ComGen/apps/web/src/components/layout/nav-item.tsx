@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 
 import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/cn'
+import type { NavHref } from '@/lib/navigation'
 
 /*
  * Entrée de navigation. La page courante est marquée par `aria-current`
@@ -11,7 +12,7 @@ import { cn } from '@/lib/cn'
  * 2px en plus de la couleur du texte.
  */
 export interface NavItemProps {
-  href: '/' | '/design'
+  href: NavHref
   icon: LucideIcon
   label: string
   onNavigate?: (() => void) | undefined
