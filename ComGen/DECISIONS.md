@@ -427,3 +427,22 @@ simple. Procédure dans `docs/DEPLOIEMENT.md`.
 - **Limites acceptées, écrites dans la procédure** : 4,5 Mo par dépôt
   (plafond des fonctions Vercel), fichiers déposés éphémères (`/tmp` ; le
   texte de la source est en base), pas d'antivirus, pas de modèle.
+
+## 2026-10-01 — Un seul `.env`, chargé explicitement
+
+Le démarrage décrit par le README ne fonctionnait pas sur une installation
+neuve : Prisma 7 ne charge plus `.env` de lui-même, et Next ne lit que les
+`.env` de `apps/web`. `pnpm db:migrate` échouait donc sur
+« datasource.url property is required ».
+
+Le dépôt garde **un seul `.env`, à la racine de l'espace de travail** —
+l'application et les outils de base partagent la même configuration. Il est
+chargé explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+`next.config.ts`, et par `--env-file-if-exists` pour le seed, qui est un
+processus distinct. Les trois sont natifs à Node 22 : aucune dépendance
+ajoutée.
+
+`loadEnvFile` **n'écrase jamais** une variable déjà posée : les variables de
+Vercel, celles du shell et celles que Playwright injecte gardent la main sur
+le fichier. Un `.env` absent est toléré sans erreur (c'est le cas en
+production).

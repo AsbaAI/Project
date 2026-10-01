@@ -1,7 +1,18 @@
+import { existsSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
+
+/*
+ * Next ne lit que les `.env` de `apps/web`. Le dépôt n'en a qu'un, à la
+ * racine de l'espace de travail, partagé avec Prisma : il est chargé ici.
+ * `loadEnvFile` n'écrase rien, donc un `.env` local à `apps/web` ou les
+ * variables de la plateforme restent prioritaires.
+ */
+const FICHIER_ENV = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..', '.env')
+if (existsSync(FICHIER_ENV)) process.loadEnvFile(FICHIER_ENV)
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
