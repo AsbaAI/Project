@@ -14,6 +14,7 @@ import { UserMenu, type UserMenuProps } from './user-menu'
  *
  *   ┌──────────────────────────────────────────────┐
  *   │ en-tête 48px : menu (tél.) · marque · langue · thème · compte │
+ *   │ filet bleu → orange en pied d'en-tête                         │
  *   ├──────────┬───────────────────────────────────┤
  *   │ barre    │ <main id="contenu">               │
  *   │ latérale │                                   │
@@ -40,7 +41,12 @@ export function AppShell({ children, utilisateur }: AppShellProps) {
         {t('skipToContent')}
       </a>
 
-      <header className="sticky top-0 z-header h-header border-b-w border-line-default bg-surface-raised">
+      <header className="sticky top-0 z-header h-header bg-surface-raised">
+        {/* Filet de marque bleu → orange : l'un des rares emplois du dégradé. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-brand-gradient"
+        />
         <div className="mx-auto flex h-full w-full max-w-page items-center gap-3 px-gutter">
           <MobileNav />
           <Link
