@@ -87,13 +87,17 @@ interface Occurrence {
   fin: number
 }
 
-interface Phrase {
+/**
+ * Une phrase et sa position dans le texte d'origine. `texte` est repris mot
+ * pour mot : c'est ce qui en fait une citation utilisable telle quelle.
+ */
+export interface Phrase {
   texte: string
   debut: number
 }
 
 /** Découpe en phrases : fin de ligne, ou ponctuation finale suivie d'une majuscule, d'un chiffre ou d'un guillemet. */
-function decouperEnPhrases(texte: string): Phrase[] {
+export function decouperEnPhrases(texte: string): Phrase[] {
   const phrases: Phrase[] = []
   const separateur = /\n+|(?<=[.!?])\s+(?=[\p{Lu}\d«"(])/gu
   let debut = 0
@@ -140,7 +144,8 @@ function sansChevauchement(occurrences: Occurrence[]): Occurrence[] {
   return retenues.toSorted((a, b) => a.debut - b.debut)
 }
 
-function numeroDeLigne(texte: string, offset: number): number {
+/** Numéro de ligne (1 pour la première) de l'offset donné. */
+export function numeroDeLigne(texte: string, offset: number): number {
   let ligne = 1
   for (let i = 0; i < offset; i += 1) {
     if (texte.charCodeAt(i) === 10) ligne += 1

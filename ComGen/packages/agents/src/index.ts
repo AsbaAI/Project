@@ -45,6 +45,23 @@ export {
   orchestrer,
 } from './agents/orchestrateur.ts'
 
+export type { JeuAgents, MotifSimulation, OptionsFabrique } from './agents/fabrique.ts'
+export { fabriqueAgents } from './agents/fabrique.ts'
+
+export type {
+  EntreeTexte,
+  SortieAnalyste,
+  SortieExtracteur,
+  SortieSuggesteur,
+} from './simulation/index.ts'
+export {
+  DELAIS_SIMULATION,
+  agentsSimules,
+  creerAnalysteSimule,
+  creerExtracteurSimule,
+  creerSuggesteurSimule,
+} from './simulation/index.ts'
+
 export type { ResolveurSecret } from './secrets/index.ts'
 export {
   MARQUEUR_SECRET_MASQUE,
