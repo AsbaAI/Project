@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Link } from '@/i18n/navigation'
+import { cn } from '@/lib/cn'
 import { formaterInstant } from '@/lib/dates'
 import type { ResumeCommunication } from '@/server/services/communications'
 
@@ -17,7 +18,7 @@ import { CriticiteBadge, EtatBadge } from './badges'
 /*
  * Liste de communications. Le titre est le lien : une seule cible par
  * ligne, nommée par son contenu. Sur téléphone, les colonnes secondaires
- * cèdent la place ; la référence, le titre et l'état restent.
+ * cèdent la place ; le titre (référence dessous) et l'état restent.
  */
 export interface TableauCommunicationsProps {
   communications: readonly ResumeCommunication[]
@@ -35,20 +36,25 @@ export function TableauCommunications({
   const t = useTranslations('communications')
   const locale = useLocale()
   const complet = colonnes === 'complet'
+  // En compact (colonne du tableau de bord), la criticité n'a sa place
+  // qu'à très grande largeur : sinon l'état et la date seraient rognés.
+  const afficherCriticite = complet ? 'md:table-cell' : '2xl:table-cell'
 
   return (
     <Table>
       <caption className="visually-hidden">{legende}</caption>
       <TableHead>
         <tr>
-          <TableHeaderCell className="w-32">{t('list.columns.reference')}</TableHeaderCell>
+          <TableHeaderCell className="hidden w-32 sm:table-cell">
+            {t('list.columns.reference')}
+          </TableHeaderCell>
           <TableHeaderCell>{t('list.columns.titre')}</TableHeaderCell>
           {complet ? (
             <TableHeaderCell className="hidden lg:table-cell">
               {t('list.columns.nature')}
             </TableHeaderCell>
           ) : null}
-          <TableHeaderCell className="hidden md:table-cell">
+          <TableHeaderCell className={cn('hidden', afficherCriticite)}>
             {t('list.columns.criticite')}
           </TableHeaderCell>
           <TableHeaderCell>{t('list.columns.etat')}</TableHeaderCell>
@@ -65,10 +71,14 @@ export function TableauCommunications({
       <TableBody>
         {communications.map((c) => (
           <TableRow key={c.id}>
-            <TableCell mono className="whitespace-nowrap text-ink-secondary">
+            <TableCell mono className="hidden whitespace-nowrap text-ink-secondary sm:table-cell">
               {c.reference}
             </TableCell>
-            <TableCell className="min-w-48">
+            <TableCell className="min-w-40">
+              {/* Sur téléphone, la référence passe sous le titre. */}
+              <span className="block font-mono text-xs text-ink-secondary sm:hidden">
+                {c.reference}
+              </span>
               <Link
                 href={`/communications/${c.id}`}
                 className="rounded-xs font-medium text-ink-primary focus-ring hover:text-ink-accent"
@@ -81,14 +91,14 @@ export function TableauCommunications({
                 {t(`natures.${c.nature}`)}
               </TableCell>
             ) : null}
-            <TableCell className="hidden md:table-cell">
+            <TableCell className={cn('hidden', afficherCriticite)}>
               <CriticiteBadge criticite={c.criticite} />
             </TableCell>
             <TableCell>
               <EtatBadge etat={c.etat} />
             </TableCell>
             {complet ? (
-              <TableCell className="hidden text-ink-secondary xl:table-cell">
+              <TableCell className="hidden whitespace-nowrap text-ink-secondary xl:table-cell">
                 {c.auteurNom}
               </TableCell>
             ) : null}

@@ -336,7 +336,6 @@
       "API": "A draft created by a third-party tool.",
       "FORMULAIRE": "A questionnaire specific to the communication's nature."
     },
-    "modeUnavailable": "Not available yet",
     "intentions": {
       "MISE_A_JOUR": "Update",
       "CORRECTIF": "Correction — cancels and replaces",
@@ -471,7 +470,10 @@
         "description": "Up to 20 files, 25 MiB each, 50 MiB in total. Read formats: .docx, .pdf (with text), .xlsx, .csv, .md, .txt.",
         "label": "Files",
         "hint": ".pptx, .eml, .msg and images (OCR) are not read yet: they are refused and reported.",
-        "submit": "Upload and analyse"
+        "submit": "Upload and analyse",
+        "drop": "Choose files or drag them here",
+        "none": "No file chosen.",
+        "selected": "{count, plural, one {# file chosen} other {# files chosen}}"
       },
       "text": {
         "title": "Type the text",
@@ -556,7 +558,7 @@
         "renameTitle": "Rename the fact",
         "renameHint": "The statement is the fact's label; two facts with the same statement and different values contradict each other.",
         "renameSubmit": "Save the statement",
-        "amend": "Amend the value",
+        "amend": "Amend",
         "amendTitle": "Amend the value",
         "amendHint": "The quotation stays the source's; the amendment is recorded and visible to approvers.",
         "newValue": "New value",
@@ -649,6 +651,7 @@
       "apercu": "Overview",
       "entree": "Input",
       "faits": "Fact sheet"
-    }
+    },
+    "modesLater": "Not available yet: {modes}."
   }
 }

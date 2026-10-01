@@ -65,7 +65,7 @@ export default async function EntreePage({ params }: PageProps) {
           {(await getTranslations('communications.fiche'))('readOnly')}
         </Notice>
       ) : (
-        <div className="grid max-w-5xl gap-4 xl:grid-cols-2">
+        <div className="grid max-w-5xl items-start gap-4 xl:grid-cols-2">
           {c.modeEntree === 'TEXTE_SAISI' ? [texte, fichiers] : [fichiers, texte]}
         </div>
       )}

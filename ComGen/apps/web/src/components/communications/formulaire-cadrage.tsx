@@ -2,7 +2,7 @@
 
 import { CRITICITES, INTENTIONS_REPRISE, MODES_ENTREE, NATURES, PORTEES } from '@comgen/core'
 import { ArrowRight } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useActionState } from 'react'
 
 import { actionCreerCommunication } from '@/app/[locale]/(app)/communications/actions'
@@ -47,6 +47,9 @@ export function FormulaireCadrage({
   const requis = tCommun('required')
   const facultatif = tCommun('optional')
   const v = (champ: string) => valeurSoumise(etat, champ)
+  const locale = useLocale()
+  // Les modes pas encore proposés sont nommés, pas présentés en choix grisés.
+  const modesAVenir = MODES_ENTREE.filter((mode) => !modesDisponibles.includes(mode))
 
   return (
     <form
@@ -206,16 +209,20 @@ export function FormulaireCadrage({
           mentionRequis={requis}
           erreur={erreur('modeEntree')}
           valeurParDefaut={v('modeEntree')}
-          options={MODES_ENTREE.map((mode) => {
-            const disponible = modesDisponibles.includes(mode)
-            return {
-              valeur: mode,
-              libelle: t(`modes.${mode}`),
-              description: t(`modesDescriptions.${mode}`),
-              mention: disponible ? undefined : t('modeUnavailable'),
-              desactivee: !disponible,
-            }
-          })}
+          options={MODES_ENTREE.filter((mode) => modesDisponibles.includes(mode)).map((mode) => ({
+            valeur: mode,
+            libelle: t(`modes.${mode}`),
+            description: t(`modesDescriptions.${mode}`),
+          }))}
+          note={
+            modesAVenir.length > 0
+              ? t('modesLater', {
+                  modes: new Intl.ListFormat(locale, { type: 'conjunction' }).format(
+                    modesAVenir.map((mode) => t(`modes.${mode}`)),
+                  ),
+                })
+              : undefined
+          }
         />
       </Panel>
 

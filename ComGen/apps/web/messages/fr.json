@@ -67,7 +67,7 @@
       "description": "Celles dont vous êtes l'auteur, hors archives.",
       "empty": {
         "title": "Vous n'avez aucune communication en cours",
-        "description": "Une communication commence par son cadrage : nature, criticité, portée, langue et mode d'entrée."
+        "description": "Une communication commence par son cadrage : nature, criticité, portée, langue et mode d'entrée."
       }
     },
     "approval": {
@@ -105,7 +105,7 @@
     },
     "colors": {
       "title": "Couleurs",
-      "intro": "Une seule teinte d'accent. Les autres couleurs portent un sens et rien d'autre : succès, avertissement, erreur.",
+      "intro": "Une seule teinte d'accent. Les autres couleurs portent un sens et rien d'autre : succès, avertissement, erreur.",
       "surfaces": "Surfaces",
       "ink": "Texte",
       "lines": "Bordures",
@@ -115,11 +115,11 @@
       "title": "Typographie",
       "intro": "Échelle fixe à partir de 14 px. Chaque taille est appariée à son interligne.",
       "sample": "Les versions, dates et identifiants sont recopiés, jamais régénérés.",
-      "mono": "Identifiants et versions en chasse fixe : INC-2025-0342, v4.2.1"
+      "mono": "Identifiants et versions en chasse fixe : INC-2025-0342, v4.2.1"
     },
     "spacing": {
       "title": "Espacement et forme",
-      "intro": "Grille de 4 px. Rayons volontairement petits : la séparation se fait par la bordure, pas par l'ombre."
+      "intro": "Grille de 4 px. Rayons volontairement petits : la séparation se fait par la bordure, pas par l'ombre."
     },
     "buttons": {
       "title": "Boutons",
@@ -141,7 +141,7 @@
       "subjectPlaceholder": "Migration de la plateforme de paiement — fenêtre du 14 mars",
       "audienceLabel": "Audience",
       "audienceHint": "Une liste par persona. Les destinataires sont validés à l'envoi.",
-      "audienceError": "L'audience « Fournisseurs Tier 2 » n'existe plus dans le référentiel.",
+      "audienceError": "L'audience « Fournisseurs Tier 2 » n'existe plus dans le référentiel.",
       "audienceValue": "Fournisseurs Tier 2",
       "notesLabel": "Notes internes",
       "notesHint": "Jamais incluses dans la communication.",
@@ -161,10 +161,10 @@
       },
       "warning": {
         "title": "Registre incomplet",
-        "body": "Le ton « rassurant » n'a pas de correspondance pour la langue allemande. La variante allemande utilisera le registre par défaut."
+        "body": "Le ton « rassurant » n'a pas de correspondance pour la langue allemande. La variante allemande utilisera le registre par défaut."
       },
       "blocking": {
-        "title": "Envoi bloqué : 2 affirmations sans fait d'appui",
+        "title": "Envoi bloqué : 2 affirmations sans fait d'appui",
         "body": "Les affirmations A-07 et A-11 ne se rattachent à aucun fait de la fiche. Rattachez-les à un fait existant ou supprimez-les de la variante.",
         "action": "Ouvrir la variante"
       }
@@ -176,14 +176,14 @@
       "variants": "Variantes",
       "checks": "Contrôles",
       "history": "Historique",
-      "factsBody": "Fiche de faits : 12 faits, 2 amendements en attente.",
+      "factsBody": "Fiche de faits : 12 faits, 2 amendements en attente.",
       "variantsBody": "3 variantes générées, 1 en correction.",
       "checksBody": "7 contrôles exécutés, 1 bloquant.",
       "historyBody": "Dernière modification il y a 4 minutes."
     },
     "table": {
       "title": "Tableau",
-      "intro": "Chiffres alignés à droite en chasse tabulaire. La ligne entière est cliquable ; l'en-tête trié est annoncé.",
+      "intro": "Chiffres alignés à droite en chasse tabulaire. La ligne entière est cliquable ; l'en-tête trié est annoncé.",
       "columns": {
         "subject": "Objet",
         "audience": "Audience",
@@ -199,7 +199,7 @@
           "updated": "il y a 4 min"
         },
         "r2": {
-          "subject": "Incident INC-2025-0342 : résolution",
+          "subject": "Incident INC-2025-0342 : résolution",
           "audience": "Clients Entreprise",
           "assertions": "9 / 11",
           "updated": "il y a 1 h"
@@ -244,9 +244,9 @@
       },
       "simulator": {
         "title": "Compte de démonstration",
-        "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
+        "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
         "account": "Compte",
-        "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
+        "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
         "submit": "Ouvrir la session"
       },
       "none": {
@@ -307,7 +307,7 @@
     "criticitesDescriptions": {
       "COURANTE": "Information de routine.",
       "IMPORTANTE": "Impact notable pour les destinataires.",
-      "CRITIQUE": "Impact majeur ; double approbation et fenêtre d'annulation."
+      "CRITIQUE": "Impact majeur ; double approbation et fenêtre d'annulation."
     },
     "portees": {
       "INTERNE": "Interne",
@@ -329,14 +329,13 @@
     },
     "modesDescriptions": {
       "FICHIER": "Documents Word, PDF, Excel, CSV, Markdown ou texte, déposés et lus côté serveur.",
-      "TEXTE_SAISI": "Vous écrivez le message ; il devient la source.",
+      "TEXTE_SAISI": "Vous écrivez le message ; il devient la source.",
       "CONNECTEUR": "Récupération d'un ticket ou d'une note de version par sa référence.",
       "COURRIEL": "Un courriel transféré à une adresse de dépôt.",
       "DICTEE": "Un enregistrement transcrit, relu puis validé.",
       "API": "Un brouillon créé par un outil tiers.",
       "FORMULAIRE": "Un questionnaire propre à la nature de la communication."
     },
-    "modeUnavailable": "Pas encore disponible",
     "intentions": {
       "MISE_A_JOUR": "Mise à jour",
       "CORRECTIF": "Correctif — annule et remplace",
@@ -374,7 +373,7 @@
     },
     "cadrage": {
       "title": "Nouvelle communication",
-      "description": "Le cadrage fixe ce que l'on communique, à qui et avec quelle exigence de contrôle. Il ne se devine pas : chaque champ est déclaré.",
+      "description": "Le cadrage fixe ce que l'on communique, à qui et avec quelle exigence de contrôle. Il ne se devine pas : chaque champ est déclaré.",
       "sections": {
         "sujet": "Sujet",
         "exigence": "Exigence",
@@ -416,7 +415,7 @@
           "label": "Nature de la reprise"
         },
         "modeEntree": {
-          "label": "Comment la source arrive-t-elle ?"
+          "label": "Comment la source arrive-t-elle ?"
         }
       },
       "noParent": "Aucune — nouvelle communication",
@@ -448,7 +447,7 @@
       },
       "transitions": {
         "title": "Faire avancer",
-        "description": "Chaque passage est vérifié côté serveur ; un refus dit tout ce qui manque.",
+        "description": "Chaque passage est vérifié côté serveur ; un refus dit tout ce qui manque.",
         "refused": "Pas encore possible",
         "none": "Aucune transition manuelle depuis cet état."
       },
@@ -461,36 +460,39 @@
     },
     "entree": {
       "title": "Entrée des sources",
-      "description": "Chaque source est figée à l'entrée : texte lu côté serveur, empreinte, langue détectée. Les faits qu'on y relève restent à revoir.",
+      "description": "Chaque source est figée à l'entrée : texte lu côté serveur, empreinte, langue détectée. Les faits qu'on y relève restent à revoir.",
       "closed": {
         "title": "Les sources sont figées",
-        "description": "La communication a dépassé l'étape d'entrée ; une nouvelle source passe par une reprise."
+        "description": "La communication a dépassé l'étape d'entrée ; une nouvelle source passe par une reprise."
       },
       "files": {
         "title": "Déposer des fichiers",
-        "description": "Jusqu'à 20 fichiers, 25 Mio chacun, 50 Mio au total. Formats lus : .docx, .pdf (avec texte), .xlsx, .csv, .md, .txt.",
+        "description": "Jusqu'à 20 fichiers, 25 Mio chacun, 50 Mio au total. Formats lus : .docx, .pdf (avec texte), .xlsx, .csv, .md, .txt.",
         "label": "Fichiers",
-        "hint": "Les .pptx, .eml, .msg et les images (OCR) ne sont pas encore lus : ils sont refusés et signalés.",
-        "submit": "Déposer et analyser"
+        "hint": "Les .pptx, .eml, .msg et les images (OCR) ne sont pas encore lus : ils sont refusés et signalés.",
+        "submit": "Déposer et analyser",
+        "drop": "Choisissez des fichiers ou glissez-les ici",
+        "none": "Aucun fichier choisi.",
+        "selected": "{count, plural, one {# fichier choisi} other {# fichiers choisis}}"
       },
       "text": {
         "title": "Saisir le texte",
         "description": "Le texte saisi devient une source, au mot près. Les variantes ne pourront rien y ajouter.",
         "titre": "Intitulé de la source",
-        "titreHint": "Par exemple « Déclaration de l'astreinte ».",
+        "titreHint": "Par exemple « Déclaration de l'astreinte ».",
         "texte": "Texte",
         "submit": "Enregistrer la source"
       },
       "confidentiality": {
         "label": "Confidentialité des sources",
-        "hint": "Héritée par les faits relevés ; modifiable fait par fait."
+        "hint": "Héritée par les faits relevés ; modifiable fait par fait."
       },
       "result": {
         "title": "Résultat du dépôt",
         "deposited": "{count, plural, one {# fait relevé} other {# faits relevés}}",
         "refused": "Refusé",
         "accepted": "Déposé",
-        "languageDetected": "langue détectée : {langue}",
+        "languageDetected": "langue détectée : {langue}",
         "languageUnknown": "langue non détectée",
         "toFacts": "Revoir la fiche de faits"
       },
@@ -502,11 +504,11 @@
         "FORMAT_INCONNU": "Format non reconnu.",
         "FORMAT_INCOHERENT": "Le contenu ne correspond pas à l'extension du fichier.",
         "FORMAT_NON_PRIS_EN_CHARGE": "Ce format n'est pas encore lu (présentations, courriels, images).",
-        "TEXTE_ABSENT": "Aucun texte lisible : un PDF numérisé demande une reconnaissance de caractères, pas encore disponible.",
+        "TEXTE_ABSENT": "Aucun texte lisible : un PDF numérisé demande une reconnaissance de caractères, pas encore disponible.",
         "FICHIER_ILLISIBLE": "Fichier corrompu, incomplet ou protégé par mot de passe.",
         "FICHIER_TROP_VOLUMINEUX": "Fichier de plus de 25 Mio.",
         "INFECTE": "Menace détectée par l'antivirus ({detail}). Le fichier n'a pas été conservé.",
-        "ANTIVIRUS_INDISPONIBLE": "L'antivirus ne répond pas : le fichier n'a pas été accepté. Réessayez plus tard.",
+        "ANTIVIRUS_INDISPONIBLE": "L'antivirus ne répond pas : le fichier n'a pas été accepté. Réessayez plus tard.",
         "EN_DOUBLE": "Ce contenu est déjà une source de cette communication.",
         "NOM_INVALIDE": "Nom de fichier vide ou trop long."
       }
@@ -519,7 +521,7 @@
         "title": "Fiche figée",
         "description": "La communication a dépassé l'étape de validation des faits."
       },
-      "readOnly": "Lecture seule : votre rôle ne permet pas de modifier la fiche.",
+      "readOnly": "Lecture seule : votre rôle ne permet pas de modifier la fiche.",
       "empty": {
         "title": "Aucun fait relevé",
         "description": "Les faits apparaissent ici dès qu'une source est déposée.",
@@ -528,7 +530,7 @@
       "contradictions": {
         "title": "{count, plural, one {Une contradiction entre sources bloque la suite} other {# contradictions entre sources bloquent la suite}}",
         "description": "Deux sources donnent des valeurs différentes au même fait. Retirez le fait erroné, ou amendez sa valeur en justifiant le choix.",
-        "item": "« {enonce} » :",
+        "item": "« {enonce} » :",
         "value": "{valeur} selon {source} ({reference})",
         "badge": "Contradiction"
       },
@@ -543,8 +545,8 @@
         "amendments": "Amendements",
         "amendment": "{ancienne} → {nouvelle}, par {auteur} le {date}",
         "amendmentNoPrevious": "valeur fixée à {nouvelle}, par {auteur} le {date}",
-        "justification": "Justification : {texte}",
-        "invokedSource": "Source invoquée : {texte}",
+        "justification": "Justification : {texte}",
+        "invokedSource": "Source invoquée : {texte}",
         "assumed": "Valeur déclarée sous la responsabilité de son auteur.",
         "showInSource": "Voir dans la source"
       },
@@ -554,24 +556,24 @@
         "restore": "Rétablir",
         "rename": "Renommer",
         "renameTitle": "Renommer le fait",
-        "renameHint": "L'énoncé est le libellé du fait ; deux faits de même énoncé et de valeurs différentes se contredisent.",
+        "renameHint": "L'énoncé est le libellé du fait ; deux faits de même énoncé et de valeurs différentes se contredisent.",
         "renameSubmit": "Enregistrer l'énoncé",
-        "amend": "Amender la valeur",
+        "amend": "Amender",
         "amendTitle": "Amender la valeur",
-        "amendHint": "La citation reste celle de la source ; l'amendement est tracé et visible des approbateurs.",
+        "amendHint": "La citation reste celle de la source ; l'amendement est tracé et visible des approbateurs.",
         "newValue": "Nouvelle valeur",
         "justification": "Justification",
-        "justificationHint": "Pourquoi cette valeur ? Dix caractères au moins.",
+        "justificationHint": "Pourquoi cette valeur ? Dix caractères au moins.",
         "invokedSource": "Source invoquée",
         "invokedSourceHint": "Document, message ou personne qui établit la valeur.",
-        "assume": "J'assume cette valeur sans source : le fait devient « déclaré » et impose une approbation.",
+        "assume": "J'assume cette valeur sans source : le fait devient « déclaré » et impose une approbation.",
         "amendSubmit": "Amender",
         "confidentialitySubmit": "Appliquer",
         "done": "Enregistré."
       },
       "add": {
         "title": "Ajouter un fait",
-        "description": "Copiez la citation exacte depuis le texte de la source ; la valeur doit y figurer telle quelle.",
+        "description": "Copiez la citation exacte depuis le texte de la source ; la valeur doit y figurer telle quelle.",
         "source": "Source",
         "citation": "Citation exacte",
         "enonce": "Énoncé",
@@ -598,9 +600,9 @@
       "TRANSITION_INCONNUE": "Ce passage n'existe pas depuis l'état actuel.",
       "AUCUNE_SOURCE_FIGEE": "Aucune source n'a été déposée.",
       "AUCUN_FAIT_CONFIRME": "Aucun fait n'est confirmé.",
-      "FAIT_NON_REVU": "Des faits restent à revoir : confirmez-les ou retirez-les.",
+      "FAIT_NON_REVU": "Des faits restent à revoir : confirmez-les ou retirez-les.",
       "CONTRADICTION_NON_TRANCHEE": "Une contradiction entre sources n'est pas tranchée.",
-      "AUCUN_PERSONA": "Aucun persona n'est choisi : le choix des personas n'est pas encore disponible dans cette version.",
+      "AUCUN_PERSONA": "Aucun persona n'est choisi : le choix des personas n'est pas encore disponible dans cette version.",
       "PERSONA_SANS_TEMPLATE": "Un persona n'a pas de template.",
       "AUCUNE_VARIANTE": "Aucune variante n'a été générée.",
       "CONTROLE_BLOQUANT_NON_RESOLU": "Un contrôle bloquant n'est pas résolu.",
@@ -613,7 +615,7 @@
       "INTROUVABLE": "Cet élément n'existe pas ou n'appartient pas à votre organisation.",
       "DONNEES_INVALIDES": "Certains champs sont à corriger.",
       "ETAT_INCOMPATIBLE": "L'état actuel ne permet pas cette opération.",
-      "TRANSITION_REFUSEE": "Le passage est refusé :",
+      "TRANSITION_REFUSEE": "Le passage est refusé :",
       "TRANSITION_NON_MANUELLE": "Ce passage appartient à un autre parcours (génération, approbation, envoi).",
       "CONFLIT": "La communication a été modifiée entre-temps. Rechargez la page.",
       "MODE_NON_DISPONIBLE": "Ce mode d'entrée n'est pas encore disponible.",
@@ -633,7 +635,7 @@
       "trop_nombreux": "Vingt fichiers au plus par dépôt.",
       "trop_volumineux": "50 Mio au plus par dépôt.",
       "heure_inexistante": "Cette heure n'existe pas (passage à l'heure d'été).",
-      "heure_ambigue": "Cette heure existe deux fois (retour à l'heure d'hiver) : choisissez-en une autre.",
+      "heure_ambigue": "Cette heure existe deux fois (retour à l'heure d'hiver) : choisissez-en une autre.",
       "heure_invalide": "Date ou heure invalide.",
       "langue_non_autorisee": "Langue non autorisée dans votre région.",
       "mode_non_disponible": "Ce mode n'est pas encore disponible.",
@@ -649,6 +651,7 @@
       "apercu": "Aperçu",
       "entree": "Entrée",
       "faits": "Fiche de faits"
-    }
+    },
+    "modesLater": "Pas encore disponibles : {modes}."
   }
 }

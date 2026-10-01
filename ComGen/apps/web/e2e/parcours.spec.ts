@@ -82,7 +82,7 @@ test('texte saisi : la source est figée, ses faits sont à revoir avant de pour
 test('dépôt de fichier : le résultat est rendu fichier par fichier', async ({ page }) => {
   await cadrer(page, 'Track & Trace 3.9.2 — note de version', 'Dépôt de fichiers')
 
-  await page.getByLabel('Fichiers', { exact: true }).setInputFiles([
+  await page.getByLabel(/^Fichiers/).setInputFiles([
     { name: 'note-de-version.txt', mimeType: 'text/plain', buffer: Buffer.from(TEXTE_SOURCE) },
     { name: 'capture.png', mimeType: 'image/png', buffer: Buffer.from('pas une image') },
   ])

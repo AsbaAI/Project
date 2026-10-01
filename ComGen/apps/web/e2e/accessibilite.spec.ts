@@ -50,7 +50,10 @@ test.describe('sans session', () => {
 test('axe — fiche de faits, volet d’amendement ouvert', async ({ page }) => {
   await page.goto('/communications/com_2026_0002/faits')
   await attendreRendu(page)
-  await page.getByText('Amender la valeur').first().click()
+  const bouton = page.getByRole('button', { name: 'Amender', exact: true }).first()
+  await bouton.click()
+  await expect(bouton).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByRole('region', { name: 'Amender la valeur' })).toBeVisible()
   await auditer(page)
 })
 

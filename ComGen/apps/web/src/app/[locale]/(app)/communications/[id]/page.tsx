@@ -105,7 +105,7 @@ export default async function CommunicationPage({ params }: PageProps) {
           </Panel>
 
           <Panel title={t('detail.metadata')}>
-            <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 xl:grid-cols-3">
               <Donnee terme={t('list.columns.nature')}>{t(`natures.${c.nature}`)}</Donnee>
               <Donnee terme={t('detail.scope')}>{t(`portees.${c.portee}`)}</Donnee>
               <Donnee terme={t('detail.language')}>

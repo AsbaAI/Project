@@ -1,3 +1,4 @@
+/* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- la colonne des sources défile seule sur grand écran : sans focus, son contenu est inatteignable au clavier (WCAG 2.1.1, règle axe scrollable-region-focusable) */
 import { FileSearch, OctagonX } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
@@ -93,14 +94,15 @@ export default async function FichePage({ params }: PageProps) {
                     <p className="font-medium text-ink-primary">
                       {t('fiche.contradictions.item', { enonce: contradiction.enonce })}
                     </p>
-                    <ul className="list-disc pl-5">
+                    {/* Liens empilés : 24 px de cible au moins (WCAG 2.5.8). */}
+                    <ul className="mt-0.5 flex list-disc flex-col gap-1 pl-5">
                       {contradiction.faits.map((f) => {
                         const reference = faits.find((x) => x.id === f.id)?.reference ?? ''
                         return (
                           <li key={f.id}>
                             <a
                               href={`#fait-${reference}`}
-                              className="rounded-xs text-ink-primary underline focus-ring"
+                              className="block rounded-xs py-0.5 text-ink-primary underline focus-ring"
                             >
                               {t('fiche.contradictions.value', {
                                 valeur: f.valeur ?? '',
@@ -118,20 +120,19 @@ export default async function FichePage({ params }: PageProps) {
             </Notice>
           ) : null}
 
-          <Progress
-            label={t('fiche.title')}
-            valueText={t('fiche.progress', { revus, total: faits.length })}
-            value={revus}
-            max={faits.length}
-            tone={revus === faits.length ? 'success' : 'accent'}
-            className="max-w-xl"
-          />
-
           <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
             <section aria-labelledby="titre-faits" className="flex min-w-0 flex-col gap-3">
               <h2 id="titre-faits" className="visually-hidden">
                 {t('detail.facts')}
               </h2>
+              <Progress
+                label={t('fiche.title')}
+                valueText={t('fiche.progress', { revus, total: faits.length })}
+                value={revus}
+                max={faits.length}
+                tone={revus === faits.length ? 'success' : 'accent'}
+                className="mb-1"
+              />
               {faits.map((fait) => (
                 <CarteFait
                   key={fait.id}
@@ -164,9 +165,12 @@ export default async function FichePage({ params }: PageProps) {
               ) : null}
             </section>
 
+            {/* Sur grand écran la colonne défile seule : elle doit donc
+                recevoir le focus pour défiler au clavier (WCAG 2.1.1). */}
             <aside
               aria-labelledby="titre-sources"
-              className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-[calc(var(--layout-header-height)+1rem)] lg:max-h-[calc(100dvh-var(--layout-header-height)-2rem)] lg:overflow-y-auto"
+              tabIndex={0}
+              className="flex min-w-0 flex-col gap-3 rounded-md focus-ring *:shrink-0 lg:sticky lg:top-[calc(var(--layout-header-height)+1rem)] lg:max-h-[calc(100dvh-var(--layout-header-height)-2rem)] lg:overflow-y-auto"
             >
               <h2 id="titre-sources" className="text-base font-semibold text-ink-primary">
                 {t('fiche.sourcePanel.title')}

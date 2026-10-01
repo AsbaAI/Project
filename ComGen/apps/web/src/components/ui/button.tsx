@@ -21,7 +21,7 @@ import { Spinner } from './spinner'
  */
 export const buttonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center whitespace-nowrap select-none',
+    'inline-flex shrink-0 items-center justify-center whitespace-nowrap no-underline select-none',
     'font-medium transition-colors-token',
     'focus-ring',
     'disabled:cursor-not-allowed disabled:opacity-60',

@@ -26,6 +26,8 @@ export interface ChoixCartesProps {
   colonnes?: 1 | 2 | 3
   requis?: boolean
   mentionRequis?: ReactNode
+  /** Note sous les options (choix pas encore proposés…). */
+  note?: ReactNode
 }
 
 export function ChoixCartes({
@@ -37,15 +39,16 @@ export function ChoixCartes({
   colonnes = 2,
   requis = false,
   mentionRequis,
+  note,
 }: ChoixCartesProps) {
   const idErreur = `${nom}-erreur`
   return (
     <fieldset
-      className="flex min-w-0 flex-col gap-2"
+      className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0"
       aria-describedby={erreur ? idErreur : undefined}
       aria-invalid={erreur ? true : undefined}
     >
-      <legend className="mb-1.5 flex items-baseline gap-2 text-sm font-medium text-ink-primary">
+      <legend className="mb-1.5 flex items-baseline gap-2 p-0 text-sm font-medium text-ink-primary">
         {legende}
         {mentionRequis ? (
           <span className="text-xs font-regular text-ink-tertiary">{mentionRequis}</span>
@@ -93,6 +96,7 @@ export function ChoixCartes({
           </label>
         ))}
       </div>
+      {note ? <p className="text-xs text-ink-secondary">{note}</p> : null}
       {erreur ? (
         <p id={idErreur} className="text-xs font-medium text-danger-ink">
           {erreur}

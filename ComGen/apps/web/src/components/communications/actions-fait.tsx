@@ -1,9 +1,9 @@
 'use client'
 
 import type { StatutFait } from '@comgen/core'
-import { Check, ChevronDown, PenLine, RotateCcw, Scale, ShieldHalf, X } from 'lucide-react'
+import { Check, PenLine, RotateCcw, Scale, ShieldHalf, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { type ReactNode, useActionState } from 'react'
+import { type ReactNode, useActionState, useId, useState } from 'react'
 
 import {
   actionAmenderValeur,
@@ -19,62 +19,51 @@ import {
 } from '@/app/[locale]/(app)/communications/etat-formulaire'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Textarea } from '@/components/ui/field'
-import { cn } from '@/lib/cn'
 
 import { ChampConfidentialite } from './champ-confidentialite'
 import { ErreurFormulaire, useErreurDeChamp } from './erreur-formulaire'
 
 /*
- * Actions sur un fait. Les décisions simples (confirmer, retirer,
- * rétablir) sont des boutons ; les modifications qui demandent une saisie
- * s'ouvrent dans un volet `<details>` natif, accessible sans script. Un
- * volet se referme après un enregistrement réussi (remontage par clé).
+ * Actions sur un fait, en une seule barre. Les décisions simples
+ * (confirmer, retirer, rétablir) sont des boutons d'envoi ; les
+ * modifications qui demandent une saisie s'ouvrent dans un volet unique
+ * sous la barre, un à la fois. Un volet se referme de lui-même après un
+ * enregistrement réussi, et reste ouvert sur une erreur.
  */
 
-type Action = (precedent: EtatFormulaire, formulaire: FormData) => Promise<EtatFormulaire>
+type Volet = 'enonce' | 'amende' | 'confidentialite'
 
-function cleVolet(etat: EtatFormulaire): string {
-  return etat.statut === 'ok' ? `ferme-${etat.jeton}` : 'volet'
+function jetonDe(etat: EtatFormulaire): number {
+  return etat.statut === 'repos' ? 0 : etat.jeton
 }
 
-function Volet({
-  titre,
+function BoutonVolet({
+  ouvert,
+  controle,
   icone,
-  etat,
+  onClick,
   children,
 }: {
-  titre: string
+  ouvert: boolean
+  controle: string
   icone: ReactNode
-  etat: EtatFormulaire
+  onClick: () => void
   children: ReactNode
 }) {
   return (
-    <details
-      key={cleVolet(etat)}
-      open={etat.statut === 'erreur' ? true : undefined}
-      className="group w-full rounded-sm border-w border-line-subtle open:bg-surface-base"
+    <Button
+      type="button"
+      size="sm"
+      variant="ghost"
+      icon={icone}
+      aria-expanded={ouvert}
+      aria-controls={ouvert ? controle : undefined}
+      onClick={onClick}
+      className="aria-expanded:bg-surface-selected aria-expanded:text-ink-primary"
     >
-      <summary
-        className={cn(
-          'flex h-control-sm cursor-pointer list-none items-center gap-1.5 rounded-sm px-2.5 text-xs font-medium text-ink-secondary',
-          'transition-colors-token hover:bg-surface-hover hover:text-ink-primary focus-ring',
-          '[&::-webkit-details-marker]:hidden [&_svg]:size-3.5',
-        )}
-      >
-        {icone}
-        {titre}
-        <ChevronDown
-          aria-hidden="true"
-          className="ml-auto transition-transform duration-fast group-open:rotate-180"
-        />
-      </summary>
-      <div className="border-t-w border-line-subtle p-3">{children}</div>
-    </details>
+      {children}
+    </Button>
   )
-}
-
-function useAction(action: Action) {
-  return useActionState(action, ETAT_INITIAL)
 }
 
 export interface ActionsFaitProps {
@@ -87,20 +76,46 @@ export interface ActionsFaitProps {
 
 export function ActionsFait({ faitId, statut, enonce, valeur, confidentialite }: ActionsFaitProps) {
   const t = useTranslations('communications')
-  const [etatStatut, actionStatut, statutEnCours] = useAction(actionStatutFait)
-  const [etatEnonce, actionEnonce, enonceEnCours] = useAction(actionModifierEnonce)
-  const [etatAmende, actionAmende, amendeEnCours] = useAction(actionAmenderValeur)
-  const [etatConf, actionConf, confEnCours] = useAction(actionConfidentialiteFait)
+  const idVolet = useId()
+  const [etatStatut, actionStatut, statutEnCours] = useActionState(actionStatutFait, ETAT_INITIAL)
+  const [etatEnonce, actionEnonce, enonceEnCours] = useActionState(
+    actionModifierEnonce,
+    ETAT_INITIAL,
+  )
+  const [etatAmende, actionAmende, amendeEnCours] = useActionState(
+    actionAmenderValeur,
+    ETAT_INITIAL,
+  )
+  const [etatConf, actionConf, confEnCours] = useActionState(
+    actionConfidentialiteFait,
+    ETAT_INITIAL,
+  )
   const erreurEnonce = useErreurDeChamp(etatEnonce)
   const erreurAmende = useErreurDeChamp(etatAmende)
   const vivant = statut === 'PROPOSE' || statut === 'CONFIRME' || statut === 'DECLARE'
+
+  const etats: Record<Volet, EtatFormulaire> = {
+    enonce: etatEnonce,
+    amende: etatAmende,
+    confidentialite: etatConf,
+  }
+  // Volet ouvert, avec le jeton de son action au moment de l'ouverture : une
+  // réponse « ok » plus récente que ce jeton le referme, sans effet de bord.
+  const [ouverture, setOuverture] = useState<{ volet: Volet; jeton: number } | null>(null)
+  const voletOuvert: Volet | null =
+    ouverture !== null &&
+    !(etats[ouverture.volet].statut === 'ok' && jetonDe(etats[ouverture.volet]) !== ouverture.jeton)
+      ? ouverture.volet
+      : null
+  const basculer = (volet: Volet) =>
+    setOuverture(voletOuvert === volet ? null : { volet, jeton: jetonDe(etats[volet]) })
 
   return (
     <div className="flex flex-col gap-2">
       <form action={actionStatut} className="flex flex-col gap-2">
         <input type="hidden" name="faitId" value={faitId} />
         <ErreurFormulaire etat={etatStatut} />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           {statut === 'PROPOSE' ? (
             <Button
               type="submit"
@@ -140,16 +155,52 @@ export function ActionsFait({ faitId, statut, enonce, valeur, confidentialite }:
               {t('fiche.actions.restore')}
             </Button>
           ) : null}
+          {vivant ? (
+            <div className="flex flex-wrap gap-1 sm:ml-auto">
+              <BoutonVolet
+                ouvert={voletOuvert === 'enonce'}
+                controle={idVolet}
+                icone={<PenLine aria-hidden="true" />}
+                onClick={() => basculer('enonce')}
+              >
+                {t('fiche.actions.rename')}
+              </BoutonVolet>
+              <BoutonVolet
+                ouvert={voletOuvert === 'amende'}
+                controle={idVolet}
+                icone={<Scale aria-hidden="true" />}
+                onClick={() => basculer('amende')}
+              >
+                {t('fiche.actions.amend')}
+              </BoutonVolet>
+              <BoutonVolet
+                ouvert={voletOuvert === 'confidentialite'}
+                controle={idVolet}
+                icone={<ShieldHalf aria-hidden="true" />}
+                onClick={() => basculer('confidentialite')}
+              >
+                {t('fiche.fact.confidentiality')}
+              </BoutonVolet>
+            </div>
+          ) : null}
         </div>
       </form>
 
-      {vivant ? (
-        <div className="flex flex-col gap-2">
-          <Volet
-            titre={t('fiche.actions.renameTitle')}
-            icone={<PenLine aria-hidden="true" />}
-            etat={etatEnonce}
-          >
+      {vivant && voletOuvert !== null ? (
+        <section
+          id={idVolet}
+          aria-labelledby={`${idVolet}-titre`}
+          className="flex flex-col gap-3 rounded-sm border-w border-line-subtle bg-surface-base p-3"
+        >
+          <h4 id={`${idVolet}-titre`} className="text-xs font-semibold text-ink-primary">
+            {voletOuvert === 'enonce'
+              ? t('fiche.actions.renameTitle')
+              : voletOuvert === 'amende'
+                ? t('fiche.actions.amendTitle')
+                : t('fiche.fact.confidentiality')}
+          </h4>
+
+          {voletOuvert === 'enonce' ? (
             <form
               key={cleFormulaire(etatEnonce)}
               action={actionEnonce}
@@ -176,13 +227,9 @@ export function ActionsFait({ faitId, statut, enonce, valeur, confidentialite }:
                 </Button>
               </div>
             </form>
-          </Volet>
+          ) : null}
 
-          <Volet
-            titre={t('fiche.actions.amendTitle')}
-            icone={<Scale aria-hidden="true" />}
-            etat={etatAmende}
-          >
+          {voletOuvert === 'amende' ? (
             <form
               key={cleFormulaire(etatAmende)}
               action={actionAmende}
@@ -241,13 +288,9 @@ export function ActionsFait({ faitId, statut, enonce, valeur, confidentialite }:
                 </Button>
               </div>
             </form>
-          </Volet>
+          ) : null}
 
-          <Volet
-            titre={t('fiche.fact.confidentiality')}
-            icone={<ShieldHalf aria-hidden="true" />}
-            etat={etatConf}
-          >
+          {voletOuvert === 'confidentialite' ? (
             <form action={actionConf} className="flex flex-wrap items-end gap-3">
               <input type="hidden" name="faitId" value={faitId} />
               <ErreurFormulaire etat={etatConf} />
@@ -260,8 +303,8 @@ export function ActionsFait({ faitId, statut, enonce, valeur, confidentialite }:
                 {t('fiche.actions.confidentialitySubmit')}
               </Button>
             </form>
-          </Volet>
-        </div>
+          ) : null}
+        </section>
       ) : null}
     </div>
   )

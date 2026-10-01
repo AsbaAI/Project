@@ -7,13 +7,14 @@ import { useActionState } from 'react'
 import { actionDeposerFichiers } from '@/app/[locale]/(app)/communications/actions'
 import { ETAT_INITIAL } from '@/app/[locale]/(app)/communications/etat-formulaire'
 import { Button } from '@/components/ui/button'
-import { Field, Input } from '@/components/ui/field'
+import { Field } from '@/components/ui/field'
 import { Notice } from '@/components/ui/notice'
 import { Link } from '@/i18n/navigation'
 import type { LangueAffichee } from '@/lib/cles-messages'
 
 import { ChampConfidentialite } from './champ-confidentialite'
 import { ErreurFormulaire, useErreurDeChamp } from './erreur-formulaire'
+import { ZoneFichiers } from './zone-fichiers'
 
 /*
  * Dépôt de fichiers (§10, mode FICHIER). Le résultat est rendu fichier par
@@ -51,12 +52,11 @@ export function FormulaireDepot({ communicationId }: { communicationId: string }
           error={erreur('fichiers')}
           required
         >
-          <Input
-            type="file"
+          {/* Remontée à chaque réponse : React vide le formulaire après l'action. */}
+          <ZoneFichiers
+            key={etat.statut === 'repos' ? 0 : etat.jeton}
             name="fichiers"
-            multiple
             accept={FORMATS_ACCEPTES}
-            className="h-auto py-1.5 file:mr-3 file:rounded-xs file:border-0 file:bg-surface-sunken file:px-2.5 file:py-1 file:text-sm file:font-medium file:text-ink-primary"
           />
         </Field>
         <ChampConfidentialite
