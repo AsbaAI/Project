@@ -1,0 +1,85 @@
+/*
+ * Styles de composants qui ne tiennent pas en utilitaires : animations
+ * nommées, pseudo-éléments composés. Tout le reste est écrit dans le
+ * composant lui-même, en classes Tailwind adossées aux jetons.
+ */
+
+@layer components {
+  /* Indicateur d'activité. Le mouvement est un tour complet ; sous
+   * `prefers-reduced-motion`, il devient une pulsation d'opacité : on
+   * garde le signal « quelque chose se passe », on retire la rotation. */
+  .spinner {
+    animation: spinner-rotate 0.9s linear infinite;
+  }
+
+  @keyframes spinner-rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner {
+      animation: spinner-pulse 1.4s ease-in-out infinite;
+    }
+  }
+
+  @keyframes spinner-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Entrées des surfaces flottantes (tiroir, voile). Utilisées via
+   * `animate-[fade-in_…]` ; neutralisées sous `prefers-reduced-motion`. */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes slide-in-start {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-state='open'] {
+      animation-duration: 1ms;
+    }
+  }
+
+  /* Squelette de chargement : une bande claire qui traverse un bloc gris. */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-surface-sunken);
+    border-radius: var(--radius-xs);
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--color-surface-hover), transparent);
+    animation: skeleton-sweep 1.6s var(--ease-in-out) infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after {
+      animation: none;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+.next
+dist
+storybook-static
+coverage
+pnpm-lock.yaml
+apps/web/e2e/captures
+apps/web/playwright-report
+apps/web/test-results
+docs/SPECIFICATION.md
+samples
+templates
+packages/db/src/generated

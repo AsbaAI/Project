@@ -1,0 +1,191 @@
+/*
+ * Styles de base
+ *
+ * Ce que les éléments HTML valent SANS classe. Un `<h2>`, un `<a>`, un
+ * `<code>` doivent déjà être corrects avant qu'un composant s'en mêle :
+ * c'est ce qui garantit que du contenu généré — une communication rendue
+ * en HTML, par exemple — reste lisible sans être habillé pièce par pièce.
+ */
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-size: 100%;
+  }
+
+  body {
+    font-size: var(--text-base);
+    line-height: var(--text-base-lh);
+    font-weight: var(--weight-regular);
+    letter-spacing: var(--tracking-normal);
+    color: var(--color-ink-primary);
+    background-color: var(--color-surface-base);
+    /* Chiffres de même largeur : indispensable dès qu'une colonne de
+     * nombres doit s'aligner, et sans coût ailleurs. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Gouttière réduite sur téléphone : 16px, sans défilement horizontal. */
+  @media (max-width: 40rem) {
+    :root {
+      --layout-gutter: 1rem;
+    }
+  }
+
+  /* ---------------------------------------------------------------
+   * Titres
+   * L'échelle descend vite : dans une application, un `<h3>` n'est pas
+   * un titre de magazine, c'est une étiquette de section.
+   * --------------------------------------------------------------- */
+  h1 {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl-lh);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl-lh);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-snug);
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg-lh);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-snug);
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    line-height: var(--text-base-lh);
+    font-weight: var(--weight-semibold);
+  }
+
+  h5,
+  h6 {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm-lh);
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ---------------------------------------------------------------
+   * Texte courant
+   * --------------------------------------------------------------- */
+  p {
+    text-wrap: pretty;
+  }
+
+  small {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs-lh);
+    color: var(--color-ink-tertiary);
+  }
+
+  strong,
+  b {
+    font-weight: var(--weight-semibold);
+  }
+
+  a {
+    color: var(--color-ink-link);
+    text-decoration: underline;
+    /* Le soulignement passe sous les jambages au lieu de les couper. */
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+    transition: var(--transition-colors);
+  }
+
+  a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-variant-ligatures: none;
+  }
+
+  code {
+    padding: 0.1em 0.32em;
+    border-radius: var(--radius-xs);
+    background-color: var(--color-surface-hover);
+    border: var(--border-width) solid var(--color-line-subtle);
+  }
+
+  pre {
+    overflow-x: auto;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-sunken);
+    border: var(--border-width) solid var(--color-line-subtle);
+    line-height: 1.6;
+  }
+
+  pre code {
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  hr {
+    border: none;
+    block-size: var(--border-width);
+    background-color: var(--color-line-subtle);
+  }
+
+  /* ---------------------------------------------------------------
+   * Focus
+   * Un seul anneau, défini une fois, appliqué partout. Les composants
+   * qui ont besoin d'une forme particulière redéfinissent le rayon,
+   * jamais la règle de visibilité.
+   * --------------------------------------------------------------- */
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-xs);
+  }
+
+  /* ---------------------------------------------------------------
+   * Sélection
+   * --------------------------------------------------------------- */
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-action) 22%, transparent);
+    color: var(--color-ink-primary);
+  }
+
+  /* ---------------------------------------------------------------
+   * Barres de défilement
+   * Discrètes, mais présentes : une barre totalement invisible laisse
+   * l'utilisateur ignorer qu'il reste du contenu.
+   * --------------------------------------------------------------- */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  /* ---------------------------------------------------------------
+   * Impression
+   * Une communication générée doit pouvoir sortir sur papier sans
+   * traitement particulier.
+   * --------------------------------------------------------------- */
+  @media print {
+    body {
+      background: white;
+      color: black;
+      font-size: 11pt;
+      line-height: 1.5;
+    }
+
+    a {
+      color: black;
+      text-decoration: underline;
+    }
+  }
+}

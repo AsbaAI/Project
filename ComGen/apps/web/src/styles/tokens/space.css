@@ -1,0 +1,35 @@
+/*
+ * Jetons d'espacement
+ *
+ * Grille de 4px. Tailwind expose la grille via `--spacing: 0.25rem`
+ * (`p-3` = 12px, `gap-2` = 8px) : c'est la même échelle, il n'y a pas
+ * de second système. Toute valeur hors grille est une exception à
+ * justifier, pas une commodité.
+ */
+
+@layer tokens {
+  :root {
+    /* -----------------------------------------------------------------
+     * Hauteurs de contrôle
+     * Trois tailles seulement. Elles sont alignées sur la grille de 4px
+     * pour que boutons, champs et sélecteurs s'alignent sur une même
+     * ligne sans correction.
+     * ----------------------------------------------------------------- */
+    --control-height-sm: 1.75rem; /* 28px */
+    --control-height-md: 2rem; /* 32px — défaut */
+    --control-height-lg: 2.25rem; /* 36px */
+
+    /* -----------------------------------------------------------------
+     * Gabarits de mise en page
+     * ----------------------------------------------------------------- */
+    --layout-header-height: 3rem; /* 48px */
+    --layout-sidebar-width: 15rem; /* 240px */
+    --layout-gutter: 1.5rem; /* 24px, 16px sur téléphone (voir base.css) */
+    --layout-max-width: 90rem; /* 1440px */
+
+    /* Cible tactile minimale (WCAG 2.2 AA, critère 2.5.8). Les contrôles
+     * plus petits que cette valeur doivent élargir leur zone cliquable
+     * sans grossir visuellement. */
+    --target-min: 1.5rem; /* 24px */
+  }
+}

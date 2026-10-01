@@ -1,0 +1,33 @@
+# dépendances
+node_modules/
+
+# sorties de build
+.next/
+out/
+dist/
+storybook-static/
+*.tsbuildinfo
+next-env.d.ts
+
+# tests
+coverage/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/e2e/captures/**/*.png
+!apps/web/e2e/captures/.gitkeep
+apps/web/e2e/.auth/
+
+# environnement — jamais de secret dans le dépôt
+.env
+.env.*
+!.env.example
+
+# données locales de développement
+.local/
+
+# éditeurs et systèmes
+.DS_Store
+*.log
+
+# client Prisma généré (pnpm install le régénère)
+packages/db/src/generated/
