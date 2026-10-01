@@ -7,12 +7,13 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { LocaleSwitcher } from './locale-switcher'
 import { MainNav } from './main-nav'
 import { MobileNav } from './mobile-nav'
+import { UserMenu, type UserMenuProps } from './user-menu'
 
 /*
  * Coquille de l'application.
  *
  *   ┌──────────────────────────────────────────────┐
- *   │ en-tête 48px : menu (tél.) · marque · langue · thème │
+ *   │ en-tête 48px : menu (tél.) · marque · langue · thème · compte │
  *   ├──────────┬───────────────────────────────────┤
  *   │ barre    │ <main id="contenu">               │
  *   │ latérale │                                   │
@@ -24,7 +25,13 @@ import { MobileNav } from './mobile-nav'
  * latérale est collante sous l'en-tête et défile indépendamment. Le
  * contenu est limité à `max-w-page` (1440px) et centré au-delà.
  */
-export function AppShell({ children }: { children: ReactNode }) {
+export interface AppShellProps {
+  children: ReactNode
+  /** Personne connectée ; absente dans les stories et les tests de composants. */
+  utilisateur?: UserMenuProps['utilisateur']
+}
+
+export function AppShell({ children, utilisateur }: AppShellProps) {
   const t = useTranslations('app')
 
   return (
@@ -52,6 +59,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="ml-auto flex items-center gap-2">
             <LocaleSwitcher />
             <ThemeToggle />
+            {utilisateur ? <UserMenu utilisateur={utilisateur} /> : null}
           </div>
         </div>
       </header>

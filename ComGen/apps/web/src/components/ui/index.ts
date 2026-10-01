@@ -6,6 +6,8 @@ export {
   type FieldProps,
   Input,
   type InputProps,
+  Select,
+  type SelectProps,
   Textarea,
   type TextareaProps,
 } from './field'

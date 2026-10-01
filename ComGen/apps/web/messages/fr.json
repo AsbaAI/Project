@@ -211,5 +211,46 @@
       "errorTitle": "Impossible de charger les communications",
       "errorDescription": "Le service de données n'a pas répondu. Vos brouillons sont intacts."
     }
+  },
+  "auth": {
+    "signedInAs": "Connecté en tant que",
+    "signOut": "Se déconnecter",
+    "signIn": {
+      "title": "Connexion",
+      "description": "Identifiez-vous pour accéder aux communications de votre organisation.",
+      "oidc": {
+        "title": "Compte d'entreprise",
+        "description": "Authentification par le fournisseur d'identité de votre organisation.",
+        "submit": "Continuer avec le SSO"
+      },
+      "simulator": {
+        "title": "Compte de démonstration",
+        "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
+        "account": "Compte",
+        "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
+        "submit": "Ouvrir la session"
+      },
+      "none": {
+        "title": "Aucun moyen de connexion configuré",
+        "description": "Déclarez un fournisseur OIDC (AUTH_OIDC_ISSUER, AUTH_OIDC_CLIENT_ID, AUTH_OIDC_CLIENT_SECRET) ou, hors production, AUTH_SIMULATEUR=true."
+      },
+      "errors": {
+        "compte-inconnu": {
+          "title": "Compte inconnu",
+          "description": "Ce compte n'existe pas dans l'annuaire de l'application ou il est désactivé. Aucune session n'a été ouverte."
+        },
+        "generique": {
+          "title": "Connexion refusée",
+          "description": "Le fournisseur d'identité n'a pas confirmé votre identité, ou votre compte n'est pas connu de l'application."
+        }
+      }
+    }
+  },
+  "roles": {
+    "REDACTEUR": "Rédacteur",
+    "RELECTEUR": "Relecteur",
+    "APPROBATEUR": "Approbateur",
+    "ADMINISTRATEUR": "Administrateur",
+    "AUDITEUR": "Auditeur"
   }
 }

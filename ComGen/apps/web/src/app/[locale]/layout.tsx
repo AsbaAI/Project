@@ -8,7 +8,6 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
 import type { ReactNode } from 'react'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import { resolveLocale } from '@/i18n/params'
 import { routing } from '@/i18n/routing'
@@ -35,6 +34,11 @@ export async function generateMetadata({
   }
 }
 
+/*
+ * Racine d'une langue : document, polices, thème, messages. La coquille
+ * de l'application (navigation, utilisateur) est dans le groupe `(app)`,
+ * qui exige une session ; l'écran de connexion vit dans `(auth)`.
+ */
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const locale = await resolveLocale(params)
 
@@ -47,9 +51,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className="bg-surface-base text-ink-primary antialiased">
         <NextIntlClientProvider>
-          <ThemeProvider>
-            <AppShell>{children}</AppShell>
-          </ThemeProvider>
+          <ThemeProvider>{children}</ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

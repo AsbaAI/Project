@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleAlert } from 'lucide-react'
+import { ChevronDown, CircleAlert } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
   type ReactNode,
@@ -152,6 +152,32 @@ export function Input({ className, ...props }: InputProps) {
       {...attributes}
       className={cn(controlClassName, 'h-control-md px-3', className)}
     />
+  )
+}
+
+export type SelectProps = ComponentPropsWithoutRef<'select'>
+
+/**
+ * Liste déroulante NATIVE, restylée : le menu système reste celui du
+ * navigateur (accessible partout, sans script), seule la boîte est à nous.
+ * La flèche est dessinée par un élément frère, pas par une image de fond.
+ */
+export function Select({ className, children, ...props }: SelectProps) {
+  const attributes = useControlAttributes(props)
+  return (
+    <span className="relative block">
+      <select
+        {...props}
+        {...attributes}
+        className={cn(controlClassName, 'h-control-md appearance-none pr-9 pl-3', className)}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-tertiary"
+      />
+    </span>
   )
 }
 

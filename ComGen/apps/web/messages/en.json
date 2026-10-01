@@ -211,5 +211,46 @@
       "errorTitle": "Could not load communications",
       "errorDescription": "The data service did not respond. Your drafts are intact."
     }
+  },
+  "auth": {
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "signIn": {
+      "title": "Sign in",
+      "description": "Identify yourself to access your organisation's communications.",
+      "oidc": {
+        "title": "Corporate account",
+        "description": "Authentication through your organisation's identity provider.",
+        "submit": "Continue with SSO"
+      },
+      "simulator": {
+        "title": "Demo account",
+        "description": "Development environment: pick an account from the demo data set. No password. This mode is refused in production.",
+        "account": "Account",
+        "hint": "The roles shown are those stored in the database; they are re-read on every request.",
+        "submit": "Open session"
+      },
+      "none": {
+        "title": "No sign-in method configured",
+        "description": "Declare an OIDC provider (AUTH_OIDC_ISSUER, AUTH_OIDC_CLIENT_ID, AUTH_OIDC_CLIENT_SECRET) or, outside production, AUTH_SIMULATEUR=true."
+      },
+      "errors": {
+        "compte-inconnu": {
+          "title": "Unknown account",
+          "description": "This account does not exist in the application directory or is disabled. No session was opened."
+        },
+        "generique": {
+          "title": "Sign-in refused",
+          "description": "The identity provider did not confirm your identity, or your account is not known to the application."
+        }
+      }
+    }
+  },
+  "roles": {
+    "REDACTEUR": "Writer",
+    "RELECTEUR": "Reviewer",
+    "APPROBATEUR": "Approver",
+    "ADMINISTRATEUR": "Administrator",
+    "AUDITEUR": "Auditor"
   }
 }
