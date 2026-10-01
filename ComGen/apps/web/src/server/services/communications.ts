@@ -234,13 +234,38 @@ function versResume(ligne: {
   }
 }
 
-export async function listerCommunications(acteur: Acteur): Promise<ResumeCommunication[]> {
+/** Page d'historique : ce qu'on montre, et combien il y en a en tout. */
+export interface PageCommunications {
+  lignes: ResumeCommunication[]
+  /** Effectif total dans l'organisation, pas le nombre de lignes rendues. */
+  total: number
+  limite: number
+}
+
+export const LIMITE_HISTORIQUE = 25
+
+/**
+ * L'historique est borné. Avec six mois de données, tout rendre d'un coup
+ * donne une page qu'on ne lit pas et qu'on ne capture pas. Le total
+ * accompagne donc toujours les lignes : un extrait qui ne dit pas qu'il est
+ * un extrait est un résultat partiel présenté comme complet.
+ *
+ * Le filtrage et la pagination arrivent avec l'onglet Analyses.
+ */
+export async function listerCommunications(
+  acteur: Acteur,
+  limite: number = LIMITE_HISTORIQUE,
+): Promise<PageCommunications> {
   exigerDroit(acteur.utilisateur, 'CONSULTER')
-  const lignes = await acteur.contexte.communication.findMany({
-    select: SELECTION_RESUME,
-    orderBy: [{ modifieLe: 'desc' }, { reference: 'desc' }],
-  })
-  return lignes.map(versResume)
+  const [lignes, total] = await Promise.all([
+    acteur.contexte.communication.findMany({
+      select: SELECTION_RESUME,
+      orderBy: [{ modifieLe: 'desc' }, { reference: 'desc' }],
+      take: limite,
+    }),
+    acteur.contexte.communication.count(),
+  ])
+  return { lignes: lignes.map(versResume), total, limite }
 }
 
 /** Candidats au rattachement (reprise) : communications non archivées de l'organisation. */

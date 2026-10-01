@@ -9,16 +9,21 @@
  */
 
 import type {
+  Canal,
   Criticite,
+  DecisionApprobation,
   EtatCommunication,
+  EtatVariante,
   IntentionReprise,
   ModeEntree,
   Nature,
   Niveau,
   Portee,
+  Regime,
   StatutFait,
   TypeSource,
   TypeValeur,
+  Verdict,
 } from '@comgen/core'
 
 import type { ContenuSource } from './contenus.ts'
@@ -64,6 +69,54 @@ export interface DescriptionFait {
   statut: StatutFait
 }
 
+/**
+ * Une affirmation d'une variante, avec ce qui l'appuie.
+ *
+ * Les appuis sont désignés par leur CITATION, pas par un identifiant de
+ * fait : le seed numérote les faits lui-même (F-01, F-02…), et une
+ * description qui devinerait ces numéros se désynchroniserait au premier
+ * fait ajouté. La citation, elle, ne bouge pas.
+ */
+export interface DescriptionAffirmation {
+  texte: string
+  position: { offsetDebut: number; offsetFin: number }
+  verdict: Verdict
+  citationsAppui: readonly string[]
+}
+
+export interface DescriptionApprobation {
+  utilisateurId: string
+  regime: Regime
+  decision: DecisionApprobation
+  decideLe?: Date
+}
+
+export interface DescriptionEnvoi {
+  canal: Canal
+  destinataires: Record<string, unknown>
+  envoyeLe: Date
+  etatRemise: Record<string, unknown>
+}
+
+/**
+ * Une variante rédigée. Elle n'existe que pour les états qui supposent un
+ * texte : marquer `ENVOYEE` une communication sans variante ni envoi
+ * mettrait en base une affirmation fausse, que le tableau de bord
+ * compterait comme vraie.
+ */
+export interface DescriptionVariante {
+  personaId: string
+  templateId: string
+  templateVersion: number
+  contenu: Record<string, unknown>
+  etat: EtatVariante
+  score: number
+  longueurMots: number
+  affirmations: readonly DescriptionAffirmation[]
+  approbation: DescriptionApprobation
+  envoi?: DescriptionEnvoi
+}
+
 export interface DescriptionCommunication {
   id: string
   /** Numéro dans l'année 2026 ; la référence en dérive via `formaterReferenceCommunication`. */
@@ -87,6 +140,8 @@ export interface DescriptionCommunication {
   figeeLe: Date
   sources: DescriptionSource[]
   faits: DescriptionFait[]
+  /** Absente tant que la communication n'a rien de rédigé. */
+  variantes?: readonly DescriptionVariante[]
 }
 
 export const ANNEE_REFERENCES = 2026

@@ -446,3 +446,66 @@ ajoutée.
 Vercel, celles du shell et celles que Playwright injecte gardent la main sur
 le fichier. Un `.env` absent est toléré sans erreur (c'est le cas en
 production).
+
+## 2026-10-01 — Refonte, étape 2 : la fondation de démonstration
+
+### Un seul contrat d'agent, et la trace dit toujours qui a répondu
+
+Agents réels et simulés portent la même interface `Agent<E, S>`. Rien
+au-dessus ne sait lequel a travaillé — sauf la trace, qui porte `simule` et
+ne le cache jamais. La sortie est validée par son schéma Zod **à la
+frontière de l'orchestrateur**, quoi qu'en dise l'agent : c'est là qu'une
+structure proposée devient une donnée de confiance.
+
+La fabrique nomme la raison du mode (`AUCUN_FOURNISSEUR` quand aucune clé
+n'est configurée, `AGENT_REEL_ABSENT` tant que l'agent réel n'est pas
+écrit). Une clé posée ne fera donc pas croire qu'un modèle a parlé.
+
+### L'orchestrateur n'a pas de demi-résultat
+
+Une étape qui échoue arrête la chaîne ; les suivantes sont marquées
+`ANNULEE`, pas « en attente ». L'échec lève `ErreurOrchestration`, qui
+**porte** l'état partiel pour l'afficher : il faut l'ouvrir pour y accéder,
+on ne tombe pas dessus par mégarde. Chaque événement porte l'état de
+toutes les étapes, pour que l'interface dessine la chronologie entière dès
+le premier et n'ait aucun delta à recoller.
+
+Horloge et attente sont injectées : la simulation échelonne ses paliers
+(1 à 3 s, déterministes — une démonstration doit se dérouler deux fois de la
+même façon), les tests ne patientent pas.
+
+### Les agents simulés dérivent de la source, jamais d'un canevas
+
+Arbitrage retenu : **données de démonstration dérivées du fichier
+réellement déposé**. L'extracteur simulé appelle `proposerFaitsCandidats`,
+la fonction pure du domaine ; l'analyste ne propose une audience que si la
+source la nomme, et porte la phrase qui le dit ; le suggesteur préremplit
+titre, nature et criticité, chacun adossé à un extrait, et chaque
+proposition peut être nulle.
+
+Une source sans aucun fait relevable **échoue** (`SOURCE_INEXPLOITABLE`).
+C'est le garde-fou « pas de sortie générique mais crédible » écrit en code :
+un spectateur qui dépose sa propre note ne doit pas lire des valeurs venues
+de nulle part.
+
+### L'historique engendré dit la vérité sur lui-même
+
+Six mois, 150 communications, numéros 7 à 156. Le texte de la source est
+composé d'abord ; les faits en sont ensuite **relevés**, jamais recopiés :
+une citation ne peut pas diverger de sa source puisqu'elle en est extraite.
+
+Une communication marquée `ENVOYEE` porte sa variante, ses affirmations
+appuyées, son approbation et son envoi. L'alternative — poser l'état seul —
+aurait mis en base une affirmation fausse, que le tableau de bord aurait
+comptée comme vraie. Le seed refuse une affirmation `SOUTENUE` sans fait
+d'appui, et un envoi sans approbation accordée.
+
+Rien n'est tiré au hasard : tout dérive de l'indice, et deux exécutions du
+seed produisent le même historique — une capture d'écran reste valable.
+
+### L'historique affiché est borné, et le dit
+
+`listerCommunications` rend les 25 plus récentes avec le **total**. La page
+affiche « 25 communications sur 105 » : un extrait qui ne dit pas qu'il est
+un extrait est un résultat partiel présenté comme complet. Le filtrage et
+la pagination arrivent avec l'onglet Analyses.

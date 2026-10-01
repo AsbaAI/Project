@@ -333,7 +333,8 @@
   "communications": {
     "list": {
       "title": "Historique",
-      "description": "Toutes les communications de votre organisation, de la plus récente à la plus ancienne.",
+      "description": "Les communications de votre organisation, de la plus récente à la plus ancienne.",
+      "extrait": "{montrees} communications sur {total} — les plus récentes d’abord.",
       "empty": {
         "title": "Aucune communication",
         "description": "Rien n'a encore été cadré dans votre organisation."
