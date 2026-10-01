@@ -37,6 +37,7 @@ export function ThemeToggle({ className, ton = 'surface' }: ThemeToggleProps) {
       onValueChange={(value) => {
         if (isThemePreference(value)) setPreference(value)
       }}
+      {...(ton === 'barre' ? { 'data-barre': 'theme' } : {})}
       aria-label={t('label')}
       orientation="horizontal"
       className={cn(
@@ -61,7 +62,7 @@ export function ThemeToggle({ className, ton = 'surface' }: ThemeToggleProps) {
             )}
           >
             <Icon aria-hidden="true" className="size-3.5" strokeWidth={2} />
-            <span aria-hidden="true" className="hidden md:inline">
+            <span aria-hidden="true" className={ton === 'barre' ? 'hidden' : 'hidden md:inline'}>
               {t(value)}
             </span>
           </RadioGroup.Item>

@@ -10,6 +10,9 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { usePathname } from '@/i18n/navigation'
 import { NAV_DESIGN, NAV_TABS, ongletCourant } from '@/lib/navigation'
 
+import type { EtatMoteur } from '@/server/moteur'
+
+import { BadgeMoteur } from './badge-moteur'
 import { LocaleSwitcher } from './locale-switcher'
 import { NavItem } from './nav-item'
 
@@ -22,10 +25,12 @@ import { NavItem } from './nav-item'
  * referme. Le tiroir a un titre pour les lecteurs d'écran ; la description
  * est volontairement absente (`aria-describedby` vidé).
  *
- * Langue et thème vivent ici en bas sur téléphone : la barre n'a pas la
- * place de les porter sans écraser les onglets.
+ * Langue, thème et état du moteur vivent ici en bas sur téléphone : la
+ * barre n'a pas la place de les porter sans écraser les onglets, et l'état
+ * du moteur ne doit disparaître d'aucune largeur d'écran — c'est lui qui
+ * dit d'où vient le texte qu'on va lire.
  */
-export function MobileNav() {
+export function MobileNav({ moteur }: { moteur?: { etat: EtatMoteur; reference: string } }) {
   const t = useTranslations('common')
   const tNav = useTranslations('nav')
   const [open, setOpen] = useState(false)
@@ -85,6 +90,12 @@ export function MobileNav() {
               />
             </div>
           </nav>
+
+          {moteur ? (
+            <div className="border-t-w border-line-default px-3 py-2">
+              <BadgeMoteur etat={moteur.etat} reference={moteur.reference} ton="surface" />
+            </div>
+          ) : null}
 
           <div className="flex items-center justify-between gap-2 border-t-w border-line-default p-3">
             <LocaleSwitcher />

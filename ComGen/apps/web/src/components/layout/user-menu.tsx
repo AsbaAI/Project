@@ -32,7 +32,7 @@ export function UserMenu({ utilisateur }: UserMenuProps) {
   const locale = useLocale()
 
   return (
-    <form action={deconnecter} className="flex items-center gap-2">
+    <form data-barre="compte" action={deconnecter} className="flex items-center gap-2">
       <input type="hidden" name="locale" value={locale} />
       <span
         aria-hidden="true"

@@ -65,7 +65,7 @@ export function AppShell({ children, utilisateur, demo = false, moteur, version 
             className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-brand-gradient"
           />
           <div className="mx-auto flex h-full w-full max-w-page items-center gap-2 px-gutter">
-            <MobileNav />
+            <MobileNav {...(moteur ? { moteur } : {})} />
             <Link
               href="/generateur"
               className="flex shrink-0 items-center gap-2 rounded-xs text-base font-semibold tracking-tight text-nav-ink no-underline focus-ring"
@@ -79,14 +79,14 @@ export function AppShell({ children, utilisateur, demo = false, moteur, version 
               {t('name')}
             </Link>
 
-            <TopNav className="ml-4 min-w-0 flex-1" />
+            <TopNav className="ml-2 min-w-0 2xl:ml-4" />
 
-            <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 2xl:gap-2">
               {moteur ? (
                 <BadgeMoteur
                   etat={moteur.etat}
                   reference={moteur.reference}
-                  className="hidden sm:inline-flex"
+                  className="hidden xl:inline-flex"
                 />
               ) : null}
               <LocaleSwitcher ton="barre" className="hidden lg:block" />

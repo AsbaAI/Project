@@ -276,6 +276,12 @@ const PAIRS = [
   ['--color-nav-ok', '--color-nav-selected', UI, 'Point d’état / fond d’onglet'],
   ['--color-nav-alert', '--color-nav-selected', UI, 'Point d’état / fond d’onglet'],
 
+  // La même pastille, posée sur une surface claire : dans le tiroir du
+  // téléphone, où l'état du moteur n'a pas le droit de disparaître.
+  ['--color-ink-secondary', '--color-surface-sunken', TEXTE, 'Pastille moteur / tiroir'],
+  ['--color-success-solid', '--color-surface-sunken', UI, 'Point « IA prête » / tiroir'],
+  ['--color-warning-solid', '--color-surface-sunken', UI, 'Point « démonstration » / tiroir'],
+
   // Texte désactivé : seuil abaissé (contrôle inactif, 1.4.3)
   ['--color-ink-disabled', '--color-surface-raised', INACTIF, 'Texte désactivé / panneau'],
   ['--color-ink-disabled', '--color-surface-sunken', INACTIF, 'Texte désactivé / champ désactivé'],

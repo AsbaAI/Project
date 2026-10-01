@@ -25,7 +25,11 @@ export function LocaleSwitcher({ className, ton = 'surface' }: LocaleSwitcherPro
   const pathname = usePathname()
 
   return (
-    <nav aria-label={t('label')} className={className}>
+    <nav
+      {...(ton === 'barre' ? { 'data-barre': 'langue' } : {})}
+      aria-label={t('label')}
+      className={className}
+    >
       <ul
         className={cn(
           'inline-flex h-control-md items-center gap-0.5 rounded-sm p-0.5',

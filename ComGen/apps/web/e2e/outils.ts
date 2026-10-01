@@ -42,3 +42,18 @@ export async function verifierAucunDebordement(page: Page) {
 export function estTelephone(): boolean {
   return test.info().project.name.startsWith('telephone')
 }
+
+/**
+ * Rend langue et thème atteignables quelle que soit la taille d'écran : sur
+ * la barre au-delà de `lg`, dans le tiroir en deçà. Sur téléphone, ouvre
+ * donc le tiroir ; sur bureau, ne fait rien.
+ *
+ * Le tiroir se referme à chaque navigation ET à chaque rechargement : le
+ * rouvrir après l'un ou l'autre. Le libellé du bouton suit la langue de la
+ * page — après une bascule vers l'anglais, c'est « Open menu ».
+ */
+export async function ouvrirPreferences(page: Page) {
+  if (!estTelephone()) return
+  await page.getByRole('button', { name: /Ouvrir le menu|Open menu/ }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+}
