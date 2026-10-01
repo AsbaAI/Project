@@ -15,7 +15,9 @@ export {
   type IdentiteContexte,
 } from './contexte.ts'
 export {
+  listerComptesSimulables,
   rechercherUtilisateurPourConnexion,
+  type CompteSimulable,
   type CritereConnexion,
   type UtilisateurConnecte,
 } from './annuaire.ts'
