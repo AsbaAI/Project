@@ -17,6 +17,7 @@ const meta = {
         'neutral',
         'accent',
         'pending',
+        'ai',
         'success',
         'warning',
         'danger',
@@ -38,6 +39,7 @@ export const Tonalites: Story = {
       <Badge tone="draft">Brouillon</Badge>
       <Badge tone="neutral">Neutre</Badge>
       <Badge tone="accent">Accent</Badge>
+      <Badge tone="ai">Agent</Badge>
       <Badge tone="pending">En attente</Badge>
       <Badge tone="success">Succès</Badge>
       <Badge tone="warning">Alerte</Badge>

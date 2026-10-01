@@ -123,6 +123,31 @@ test('la page courante est marquée dans la navigation', async ({ page }) => {
   )
 })
 
+test('la création se marque elle-même, pas l’historique', async ({ page }) => {
+  test.skip(estTelephone(), 'la barre latérale est masquée sur téléphone')
+  await page.goto('/communications/nouvelle')
+  await attendreRendu(page)
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' })
+  await expect(nav.getByRole('link', { name: 'Nouvelle communication' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+  await expect(nav.getByRole('link', { name: 'Historique' })).not.toHaveAttribute('aria-current')
+})
+
+test('l’accueil mène aux deux parcours', async ({ page }) => {
+  await page.goto('/')
+  await attendreRendu(page)
+  const principal = page.getByRole('main')
+  await principal.getByRole('link', { name: /^Communication existante/ }).click()
+  await expect(page).toHaveURL(/\/communications$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Historique')
+
+  await page.goto('/')
+  await principal.getByRole('link', { name: /^Nouvelle communication/ }).click()
+  await expect(page).toHaveURL(/\/communications\/nouvelle$/)
+})
+
 test('le tiroir de navigation piège le focus et se ferme à Échap', async ({ page }) => {
   test.skip(!estTelephone(), 'le tiroir n’existe que sur téléphone')
   await page.goto('/')

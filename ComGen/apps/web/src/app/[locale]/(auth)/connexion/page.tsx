@@ -89,7 +89,14 @@ export default async function ConnexionPage({ params, searchParams }: PageProps)
       ) : null}
 
       {fournisseurs.simulateur ? (
-        <Panel title={t('signIn.simulator.title')} description={t('signIn.simulator.description')}>
+        <Panel
+          title={t('signIn.simulator.title')}
+          description={
+            env.COMGEN_ENV === 'demo'
+              ? t('signIn.simulator.descriptionDemo')
+              : t('signIn.simulator.description')
+          }
+        >
           <form action={connecterSimulateur} className="flex flex-col gap-4">
             <input type="hidden" name="locale" value={locale} />
             <Field label={t('signIn.simulator.account')} hint={t('signIn.simulator.hint')} required>

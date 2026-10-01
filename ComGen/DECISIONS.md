@@ -325,3 +325,105 @@ contraste ajoutés au vérificateur.
 **Typographie française** : espaces insécables avant `: ; ? !` et dans
 les guillemets, dans tout le catalogue fr (un « » : » isolé en fin de
 ligne a été vu sur téléphone).
+
+## 2026-10-01 — Refonte du parcours (validée par le propriétaire)
+
+Le propriétaire a demandé une refonte du parcours et de l'interface :
+assistant pas à pas, agents visibles, approbation, paramètres, analyses,
+palette inspirée de TotalEnergies. Elle remplace l'ordre des lots 2 à 10
+par six étapes (`refonte-1` … `refonte-6`, une branche chacune, issue de
+`lot-1`). Arbitrages validés tels que recommandés :
+
+- **D1 — La revue des faits reste une étape de l'assistant** (« Vérifier
+  les faits », après le contenu brut). Sans elle, la contrainte cardinale
+  tombe.
+- **D2 — Les clés d'API ne se saisissent pas dans l'interface.** Les
+  paramètres montrent fournisseur, modèle, modèle par agent et une
+  _référence_ de secret (variable d'environnement ou coffre) avec son état.
+- **D3 — Palette ajustée pour l'AA** (détail ci-dessous).
+- **D4 — Treize états internes, cinq statuts affichés** (Brouillon, En
+  attente d'approbation, Approuvée, Envoyée, Rejetée) plus un marqueur
+  « Bloquée » qui dit pourquoi.
+- **D5 — Une communication existante déposée au départ est une référence
+  de style**, jamais une source de faits.
+- **D6 — Modèle simulé, étiqueté, hors production seulement**, pour
+  démontrer la génération sans clé (même principe que le simulateur de
+  connexion).
+- **D7 — Une branche par étape de refonte**, rien de fusionné sans accord.
+
+Défauts tenus : interface bilingue, données de démonstration fictives
+(aucune donnée TotalEnergies inventée, aucun logo sans fourniture), un
+écran bloqué dit toujours pourquoi.
+
+### R1 — jetons et mise en page
+
+**Palette.** Les teintes de la charte sont les ancres des rampes OKLCH ;
+les paliers qui portent du texte sont ajustés pour tenir 4,5:1, vérifiés
+par `check:contrast` (207 couples, deux thèmes) :
+
+| Rôle                      | Charte                          | Employé comme                                                                                   |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Action, liens             | `#3055FC`                       | aplat sous libellé blanc (5,48:1), texte de lien                                                |
+| Bleu                      | `#0186F4`                       | bordure active, grands aplats, début du dégradé ; jamais sous texte blanc (3,67:1)              |
+| Orange                    | `#FE7F00`                       | aplat d'action secondaire sous texte sombre (6,3:1), fin du dégradé ; texte orange = palier 700 |
+| Orange clair / très clair | `#FFB366` / `#FFF4E8`           | bordure et fond de carte mise en avant                                                          |
+| Bleu très clair           | `#EAF4FE`                       | sélection, fond accentué                                                                        |
+| Turquoise                 | `#35C1B0`                       | bordure des badges de succès ; texte succès = palier 700                                        |
+| Jaune                     | `#FDD600`                       | bordure des badges d'attente ; texte = brun 700                                                 |
+| Rouge                     | `#FB0103`                       | indicateur de blocage ; bouton destructif au palier 600                                         |
+| Violet                    | `#8434D5`                       | ce qui vient d'un agent (badge `ai`, chronologie)                                               |
+| Texte, fonds              | `#202124`, `#F7F8FA`, `#FFFFFF` | encre principale, fond de page, panneaux                                                        |
+
+Le thème sombre est dérivé des mêmes rampes (les deux blocs sombres
+restent identiques, vérifié). Nouveaux jetons : `emphasis-*` (orange),
+`ai-*` (violet), `brand-start/end` et l'utilitaire `bg-brand-gradient`,
+réservé au filet d'en-tête et, en R3, à la chronologie des agents.
+
+**Statut « en attente » en jaune** (badge `pending`), conformément à la
+charte ; génération et contrôle en violet (badge `ai`).
+
+**Navigation.** « Nouvelle communication » est un bouton en tête de la
+barre latérale ; puis Tableau de bord, Historique, Analyses, Paramètres ;
+le système de design passe en pied. L'entrée courante se décide une fois
+pour toute la liste (le plus long préfixe de segment) : sur
+`/communications/nouvelle`, c'est la création qui est marquée, pas
+l'historique.
+
+**Accueil à deux cartes** (`ActionCard`, nouveau : `ChoixCartes` choisit
+une valeur de formulaire, ici on navigue) et trois compteurs « à traiter »
+calculés par le service du tableau de bord.
+
+**Historique = la liste existante** (`/communications`), renommée ; elle
+s'enrichira en R6. Le tableau de bord passe à `/tableau-de-bord`.
+
+**Analyses et Paramètres existent avec un état vide qui dit ce qui
+viendra**, plutôt que des zéros qui passeraient pour une mesure ou des
+liens vers des pages vides.
+
+## 2026-10-01 — Démonstration publique
+
+Demandée par le propriétaire : un lien public, sur l'hébergement le plus
+simple. Procédure dans `docs/DEPLOIEMENT.md`.
+
+- **Vercel + Neon**, offres gratuites. Le build de `apps/web` culmine vers
+  950 Mo : les offres à 512 Mo échouent. Neon s'ajoute depuis Vercel et
+  pose ses variables lui-même.
+- **`COMGEN_ENV=demo`, quatrième environnement, toujours déclaré**, jamais
+  déduit : un build de production sans déclaration reste la production, où
+  le simulateur de connexion est refusé. En démo, le simulateur est admis et
+  un bandeau « Démonstration » (texte et pictogramme) précède l'en-tête de
+  chaque page, connexion comprise. La valeur est lue par les layouts
+  serveur ; le bandeau ne décide de rien.
+- **Hauteur du bandeau fixe** (`--layout-demo-height`) : sa présence
+  allonge `--layout-chrome-height`, dont partent la barre latérale
+  collante, le panneau collant de la fiche de faits et le défilement
+  d'ancre. Version courte du message sous `md` pour tenir sur une ligne.
+- **Seed « si vide »** (`pnpm db:seed:si-vide`) au build : un redéploiement
+  ne remet pas la démonstration à zéro. La remise à zéro reste le seed
+  complet, lancé à la main.
+- **Migrations sur `DATABASE_URL_UNPOOLED`** quand elle existe : les
+  verrous de session de `migrate deploy` ne passent pas un pooler en mode
+  transaction. L'application reste sur l'URL mutualisée.
+- **Limites acceptées, écrites dans la procédure** : 4,5 Mo par dépôt
+  (plafond des fonctions Vercel), fichiers déposés éphémères (`/tmp` ; le
+  texte de la source est en base), pas d'antivirus, pas de modèle.

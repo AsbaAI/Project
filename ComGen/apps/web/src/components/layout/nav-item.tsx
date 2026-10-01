@@ -2,26 +2,25 @@
 
 import type { LucideIcon } from 'lucide-react'
 
-import { Link, usePathname } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import { cn } from '@/lib/cn'
 import type { NavHref } from '@/lib/navigation'
 
 /*
  * Entrée de navigation. La page courante est marquée par `aria-current`
  * — le style s'y accroche, pas l'inverse — et par une barre latérale de
- * 2px en plus de la couleur du texte.
+ * 2px en plus de la couleur du texte. Quelle entrée est courante se décide
+ * une fois pour toute la liste (`entreeCourante`), pas entrée par entrée.
  */
 export interface NavItemProps {
   href: NavHref
   icon: LucideIcon
   label: string
+  current: boolean
   onNavigate?: (() => void) | undefined
 }
 
-export function NavItem({ href, icon: Icon, label, onNavigate }: NavItemProps) {
-  const pathname = usePathname()
-  const current = href === '/' ? pathname === '/' : pathname.startsWith(href)
-
+export function NavItem({ href, icon: Icon, label, current, onNavigate }: NavItemProps) {
   return (
     <Link
       href={href}

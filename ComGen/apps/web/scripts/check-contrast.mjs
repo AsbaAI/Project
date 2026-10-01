@@ -214,6 +214,17 @@ const PAIRS = [
   ['--color-ink-secondary', '--color-warning-bg', TEXTE, 'Détail de message / fond alerte'],
   ['--color-ink-secondary', '--color-danger-bg', TEXTE, 'Détail de message / fond erreur'],
   ['--color-ink-secondary', '--color-accent-bg', TEXTE, 'Détail de message / fond accentué'],
+  // Action secondaire orange et éléments d'agent
+  ['--color-on-emphasis', '--color-emphasis', TEXTE, 'Libellé du bouton orange'],
+  ['--color-on-emphasis', '--color-emphasis-hover', TEXTE, 'Libellé du bouton orange (survol)'],
+  ['--color-on-emphasis', '--color-emphasis-active', TEXTE, 'Libellé du bouton orange (pressé)'],
+  ['--color-emphasis-ink', '--color-emphasis-bg', TEXTE, 'Texte orange / fond orange'],
+  ['--color-ink-primary', '--color-emphasis-bg', TEXTE, 'Texte / carte active orange'],
+  ['--color-emphasis-ink', '--color-surface-raised', TEXTE, 'Texte orange / panneau'],
+  ['--color-ai-ink', '--color-ai-bg', TEXTE, 'Texte IA / fond IA'],
+  ['--color-ai-ink', '--color-surface-raised', TEXTE, 'Texte IA / panneau'],
+  ['--color-ink-primary', '--color-ai-bg', TEXTE, 'Corps de suggestion / fond IA'],
+  ['--color-ink-secondary', '--color-ai-bg', TEXTE, 'Justification de suggestion / fond IA'],
   ['--color-danger-ink', '--color-surface-raised', TEXTE, 'Message d’erreur de champ / panneau'],
   ['--color-danger-ink', '--color-surface-base', TEXTE, 'Message d’erreur de champ / fond'],
 
@@ -248,6 +259,7 @@ const PAIRS = [
   ['--color-warning-ink', '--color-surface-raised', UI, 'Icône alerte / panneau'],
   ['--color-danger-ink', '--color-danger-bg', UI, 'Icône bloquante / fond erreur'],
   ['--color-ink-tertiary', '--color-surface-sunken', UI, 'Icône d’état vide / zone enfoncée'],
+  ['--color-ai-solid', '--color-surface-raised', UI, 'Indicateur d’agent / panneau'],
 
   // Texte désactivé : seuil abaissé (contrôle inactif, 1.4.3)
   ['--color-ink-disabled', '--color-surface-raised', INACTIF, 'Texte désactivé / panneau'],

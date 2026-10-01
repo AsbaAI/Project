@@ -109,22 +109,19 @@ elles ne sont pas versionnées.
 
 ## Avancement
 
-Construction par lots livrables (spécification §18), une branche `lot-N` par
-lot, jamais deux lots en parallèle.
+Lots 0 et 1 selon la spécification (§18), puis la refonte du parcours validée
+par le propriétaire (voir `DECISIONS.md`), une branche par étape.
 
-| Lot | Contenu                                                                             | État     |
-| --- | ----------------------------------------------------------------------------------- | -------- |
-| 0   | Système de design, internationalisation, `FournisseurModele` + adaptateur Anthropic | livré    |
-| 1   | Schéma, machine à états, cloisonnement, authentification, dépôt, fiche de faits     | en revue |
-| 2   | Contrôles déterministes de `core`, sans modèle                                      | à venir  |
-| 3   | Agents EXTRACTEUR, REDACTEUR, VERIFICATEUR, ARBITRE ; orchestration par file        | à venir  |
-| 4   | Atelier de rédaction, revérification sur édition, versions, différentiels           | à venir  |
-| 5   | GARDIEN, CORRECTEUR, boucle de correction                                           | à venir  |
-| 6   | Listes de diffusion, approbation, envoi, journal d'audit                            | à venir  |
-| 7   | Référentiel d'entités, SUGGESTEUR, arbitrage                                        | à venir  |
-| 8   | Modes d'entrée restants, canevas, administration                                    | à venir  |
-| 9   | Adaptateurs restants, modèles propres, sonde, banc d'essai, coûts                   | à venir  |
-| 10  | Multilingue complet, portées régionales, résidence, fuseaux                         | à venir  |
+| Étape | Contenu                                                                                   | État     |
+| ----- | ----------------------------------------------------------------------------------------- | -------- |
+| Lot 0 | Système de design, internationalisation, `FournisseurModele` + adaptateur Anthropic       | livré    |
+| Lot 1 | Schéma, machine à états, cloisonnement, authentification, dépôt, fiche de faits           | en revue |
+| R1    | Jetons inspirés de TotalEnergies, navigation latérale, accueil, pages Analyses/Paramètres | en revue |
+| R2    | Assistant pas à pas : départ, gabarit, contenu, vérification des faits, destinataires     | à venir  |
+| R3    | Agents (extraction, contexte, suggestion, rédaction, relecture), génération en direct     | à venir  |
+| R4    | Approbation, envoi (simulé puis réel), tableau de bord par statut                         | à venir  |
+| R5    | Paramètres : modèles, personas, listes de diffusion, gabarits                             | à venir  |
+| R6    | Analyses et historique : indicateurs, recherche, export PDF/DOCX, duplication             | à venir  |
 
 ## Documentation
 
@@ -133,6 +130,7 @@ lot, jamais deux lots en parallèle.
 | [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) | spécification contractuelle, sections 1 à 21                   |
 | [`CLAUDE.md`](CLAUDE.md)                         | mémoire de travail : contrainte cardinale, règles, commandes   |
 | [`DECISIONS.md`](DECISIONS.md)                   | journal des choix non dictés par la spécification              |
+| [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md)     | démonstration publique sur Vercel et Neon, pas à pas           |
 | `docs/archive/cadrage-initial/`                  | documents antérieurs à la spécification, sans valeur normative |
 
 ---

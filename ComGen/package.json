@@ -13,6 +13,7 @@
     "db:generate": "pnpm --filter @comgen/db generate",
     "db:migrate": "pnpm --filter @comgen/db migrate",
     "db:seed": "pnpm --filter @comgen/db seed",
+    "db:seed:si-vide": "pnpm --filter @comgen/db seed:si-vide",
     "build": "pnpm -r --workspace-concurrency=1 build",
     "typecheck": "pnpm -r typecheck",
     "lint": "oxlint",

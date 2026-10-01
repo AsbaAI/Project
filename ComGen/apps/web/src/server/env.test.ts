@@ -49,4 +49,26 @@ describe('analyserEnvironnement', () => {
     })
     expect(env.COMGEN_ENV).toBe('test')
   })
+
+  it('une démo publique admet le simulateur, déclarée explicitement', () => {
+    const env = analyserEnvironnement({
+      ...BASE,
+      NODE_ENV: 'production',
+      COMGEN_ENV: 'demo',
+      AUTH_SIMULATEUR: 'true',
+    })
+    expect(env.COMGEN_ENV).toBe('demo')
+    expect(env.AUTH_SIMULATEUR).toBe(true)
+  })
+
+  it('une valeur inconnue de COMGEN_ENV est refusée, jamais prise pour une démo', () => {
+    expect(() =>
+      analyserEnvironnement({
+        ...BASE,
+        NODE_ENV: 'production',
+        COMGEN_ENV: 'demonstration',
+        AUTH_SIMULATEUR: 'true',
+      }),
+    ).toThrow(ErreurConfiguration)
+  })
 })

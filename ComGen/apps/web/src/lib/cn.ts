@@ -24,6 +24,7 @@ const twMerge = extendTailwindMerge({
       'border-w-b': ['border-b-w'],
       'border-w-l': ['border-l-w'],
       'border-w-r': ['border-r-w'],
+      'bg-image': ['bg-brand-gradient'],
     },
   },
 })

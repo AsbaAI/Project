@@ -13,6 +13,9 @@
  * refuse de s'exécuter si une citation n'est pas un extrait mot pour mot du
  * texte de sa source, ou si un fichier versionné ne correspond plus au
  * texte dont il est censé dériver.
+ *
+ * `--si-vide` (démonstration déployée) : ne fait rien si la base contient
+ * déjà une organisation ; un redéploiement ne remet pas la démo à zéro.
  */
 
 import { createHash } from 'node:crypto'
@@ -221,6 +224,11 @@ async function principal(): Promise<void> {
     throw new ErreurSeed('DATABASE_URL manquante : le seed ne devine jamais sa base.')
   }
 
+  if (process.argv.includes('--si-vide') && !(await baseVide(url))) {
+    console.log('Base déjà peuplée : jeu de démonstration non rechargé (--si-vide).')
+    return
+  }
+
   // 1. Tout ce qui peut échouer sans toucher à la base est vérifié d'abord.
   const fichiers = await fichiersDeDemonstration(COMMUNICATIONS)
   await verifierFichiersVersionnes(fichiers)
@@ -277,6 +285,15 @@ async function principal(): Promise<void> {
   console.log(`  communications ${lignes.length}`)
   console.log(`  sources       ${nbSources} (dont ${fichiers.length} fichiers déposés)`)
   console.log(`  faits         ${nbFaits}`)
+}
+
+async function baseVide(url: string): Promise<boolean> {
+  const connexion = ouvrirConnexion({ url, connexionsMax: 1 })
+  try {
+    return (await connexion[CLIENT_BRUT].organisation.count()) === 0
+  } finally {
+    await connexion.fermer()
+  }
 }
 
 function organisationDe(communicationId: string): string {
