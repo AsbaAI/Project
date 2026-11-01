@@ -17,6 +17,8 @@
 
 import type { RoleAgent } from '@comgen/core'
 
+import { ErreurFournisseur } from '../fournisseurs/types.ts'
+
 import type { Agent, ContexteAgent, TraceAgent } from './types.ts'
 import { ErreurAgent, estErreurAgent, validerSortie, verifierAnnulation } from './types.ts'
 
@@ -28,6 +30,8 @@ export interface EtapeOrchestration {
   etat: EtatEtape
   /** Renseignée dès que l'étape est terminée ou en échec. */
   dureeMs?: number
+  /** Nombre d'appels de l'agent, nouvelles tentatives comprises (1 sans reprise). */
+  tentatives?: number
   codeErreur?: ErreurAgent['code']
   message?: string
 }
@@ -74,6 +78,39 @@ export interface OptionsOrchestration<D> {
   surEvenement?: ((evenement: EvenementOrchestration) => void) | undefined
   /** Horloge injectable : les tests mesurent sans dépendre du temps réel. */
   horloge?: (() => number) | undefined
+  reprises?: OptionsReprises | undefined
+}
+
+/**
+ * Nouvelles tentatives d'une étape. Elles vivent ici et non dans
+ * l'adaptateur (`maxRetries: 0`) : retenter est une décision
+ * d'orchestration, visible dans l'état de l'étape, pas un comportement
+ * caché. L'attente passe par `contexte.attendre`, injecté au bord du
+ * serveur : sans lui (tests), on retente sans attendre.
+ */
+export interface OptionsReprises {
+  /** Appels au plus, le premier compris. */
+  tentativesMax?: number
+  /** Délai avant la première nouvelle tentative ; il double ensuite. */
+  delaiBaseMs?: number
+  /** Gigue dans [0, 1) : jusqu'à +25 % du délai, pour ne pas retenter tous en même temps. */
+  alea?: () => number
+}
+
+export const TENTATIVES_MAX = 3
+export const DELAI_BASE_REPRISE_MS = 500
+
+/**
+ * Seule une panne passagère du fournisseur se retente : délai, réseau,
+ * quota, erreur serveur (5xx). Une clé refusée, une configuration absente,
+ * une requête refusée (4xx) ou une sortie non structurée échoueraient pareil
+ * au coup suivant ; une sortie hors schéma ne se répare pas (§19).
+ */
+export function estPassagere(erreur: unknown): boolean {
+  if (!(erreur instanceof ErreurFournisseur)) return false
+  if (erreur.code === 'DELAI' || erreur.code === 'RESEAU' || erreur.code === 'QUOTA') return true
+  const statut = erreur.cause?.statut
+  return erreur.code === 'FOURNISSEUR' && statut !== undefined && statut >= 500
 }
 
 export interface ResultatOrchestration<D> {
@@ -118,8 +155,18 @@ export function estErreurOrchestration(valeur: unknown): valeur is ErreurOrchest
  * Il n'entre ni dans la chronologie, ni dans la trace, ni dans la réponse —
  * il reste en `cause`, pour le journal du serveur.
  */
-function enErreurAgent(erreur: unknown, role: RoleAgent): ErreurAgent {
+function enErreurAgent(erreur: unknown, role: RoleAgent, tentatives = 1): ErreurAgent {
   if (estErreurAgent(erreur)) return erreur
+  if (erreur instanceof ErreurFournisseur) {
+    // Notre code seulement : le message du SDK reste en `cause`.
+    const essais = tentatives > 1 ? ` après ${tentatives} tentatives` : ''
+    return new ErreurAgent(
+      'FOURNISSEUR_EN_ECHEC',
+      role,
+      `Le fournisseur de modèle a échoué (${erreur.code})${essais}`,
+      { cause: erreur },
+    )
+  }
   return new ErreurAgent('SORTIE_INVALIDE', role, `L’agent ${role} a échoué de façon inattendue`, {
     cause: erreur,
   })
@@ -129,6 +176,9 @@ export async function orchestrer<D>(
   options: OptionsOrchestration<D>,
 ): Promise<ResultatOrchestration<D>> {
   const { etapes: plan, contexte, surEvenement, horloge = () => Date.now() } = options
+  const tentativesMax = Math.max(1, options.reprises?.tentativesMax ?? TENTATIVES_MAX)
+  const delaiBase = options.reprises?.delaiBaseMs ?? DELAI_BASE_REPRISE_MS
+  const alea = options.reprises?.alea ?? Math.random
   const etats: EtapeOrchestration[] = plan.map((e) => ({
     role: e.role,
     version: e.version,
@@ -149,6 +199,22 @@ export async function orchestrer<D>(
 
   annoncer()
 
+  const executerAvecReprises = async (etapePlan: EtapePlan<D>, etat: EtapeOrchestration) => {
+    for (let tentative = 1; ; tentative += 1) {
+      etat.tentatives = tentative
+      try {
+        // eslint-disable-next-line no-await-in-loop -- une tentative attend l'échec de la précédente.
+        return await etapePlan.executer(dossier, contexte)
+      } catch (erreur) {
+        if (tentative >= tentativesMax || !estPassagere(erreur)) throw erreur
+        const delai = Math.round(delaiBase * 2 ** (tentative - 1) * (1 + alea() * 0.25))
+        // eslint-disable-next-line no-await-in-loop -- le délai sépare deux tentatives successives.
+        await contexte.attendre?.(delai)
+        verifierAnnulation(etapePlan.role, contexte.signal)
+      }
+    }
+  }
+
   for (const [index, etapePlan] of plan.entries()) {
     const etat = etats[index]
     if (etat === undefined) continue
@@ -159,7 +225,7 @@ export async function orchestrer<D>(
       annoncer()
 
       // eslint-disable-next-line no-await-in-loop -- la chaîne est séquentielle par définition : chaque étape lit ce que la précédente a écrit.
-      const resultat = await etapePlan.executer(dossier, contexte)
+      const resultat = await executerAvecReprises(etapePlan, etat)
       dossier = resultat.dossier
       etat.etat = 'TERMINEE'
       etat.dureeMs = horloge() - debut
@@ -169,7 +235,7 @@ export async function orchestrer<D>(
       traces.push({ ...resultat.trace, dureeMs: etat.dureeMs })
       annoncer()
     } catch (erreur) {
-      const faute = enErreurAgent(erreur, etapePlan.role)
+      const faute = enErreurAgent(erreur, etapePlan.role, etat.tentatives)
       etat.etat = faute.code === 'ANNULE' ? 'ANNULEE' : 'ECHOUEE'
       etat.dureeMs = horloge() - debut
       etat.codeErreur = faute.code

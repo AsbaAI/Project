@@ -1053,3 +1053,24 @@ réglage de leurs prompts.
   ces deux-là n'exposent aucune donnée d'organisation.
 - Redis n'est pas sondé : il n'est pas encore utilisé. Il rejoindra
   `/api/pret` avec les workers (L7).
+
+## 2026-11-01 — L2 : nouvelles tentatives dans l'orchestrateur
+
+- **Où.** Dans `orchestrer()`, pas dans l'adaptateur (`maxRetries: 0`
+  reste) : retenter est une décision d'orchestration, visible dans l'état
+  de l'étape (`tentatives`), pas un comportement caché du SDK.
+- **Quoi.** Au plus 3 appels par étape. Délai de 500 ms qui double, plus
+  une gigue de 25 % au plus. L'attente passe par `contexte.attendre`,
+  injecté au bord du serveur ; une annulation pendant l'attente arrête tout.
+- **Seule une panne passagère se retente** (`estPassagere`) : délai, réseau,
+  quota, réponse 5xx. Jamais une clé refusée, une configuration absente,
+  une requête 4xx, une sortie non structurée ou hors schéma : elles
+  échoueraient pareil au coup suivant, et §19 interdit de « réparer » une
+  sortie.
+- **Un échec du fournisseur dit son nom** : `FOURNISSEUR_EN_ECHEC`, avec
+  notre code et le nombre de tentatives. Avant, il devenait
+  `SORTIE_INVALIDE`, ce qui désignait le mauvais coupable. Le message du
+  SDK reste en `cause`, pour le journal du serveur.
+- **Écart avec le plan.** Le plan prévoyait une ligne `Execution` par
+  tentative ; seul le compte est tenu, dans l'état de l'étape. La trace
+  détaillée par tentative viendra avec le journal structuré (L6).

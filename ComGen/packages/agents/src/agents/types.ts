@@ -69,6 +69,8 @@ export type CodeErreurAgent =
   | 'FOURNISSEUR_ABSENT'
   /** Rien d'exploitable dans la source : pas de sortie générique (§19). */
   | 'SOURCE_INEXPLOITABLE'
+  /** Le fournisseur de modèle a échoué, après les nouvelles tentatives admises. */
+  | 'FOURNISSEUR_EN_ECHEC'
   | 'ANNULE'
 
 export class ErreurAgent extends Error {
