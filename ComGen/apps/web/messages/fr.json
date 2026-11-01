@@ -458,7 +458,11 @@
       "SOURCE_EN_DOUBLE": "Ce texte est déjà une source de cette communication.",
       "TEXTE_ABSENT": "Aucun texte lisible.",
       "FICHIER_REFUSE": "Fichier refusé.",
-      "NON_AUTORISE": "Votre rôle ne permet pas cette opération."
+      "NON_AUTORISE": "Votre rôle ne permet pas cette opération.",
+      "GENERATION_REFUSEE": "La génération s'est arrêtée avant la fin. Rien n'a été écrit.",
+      "NON_AUTHENTIFIE": "Votre session a expiré. Reconnectez-vous.",
+      "ORIGINE_REFUSEE": "La requête a été refusée : elle ne vient pas de cette application.",
+      "INCONNUE": "Une erreur imprévue s'est produite. Rien n'a été écrit."
     },
     "champs": {
       "requis": "Champ obligatoire.",
@@ -711,6 +715,30 @@
       "CONTREDITE": "Contredite",
       "SANS_APPUI": "Sans appui",
       "NON_FACTUELLE": "Non factuelle"
+    },
+    "roles": {
+      "EXTRACTEUR": "Extracteur",
+      "ANALYSTE_IMPACT": "Analyste d'impact",
+      "SUGGESTEUR": "Suggesteur",
+      "REDACTEUR": "Rédacteur",
+      "VERIFICATEUR": "Vérificateur",
+      "GARDIEN": "Gardien",
+      "CORRECTEUR": "Correcteur",
+      "ARBITRE": "Arbitre"
+    },
+    "chronologie": {
+      "title": "Agents au travail",
+      "simulation": "Mode démonstration : aucun modèle n'est appelé, les agents sont simulés.",
+      "reel": "Les agents interrogent le modèle configuré.",
+      "etats": {
+        "EN_ATTENTE": "En attente",
+        "EN_COURS": "En cours",
+        "TERMINEE": "Terminé",
+        "ECHOUEE": "Échec",
+        "ANNULEE": "Annulé"
+      },
+      "secondes": "{secondes} s",
+      "echec": "La génération s'est arrêtée"
     }
   },
   "generator": {

@@ -94,7 +94,9 @@ export class ErreurOrchestration extends Error {
     etapes: readonly EtapeOrchestration[],
     traces: readonly TraceAgent[],
   ) {
-    super(cause.message)
+    // La cause d'origine (exception étrangère comprise) suit : elle sert au
+    // journal du serveur, jamais à ce qu'on affiche.
+    super(cause.message, { cause: cause.cause ?? cause })
     this.name = 'ErreurOrchestration'
     this.role = cause.role
     this.code = cause.code
@@ -107,11 +109,20 @@ export function estErreurOrchestration(valeur: unknown): valeur is ErreurOrchest
   return valeur instanceof ErreurOrchestration
 }
 
-/** Toute erreur devient une `ErreurAgent` : l'inattendu ne se perd pas en route. */
+/**
+ * Toute erreur devient une `ErreurAgent` : l'inattendu ne se perd pas en
+ * route.
+ *
+ * Mais le message d'une exception qui n'est pas la nôtre n'a pas été écrit
+ * pour être lu : il peut citer une adresse, un hôte, un fragment de requête.
+ * Il n'entre ni dans la chronologie, ni dans la trace, ni dans la réponse —
+ * il reste en `cause`, pour le journal du serveur.
+ */
 function enErreurAgent(erreur: unknown, role: RoleAgent): ErreurAgent {
   if (estErreurAgent(erreur)) return erreur
-  const message = erreur instanceof Error ? erreur.message : String(erreur)
-  return new ErreurAgent('SORTIE_INVALIDE', role, message)
+  return new ErreurAgent('SORTIE_INVALIDE', role, `L’agent ${role} a échoué de façon inattendue`, {
+    cause: erreur,
+  })
 }
 
 export async function orchestrer<D>(

@@ -140,6 +140,36 @@ describe('orchestrer', () => {
     expect(vus.at(-1)?.termine).toBe(false)
   })
 
+  it('n’expose pas le message d’une exception qui n’est pas la nôtre, mais garde sa cause', async () => {
+    // Le message d'une exception étrangère n'a pas été écrit pour être lu :
+    // il peut citer une adresse, un hôte, un fragment de requête. Il part au
+    // journal du serveur, pas à l'écran ni en base.
+    const panne = new TypeError('connexion postgres://secret@interne/base refusée')
+    const imprevu: Agent<string, { mots: number }> = {
+      ...compteur,
+      executer: () => Promise.reject(panne),
+    }
+    const echec = await orchestrer({
+      etapes: [
+        etape(
+          imprevu,
+          (dossier: Dossier) => dossier.texte,
+          (dossier, sortie) => ({ ...dossier, mots: sortie.mots }),
+        ),
+      ],
+      dossier: { texte: 'un deux' },
+      contexte: {},
+    }).catch((erreur: unknown) => erreur)
+
+    expect(echec).toBeInstanceOf(ErreurOrchestration)
+    const orchestration = echec as ErreurOrchestration
+    expect(orchestration.message).not.toContain('postgres://')
+    expect(orchestration.etapes[0]?.message).not.toContain('postgres://')
+    expect(orchestration.etapes[0]?.etat).toBe('ECHOUEE')
+    // La cause reste accessible pour le journal.
+    expect(orchestration.cause).toBe(panne)
+  })
+
   it('refuse une sortie qui ne satisfait pas le schéma de l’agent', async () => {
     const menteur: Agent<string, { mots: number }> = {
       ...compteur,

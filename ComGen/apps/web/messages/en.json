@@ -458,7 +458,11 @@
       "SOURCE_EN_DOUBLE": "This text is already a source of this communication.",
       "TEXTE_ABSENT": "No readable text.",
       "FICHIER_REFUSE": "File refused.",
-      "NON_AUTORISE": "Your role does not allow this operation."
+      "NON_AUTORISE": "Your role does not allow this operation.",
+      "GENERATION_REFUSEE": "Generation stopped before the end. Nothing was written.",
+      "NON_AUTHENTIFIE": "Your session has expired. Please sign in again.",
+      "ORIGINE_REFUSEE": "The request was refused: it does not come from this application.",
+      "INCONNUE": "An unexpected error occurred. Nothing was written."
     },
     "champs": {
       "requis": "Required field.",
@@ -711,6 +715,30 @@
       "CONTREDITE": "Contradicted",
       "SANS_APPUI": "Unsupported",
       "NON_FACTUELLE": "Non-factual"
+    },
+    "roles": {
+      "EXTRACTEUR": "Extractor",
+      "ANALYSTE_IMPACT": "Impact analyst",
+      "SUGGESTEUR": "Suggester",
+      "REDACTEUR": "Writer",
+      "VERIFICATEUR": "Verifier",
+      "GARDIEN": "Guardian",
+      "CORRECTEUR": "Corrector",
+      "ARBITRE": "Arbiter"
+    },
+    "chronologie": {
+      "title": "Agents at work",
+      "simulation": "Demonstration mode: no model is called, the agents are simulated.",
+      "reel": "The agents are querying the configured model.",
+      "etats": {
+        "EN_ATTENTE": "Waiting",
+        "EN_COURS": "Running",
+        "TERMINEE": "Done",
+        "ECHOUEE": "Failed",
+        "ANNULEE": "Cancelled"
+      },
+      "secondes": "{secondes} s",
+      "echec": "Generation stopped"
     }
   },
   "generator": {

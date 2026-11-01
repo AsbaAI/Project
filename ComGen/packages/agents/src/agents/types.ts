@@ -75,8 +75,13 @@ export class ErreurAgent extends Error {
   readonly code: CodeErreurAgent
   readonly role: RoleAgent
 
-  constructor(code: CodeErreurAgent, role: RoleAgent, message: string) {
-    super(message)
+  constructor(
+    code: CodeErreurAgent,
+    role: RoleAgent,
+    message: string,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options)
     this.name = 'ErreurAgent'
     this.code = code
     this.role = role

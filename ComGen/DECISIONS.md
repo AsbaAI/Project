@@ -595,3 +595,82 @@ gagné leur cible de 24 px (`min-h-6`), qu'ils n'avaient pas.
 Le chemin du navigateur est devenu réglable (`PLAYWRIGHT_CHROMIUM_PATH`) :
 la machine en fournit un hors de l'arbre de Playwright, et on ne télécharge
 rien — il n'y a pas de réseau pour ça.
+
+## Les agents sont branchés : la génération passe par l'orchestrateur
+
+### Le rédacteur et le vérificateur ne sont plus enchaînés à la main
+
+`genererVariante` appelait ses deux agents l'un après l'autre et fabriquait
+elle-même la liste des étapes ; l'orchestrateur, écrit à l'étape 2, n'était
+appelé que par ses tests. Elle passe maintenant par `fabriqueAgents()` (la
+seule décision entre réel et simulé, qui nomme sa raison) et par
+`orchestrer()`.
+
+L'injection des valeurs fait partie de l'étape du rédacteur : un rédacteur
+dont la sortie est refusée a échoué, et la chronologie le dit sur son nom
+plutôt que sur une étape fantôme.
+
+### La chronologie est dite, pas devinée
+
+La route `POST /api/variantes/[varianteId]/generation` raconte le travail
+en lignes JSON : qui répond (annoncé avant le premier agent), l'état de
+chaque agent, la fin ou l'échec. Chaque message d'état porte l'état de
+**toutes** les étapes : l'écran n'a aucun écart à recoller.
+
+Un agent en échec est dit avec sa raison, et ceux qui le suivaient sont
+« annulés », pas « en attente » : ils ne reprendront pas seuls. Fermer la
+page coupe la connexion ; le serveur le voit et s'arrête avant le prochain
+agent.
+
+### Une route API n'a pas la garde des actions serveur
+
+Les actions serveur vérifient l'origine d'elles-mêmes ; une route API, non,
+et celle-ci écrit sur un cookie de session. Contrôle d'origine
+(`requeteDeMemeOrigine`) en seconde barrière, derrière `SameSite=Lax`, pour
+ne pas dépendre d'un réglage de cookie qu'on pourrait assouplir. Sans
+`Origin`, un client hors navigateur passe (il n'a aucun cookie à détourner),
+sauf si le navigateur dit lui-même venir d'un autre site.
+
+Une variante d'une autre organisation répond exactement comme une variante
+qui n'existe pas (`INTROUVABLE`) : refuser pour l'état dirait à
+l'utilisateur qu'elle existe ailleurs.
+
+### Ce qui sort du serveur, et ce qui n'en sort pas
+
+Le message d'une exception qui n'est pas la nôtre n'a pas été écrit pour
+être lu : il peut citer une adresse, un hôte, un fragment de requête.
+L'orchestrateur le remplace par une phrase générique et garde la cause pour
+le journal du serveur ; ni la chronologie, ni la trace, ni la base ne le
+reçoivent. De même, le motif technique d'un refus de droit ne sort pas : un
+code, que l'interface traduit.
+
+Au passage, `GENERATION_REFUSEE` n'avait aucune traduction : un refus de
+génération s'affichait « Certains champs sont à corriger ».
+
+### Un échec laisse une trace, jamais un texte
+
+Une génération qui échoue écrit ses exécutions dans `Execution`
+(`succes: false`, avec la raison) : elles ont coûté du travail, l'historique
+doit le dire. Elle n'écrit ni texte ni affirmation, et la communication ne
+bouge pas. L'écran, lui, ne montre comme agents que ceux de la dernière
+génération **réussie** (regroupés par série) : afficher « Rédacteur » à côté
+d'une variante dont le texte n'existe pas laisserait croire qu'il en a
+produit un.
+
+### Un défaut d'infrastructure, révélé par la première route API
+
+`CLIENT_BRUT`, la clé du client Prisma nu, était un `Symbol` local alors que
+la connexion est partagée entre paquets par `globalThis`. Dès que le
+bundler embarque `@comgen/db` en deux copies — ce que fait une route API —,
+la connexion ouverte par l'une est illisible pour l'autre et la route
+répond 500. Les pages n'en souffraient pas : elles partagent une copie.
+La clé passe par le registre global (`Symbol.for`). Ce n'est pas une
+frontière de sécurité — le code du même processus peut lister les symboles
+d'un objet — mais une barrière contre l'usage par mégarde, que le typage
+continue d'assurer.
+
+### Reste à brancher
+
+EXTRACTEUR, SUGGESTEUR et ANALYSTE_IMPACT ne sont toujours appelés par
+aucune route : l'extraction passe encore directement par
+`proposerFaitsCandidats` à la saisie de la source.

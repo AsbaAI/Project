@@ -1,13 +1,27 @@
+import {
+  ErreurAgent,
+  type EvenementOrchestration,
+  creerRedacteurSimule,
+  creerVerificateurSimule,
+} from '@comgen/agents'
 import { type Connexion, ouvrirConnexion } from '@comgen/db'
 import { URL_BASE_DE_TEST, clientDeTest } from '@comgen/db/test'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+
+import { type MessageFlux, messagesDuFlux } from '@/lib/flux-agents'
 
 import { changerEtat, creerCommunication } from './communications'
 import { ErreurMetier } from './erreurs'
 import { chargerFiche, confirmerFait } from './faits'
-import { choisirDestinataires, genererVariante, listerPersonas } from './generation'
+import { fluxGeneration } from './flux-generation'
+import {
+  chargerGeneration,
+  choisirDestinataires,
+  genererVariante,
+  listerPersonas,
+} from './generation'
 import { saisirTexte } from './sources'
-import { type Organisation, organisation } from './test/outils'
+import { type Organisation, organisation, utilisateurAvecRoles } from './test/outils'
 
 let connexion: Connexion
 let org: Organisation
@@ -260,5 +274,372 @@ describe('genererVariante', () => {
       where: { id: communicationId },
     })
     expect(fin.etat).toBe('EN_CONTROLE')
+  })
+})
+
+describe('genererVariante — orchestration des agents', () => {
+  it('annonce l’état de chaque agent, de l’attente à la fin', async () => {
+    const { varianteId } = await communicationPrete()
+    const evenements: EvenementOrchestration[] = []
+    await genererVariante(
+      org.redacteur,
+      { varianteId },
+      { surEvenement: (evenement) => evenements.push(evenement) },
+    )
+
+    // Dès le premier événement toute la chronologie est connue : rien n'a
+    // commencé, et l'interface n'a rien à recoller ensuite.
+    expect(evenements[0]?.etapes.map((e) => [e.role, e.etat])).toEqual([
+      ['REDACTEUR', 'EN_ATTENTE'],
+      ['VERIFICATEUR', 'EN_ATTENTE'],
+    ])
+    // Un seul agent travaille à la fois : la chaîne est séquentielle.
+    for (const evenement of evenements) {
+      expect(evenement.etapes.filter((e) => e.etat === 'EN_COURS').length).toBeLessThanOrEqual(1)
+    }
+    const dernier = evenements.at(-1)
+    expect(dernier?.termine).toBe(true)
+    expect(dernier?.etapes.map((e) => e.etat)).toEqual(['TERMINEE', 'TERMINEE'])
+  })
+
+  it('transmet les délais aux agents : deux paliers chacun', async () => {
+    const { varianteId } = await communicationPrete()
+    const attentes: number[] = []
+    await genererVariante(
+      org.redacteur,
+      { varianteId },
+      {
+        attendre: (ms) => {
+          attentes.push(ms)
+          return Promise.resolve()
+        },
+      },
+    )
+    expect(attentes).toHaveLength(4)
+    expect(attentes.every((ms) => ms > 0)).toBe(true)
+  })
+
+  it('dit que les agents sont simulés, et pourquoi, par la fabrique', async () => {
+    const { varianteId } = await communicationPrete()
+    const rapport = await genererVariante(org.redacteur, { varianteId })
+    expect(rapport.mode).toBe('simulation')
+    expect(rapport.motif).toBe('AUCUN_FOURNISSEUR')
+  })
+
+  it('un agent qui échoue arrête la chaîne : suivant annulé, rien d’écrit, échec tracé', async () => {
+    const { varianteId, communicationId } = await communicationPrete()
+    const avant = await clientDeTest(connexion).variante.findUniqueOrThrow({
+      where: { id: varianteId },
+    })
+    const evenements: EvenementOrchestration[] = []
+
+    const erreur = await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        {
+          agents: {
+            redacteur: {
+              ...creerRedacteurSimule(),
+              executer: () =>
+                Promise.reject(
+                  new ErreurAgent('SOURCE_INEXPLOITABLE', 'REDACTEUR', 'Rien à écrire'),
+                ),
+            },
+          },
+          surEvenement: (evenement) => evenements.push(evenement),
+        },
+      ),
+    )
+
+    expect(erreur.code).toBe('GENERATION_REFUSEE')
+    expect(erreur.message).toContain('Rien à écrire')
+    // Le suivant est ANNULEE, pas « en attente » : il ne reprendra pas seul.
+    expect(evenements.at(-1)?.etapes.map((e) => e.etat)).toEqual(['ECHOUEE', 'ANNULEE'])
+
+    // Aucun résultat partiel : le texte, les affirmations et l'état n'ont pas bougé.
+    const apres = await clientDeTest(connexion).variante.findUniqueOrThrow({
+      where: { id: varianteId },
+    })
+    expect(apres.contenu).toEqual(avant.contenu)
+    expect(apres.etat).toBe(avant.etat)
+    expect(await clientDeTest(connexion).affirmation.count({ where: { varianteId } })).toBe(0)
+    const communication = await clientDeTest(connexion).communication.findUniqueOrThrow({
+      where: { id: communicationId },
+    })
+    expect(communication.etat).toBe('PRETE_A_GENERER')
+
+    // L'échec est tracé : il a coûté du travail, l'historique doit le dire.
+    const executions = await clientDeTest(connexion).execution.findMany({
+      where: { communicationId },
+    })
+    expect(executions).toHaveLength(1)
+    expect(executions[0]).toMatchObject({ agent: 'REDACTEUR', succes: false })
+    expect(executions[0]?.erreur).toContain('Rien à écrire')
+  })
+
+  it('un rédacteur qui écrit une valeur à la main est refusé, et rien n’est écrit', async () => {
+    // La contrainte cardinale vue du service : quoi que dise l'agent, une
+    // date glissée dans un segment libre n'atteint jamais le texte.
+    const { varianteId, communicationId } = await communicationPrete()
+
+    const erreur = await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        {
+          agents: {
+            redacteur: {
+              ...creerRedacteurSimule(),
+              executer: () =>
+                Promise.resolve({
+                  sortie: {
+                    paragraphes: [
+                      {
+                        role: 'corps' as const,
+                        segments: [
+                          {
+                            type: 'texte' as const,
+                            texte: 'La migration aura lieu le 5 mai 2027.',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  trace: {
+                    role: 'REDACTEUR' as const,
+                    prompt: 'test/redacteur@1',
+                    modele: null,
+                    jetonsEntree: 0,
+                    jetonsSortie: 0,
+                    dureeMs: 0,
+                    simule: true,
+                  },
+                }),
+            },
+          },
+        },
+      ),
+    )
+
+    expect(erreur.code).toBe('GENERATION_REFUSEE')
+    const variante = await clientDeTest(connexion).variante.findUniqueOrThrow({
+      where: { id: varianteId },
+    })
+    expect(JSON.stringify(variante.contenu)).not.toContain('5 mai 2027')
+    expect(await clientDeTest(connexion).affirmation.count({ where: { varianteId } })).toBe(0)
+    const executions = await clientDeTest(connexion).execution.findMany({
+      where: { communicationId },
+    })
+    expect(executions.map((e) => [e.agent, e.succes])).toEqual([['REDACTEUR', false]])
+  })
+
+  it('un vérificateur en panne laisse le texte non écrit, et trace les deux agents', async () => {
+    const { varianteId, communicationId } = await communicationPrete()
+    const avant = await clientDeTest(connexion).variante.findUniqueOrThrow({
+      where: { id: varianteId },
+    })
+
+    const erreur = await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        {
+          agents: {
+            verificateur: {
+              ...creerVerificateurSimule(),
+              executer: () =>
+                Promise.reject(new ErreurAgent('SORTIE_INVALIDE', 'VERIFICATEUR', 'Panne simulée')),
+            },
+          },
+        },
+      ),
+    )
+    expect(erreur.message).toContain('Panne simulée')
+
+    // Un texte que personne n'a vérifié n'est pas écrit : ce serait un
+    // résultat partiel présenté comme complet.
+    const apres = await clientDeTest(connexion).variante.findUniqueOrThrow({
+      where: { id: varianteId },
+    })
+    expect(apres.contenu).toEqual(avant.contenu)
+
+    const executions = await clientDeTest(connexion).execution.findMany({
+      where: { communicationId },
+      orderBy: { creeLe: 'asc' },
+    })
+    expect(executions.map((e) => [e.agent, e.succes]).toSorted()).toEqual([
+      ['REDACTEUR', true],
+      ['VERIFICATEUR', false],
+    ])
+  })
+
+  it('une génération annulée n’écrit rien et ne trace aucun agent', async () => {
+    const { varianteId, communicationId } = await communicationPrete()
+    const controleur = new AbortController()
+    controleur.abort()
+    const evenements: EvenementOrchestration[] = []
+
+    const erreur = await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        { signal: controleur.signal, surEvenement: (evenement) => evenements.push(evenement) },
+      ),
+    )
+    expect(erreur.code).toBe('GENERATION_REFUSEE')
+    expect(evenements.at(-1)?.etapes.map((e) => e.etat)).toEqual(['ANNULEE', 'ANNULEE'])
+    expect(await clientDeTest(connexion).affirmation.count({ where: { varianteId } })).toBe(0)
+    // Aucun agent n'a tourné : rien à tracer.
+    expect(await clientDeTest(connexion).execution.count({ where: { communicationId } })).toBe(0)
+  })
+})
+
+async function lireFlux(flux: ReadableStream<Uint8Array>): Promise<MessageFlux[]> {
+  const messages: MessageFlux[] = []
+  for await (const message of messagesDuFlux(flux)) messages.push(message)
+  return messages
+}
+
+describe('fluxGeneration', () => {
+  it('annonce qui répond, puis chaque agent, puis la fin', async () => {
+    const { varianteId } = await communicationPrete()
+    const messages = await lireFlux(fluxGeneration(org.redacteur, varianteId))
+
+    // Avant le premier agent : on dit déjà si c'est une simulation.
+    expect(messages[0]).toEqual({
+      type: 'debut',
+      mode: 'simulation',
+      motif: 'AUCUN_FOURNISSEUR',
+    })
+    expect(messages.at(-1)).toEqual({ type: 'fin', bloquant: false })
+
+    const etats = messages.flatMap((m) => (m.type === 'etat' ? [m] : []))
+    // Attente, REDACTEUR en cours, REDACTEUR fini, VERIFICATEUR en cours, fini.
+    expect(etats.length).toBeGreaterThanOrEqual(5)
+    expect(etats[0]?.etapes.map((e) => e.etat)).toEqual(['EN_ATTENTE', 'EN_ATTENTE'])
+    expect(etats.at(-1)?.termine).toBe(true)
+  })
+
+  it('dit l’échec comme dernier message, sans jamais annoncer de fin', async () => {
+    const { varianteId } = await communicationPrete()
+    const messages = await lireFlux(
+      fluxGeneration(org.redacteur, varianteId, {
+        agents: {
+          redacteur: {
+            ...creerRedacteurSimule(),
+            executer: () =>
+              Promise.reject(new ErreurAgent('SOURCE_INEXPLOITABLE', 'REDACTEUR', 'Rien à écrire')),
+          },
+        },
+      }),
+    )
+    expect(messages.some((m) => m.type === 'fin')).toBe(false)
+    expect(messages.at(-1)).toEqual({
+      type: 'erreur',
+      code: 'GENERATION_REFUSEE',
+      detail: 'Rien à écrire',
+    })
+    // La chronologie dit aussi lequel a échoué et ce qui n'a pas eu lieu.
+    const dernierEtat = messages.findLast((m) => m.type === 'etat')
+    expect(dernierEtat?.type === 'etat' && dernierEtat.etapes.map((e) => e.etat)).toEqual([
+      'ECHOUEE',
+      'ANNULEE',
+    ])
+  })
+
+  it('refuse sans le droit de générer, sans dire pourquoi en détail', async () => {
+    const { varianteId } = await communicationPrete()
+    const auditeur = await utilisateurAvecRoles(connexion, org, ['AUDITEUR'])
+    const messages = await lireFlux(fluxGeneration(auditeur, varianteId))
+    // Le motif technique (« Action GENERER refusée : … ») ne sort pas du serveur.
+    expect(messages.at(-1)).toEqual({ type: 'erreur', code: 'NON_AUTORISE' })
+    expect(messages.some((m) => m.type === 'etat')).toBe(false)
+  })
+
+  it('dit qu’une variante est introuvable, sans détail', async () => {
+    const messages = await lireFlux(fluxGeneration(org.redacteur, 'variante-inexistante'))
+    expect(messages.at(-1)).toEqual({ type: 'erreur', code: 'INTROUVABLE' })
+  })
+
+  it('une panne inattendue ne divulgue rien de sa cause, mais la journalise', async () => {
+    const { varianteId } = await communicationPrete()
+    const journal = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const panne = new TypeError('connexion postgres://secret@interne/base')
+    try {
+      const messages = await lireFlux(
+        fluxGeneration(org.redacteur, varianteId, {
+          agents: {
+            verificateur: {
+              ...creerVerificateurSimule(),
+              executer: () => Promise.reject(panne),
+            },
+          },
+        }),
+      )
+      // Ni le dernier message, ni aucun état intermédiaire : la cause ne
+      // sort du serveur sous aucune forme.
+      expect(JSON.stringify(messages)).not.toContain('postgres://')
+      expect(messages.at(-1)?.type).toBe('erreur')
+      // Elle va au journal du serveur, où quelqu'un pourra la lire.
+      expect(journal).toHaveBeenCalledWith(expect.any(String), panne)
+    } finally {
+      journal.mockRestore()
+    }
+  })
+})
+
+describe('chargerGeneration — agents affichés', () => {
+  it('n’affiche aucun agent pour une génération qui a échoué', async () => {
+    // Le rédacteur a tourné, le vérificateur est tombé : aucun texte n'a été
+    // écrit. Afficher « Rédacteur » à côté d'une variante vide laisserait
+    // croire qu'il en a produit un.
+    const { communicationId, varianteId } = await communicationPrete()
+    await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        {
+          agents: {
+            verificateur: {
+              ...creerVerificateurSimule(),
+              executer: () =>
+                Promise.reject(new ErreurAgent('SORTIE_INVALIDE', 'VERIFICATEUR', 'Panne simulée')),
+            },
+          },
+        },
+      ),
+    )
+
+    const ecran = await chargerGeneration(org.redacteur, communicationId)
+    expect(ecran.variantes[0]?.executions).toEqual([])
+  })
+
+  it('n’affiche que les agents de la génération qui a réussi, pas ceux d’un essai raté avant', async () => {
+    const { communicationId, varianteId } = await communicationPrete()
+    await erreurMetier(
+      genererVariante(
+        org.redacteur,
+        { varianteId },
+        {
+          agents: {
+            verificateur: {
+              ...creerVerificateurSimule(),
+              executer: () =>
+                Promise.reject(new ErreurAgent('SORTIE_INVALIDE', 'VERIFICATEUR', 'Panne simulée')),
+            },
+          },
+        },
+      ),
+    )
+    await genererVariante(org.redacteur, { varianteId })
+
+    const ecran = await chargerGeneration(org.redacteur, communicationId)
+    expect(ecran.variantes[0]?.executions.map((e) => e.agent).toSorted()).toEqual([
+      'REDACTEUR',
+      'VERIFICATEUR',
+    ])
+    // L'historique, lui, garde tout : quatre agents ont tourné, un a échoué.
+    expect(await clientDeTest(connexion).execution.count({ where: { communicationId } })).toBe(4)
   })
 })

@@ -19,6 +19,12 @@ import { COMPTES, ENV_E2E, PORT_E2E, URL_E2E } from './e2e/environnement'
 const baseURL = URL_E2E
 const connecte = { storageState: COMPTES.redactrice.etat }
 
+/*
+ * Appels d'API sans écran : les quatre configurations n'y changent rien,
+ * un seul projet les joue.
+ */
+const APPELS_API = /generation-flux\.spec\.ts$/
+
 export default defineConfig({
   testDir: './e2e',
   outputDir: './test-results',
@@ -66,16 +72,19 @@ export default defineConfig({
     {
       name: 'bureau-sombre',
       dependencies: ['connexion'],
+      testIgnore: APPELS_API,
       use: { ...devices['Desktop Chrome'], colorScheme: 'dark', ...connecte },
     },
     {
       name: 'telephone-clair',
       dependencies: ['connexion'],
+      testIgnore: APPELS_API,
       use: { ...devices['Pixel 7'], colorScheme: 'light', ...connecte },
     },
     {
       name: 'telephone-sombre',
       dependencies: ['connexion'],
+      testIgnore: APPELS_API,
       use: { ...devices['Pixel 7'], colorScheme: 'dark', ...connecte },
     },
   ],

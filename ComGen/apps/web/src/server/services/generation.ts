@@ -1,4 +1,20 @@
-import { type EtapeOrchestration, agentsSimules, estErreurOrchestration } from '@comgen/agents'
+import { randomUUID } from 'node:crypto'
+
+import {
+  type ContexteAgent,
+  ErreurAgent,
+  type ErreurOrchestration,
+  type EtapeOrchestration,
+  type EvenementOrchestration,
+  type JeuAgents,
+  type MotifSimulation,
+  type SortieRedacteur,
+  type SortieVerificateur,
+  estErreurOrchestration,
+  etape,
+  fabriqueAgents,
+  orchestrer,
+} from '@comgen/agents'
 import {
   type EtatVariante,
   type FaitInjectable,
@@ -194,6 +210,9 @@ export async function choisirDestinataires(
 export interface RapportGeneration {
   varianteId: string
   personaNom: string
+  /** Qui a répondu : la fabrique le dit, l'écran l'affiche, personne ne le devine. */
+  mode: JeuAgents['mode']
+  motif?: MotifSimulation | undefined
   /** Part des affirmations factuelles qui sont appuyées, entre 0 et 1. */
   score: number
   /** Vrai dès qu'une affirmation factuelle n'est pas appuyée. */
@@ -230,6 +249,131 @@ function documentTipTap(paragraphes: readonly ParagrapheRendu[]) {
   }
 }
 
+/** Ce que les étapes se transmettent : chacune lit ce que la précédente a écrit. */
+interface DossierGeneration {
+  injectables: readonly FaitInjectable[]
+  langue: LangueDetectable
+  persona: string
+  /** Vide jusqu'à ce que le rédacteur ait rendu sa sortie et que le code l'ait injectée. */
+  paragraphes: readonly ParagrapheRendu[]
+  verifie: SortieVerificateur | null
+}
+
+/**
+ * Injection des valeurs, hors agent, par du code — et relecture par
+ * comparaison de chaînes. Un refus ici est celui du rédacteur : sa sortie
+ * n'était pas recevable, il échoue, on ne rafistole pas.
+ *
+ * Elle fait partie de l'étape du rédacteur et non d'une étape à part : un
+ * rédacteur dont la sortie est refusée a échoué, la chronologie doit le
+ * dire sur son nom.
+ */
+function injecterParagraphes(
+  sortie: SortieRedacteur,
+  injectables: readonly FaitInjectable[],
+  langue: LangueDetectable,
+): readonly ParagrapheRendu[] {
+  const paragraphes: ParagrapheRendu[] = []
+  for (const paragraphe of sortie.paragraphes) {
+    const resultat = injecter(paragraphe.segments as SegmentRedige[], injectables, langue)
+    if (!resultat.ok) throw new ErreurAgent('SORTIE_INVALIDE', 'REDACTEUR', resultat.detail)
+    paragraphes.push({
+      role: paragraphe.role,
+      texte: resultat.texte,
+      references: resultat.referencesUtilisees,
+    })
+  }
+
+  const texteComplet = paragraphes.map((paragraphe) => paragraphe.texte).join('\n')
+  const attendues = injectables
+    .filter((fait) => paragraphes.some((p) => p.references.includes(fait.reference)))
+    .flatMap((fait) =>
+      fait.valeur === null ? [] : [{ reference: fait.reference, attendue: fait.valeur }],
+    )
+  const rapportValeurs = verifierValeursInjectees(texteComplet, attendues)
+  if (!rapportValeurs.conforme) {
+    throw new ErreurAgent(
+      'SORTIE_INVALIDE',
+      'REDACTEUR',
+      `Valeur absente du texte final : ${rapportValeurs.manquantes
+        .map((valeur) => `${valeur.reference} « ${valeur.attendue} »`)
+        .join(', ')}`,
+    )
+  }
+  return paragraphes
+}
+
+/**
+ * Une génération qui échoue laisse quand même une trace : les agents qui
+ * ont tourné ont coûté du travail, et celui qui a échoué doit se retrouver
+ * dans l'historique avec sa raison. Ce qu'elle n'écrit pas, c'est le
+ * texte : un résultat partiel ne devient jamais un contenu.
+ *
+ * Une étape annulée n'a pas tourné (l'annulation est vérifiée avant le
+ * départ d'un agent) : elle ne laisse rien.
+ */
+async function tracerEchec(
+  acteur: Acteur,
+  variante: { id: string; communicationId: string },
+  echec: ErreurOrchestration,
+  mode: JeuAgents['mode'],
+  serie: string,
+): Promise<void> {
+  const base = {
+    organisationId: acteur.utilisateur.organisationId,
+    varianteId: variante.id,
+    communicationId: variante.communicationId,
+    coutCentimes: 0,
+  }
+  const terminees = echec.traces.map((trace) => ({
+    ...base,
+    agent: trace.role,
+    modele: trace.modele ?? 'simulation',
+    promptVersion: trace.prompt,
+    parametres: { simule: trace.simule, serie },
+    jetonsEntree: trace.jetonsEntree,
+    jetonsSortie: trace.jetonsSortie,
+    dureeMs: trace.dureeMs,
+    succes: true,
+  }))
+  const echouee = echec.etapes.find((e) => e.etat === 'ECHOUEE')
+  const lignes =
+    echouee === undefined
+      ? terminees
+      : [
+          ...terminees,
+          {
+            ...base,
+            agent: echouee.role,
+            modele: mode === 'simulation' ? 'simulation' : 'inconnu',
+            promptVersion: echouee.version,
+            parametres: { simule: mode === 'simulation', serie },
+            jetonsEntree: 0,
+            jetonsSortie: 0,
+            dureeMs: echouee.dureeMs ?? 0,
+            succes: false,
+            erreur: echouee.message ?? echec.message,
+          },
+        ]
+  if (lignes.length > 0) await acteur.contexte.execution.createMany({ data: lignes })
+}
+
+/** Qui répondra, et pourquoi : lu à la fabrique, jamais déduit ailleurs. */
+export function modeDesAgents(): { mode: JeuAgents['mode']; motif?: MotifSimulation | undefined } {
+  const { mode, motif } = fabriqueAgents()
+  return { mode, motif }
+}
+
+export interface OptionsGeneration {
+  attendre?: ((ms: number) => Promise<void>) | undefined
+  /** Annulation : la chaîne s'arrête avant le prochain agent, sans rien écrire. */
+  signal?: AbortSignal | undefined
+  /** Appelé à chaque changement d'état d'un agent : c'est la chronologie en direct. */
+  surEvenement?: ((evenement: EvenementOrchestration) => void) | undefined
+  /** Remplace un agent de la fabrique. Pour les tests ; aucune route ne le renseigne. */
+  agents?: Partial<JeuAgents['agents']> | undefined
+}
+
 /**
  * Génère le texte d'une variante. La communication doit être
  * `PRETE_A_GENERER` : la garde du domaine l'a déjà établi, on ne la
@@ -238,7 +382,7 @@ function documentTipTap(paragraphes: readonly ParagrapheRendu[]) {
 export async function genererVariante(
   acteur: Acteur,
   entree: { varianteId: string },
-  options: { attendre?: (ms: number) => Promise<void> } = {},
+  options: OptionsGeneration = {},
 ): Promise<RapportGeneration> {
   exigerDroit(acteur.utilisateur, 'GENERER')
 
@@ -276,78 +420,73 @@ export async function genererVariante(
     langueSource: langue,
   }))
 
-  const agents = agentsSimules()
-  const etapes: EtapeOrchestration[] = []
+  /*
+   * La fabrique est le seul endroit qui décide entre agents réels et
+   * simulés, et elle nomme sa raison. On ne la contourne pas, même quand
+   * elle ne peut aujourd'hui répondre que « simulation » : le jour où un
+   * agent réel existe, aucune couche au-dessus n'a à changer.
+   */
+  const jeu = fabriqueAgents()
+  const agents = { ...jeu.agents, ...options.agents }
+  // Les exécutions d'une même génération partagent une série : c'est ce qui
+  // permet à l'écran de ne montrer que les agents du texte qu'il affiche.
+  const serie = randomUUID()
+  const contexteAgent: ContexteAgent = { attendre: options.attendre, signal: options.signal }
 
-  const contexteAgent = options.attendre === undefined ? {} : { attendre: options.attendre }
-
-  let redige
+  let resultat
   try {
-    redige = await agents.redacteur.executer(
-      {
-        faits: injectables.map((fait) => ({
-          reference: fait.reference,
-          valeur: fait.valeur,
-          citation: fait.citation,
-        })),
+    resultat = await orchestrer<DossierGeneration>({
+      dossier: {
+        injectables,
         langue,
         persona: variante.persona.nom,
+        paragraphes: [],
+        verifie: null,
       },
-      contexteAgent,
-    )
-  } catch (erreur) {
-    throw enErreurMetier(erreur)
-  }
-  etapes.push({ role: 'REDACTEUR', version: agents.redacteur.version, etat: 'TERMINEE' })
-
-  // Injection : hors agent, par du code. Un refus ici est un refus de
-  // produire, pas un avertissement — la valeur n'aurait pas été vérifiable.
-  const paragraphes: ParagrapheRendu[] = []
-  for (const paragraphe of redige.sortie.paragraphes) {
-    const resultat = injecter(paragraphe.segments as SegmentRedige[], injectables, langue)
-    if (!resultat.ok) {
-      throw new ErreurMetier('GENERATION_REFUSEE', resultat.detail)
-    }
-    paragraphes.push({
-      role: paragraphe.role,
-      texte: resultat.texte,
-      references: resultat.referencesUtilisees,
+      contexte: contexteAgent,
+      surEvenement: options.surEvenement,
+      etapes: [
+        etape(
+          agents.redacteur,
+          (dossier) => ({
+            faits: dossier.injectables.map((fait) => ({
+              reference: fait.reference,
+              valeur: fait.valeur,
+              citation: fait.citation,
+            })),
+            langue: dossier.langue,
+            persona: dossier.persona,
+          }),
+          (dossier, sortie) => ({
+            ...dossier,
+            paragraphes: injecterParagraphes(sortie, dossier.injectables, dossier.langue),
+          }),
+        ),
+        etape(
+          agents.verificateur,
+          (dossier) => ({
+            affirmations: dossier.paragraphes.map((paragraphe) => paragraphe.texte),
+            faits: dossier.injectables.map((fait) => ({
+              reference: fait.reference,
+              citation: fait.citation,
+              valeur: fait.valeur,
+            })),
+          }),
+          (dossier, sortie) => ({ ...dossier, verifie: sortie }),
+        ),
+      ],
     })
-  }
-
-  const texteComplet = paragraphes.map((paragraphe) => paragraphe.texte).join('\n')
-  const attendues = injectables
-    .filter((fait) => paragraphes.some((p) => p.references.includes(fait.reference)))
-    .flatMap((fait) =>
-      fait.valeur === null ? [] : [{ reference: fait.reference, attendue: fait.valeur }],
-    )
-  const rapportValeurs = verifierValeursInjectees(texteComplet, attendues)
-  if (!rapportValeurs.conforme) {
-    throw new ErreurMetier(
-      'GENERATION_REFUSEE',
-      `Valeur absente du texte final : ${rapportValeurs.manquantes
-        .map((valeur) => `${valeur.reference} « ${valeur.attendue} »`)
-        .join(', ')}`,
-    )
-  }
-
-  let verifie
-  try {
-    verifie = await agents.verificateur.executer(
-      {
-        affirmations: paragraphes.map((paragraphe) => paragraphe.texte),
-        faits: injectables.map((fait) => ({
-          reference: fait.reference,
-          citation: fait.citation,
-          valeur: fait.valeur,
-        })),
-      },
-      contexteAgent,
-    )
   } catch (erreur) {
+    if (estErreurOrchestration(erreur)) await tracerEchec(acteur, variante, erreur, jeu.mode, serie)
     throw enErreurMetier(erreur)
   }
-  etapes.push({ role: 'VERIFICATEUR', version: agents.verificateur.version, etat: 'TERMINEE' })
+  const { paragraphes, verifie: sortieVerifiee } = resultat.dossier
+  // `verifie` n'est nul que si l'étape n'a pas tourné, et alors l'orchestrateur a levé.
+  if (sortieVerifiee === null) {
+    throw new ErreurMetier('GENERATION_REFUSEE', 'Le vérificateur n’a rendu aucune sortie')
+  }
+  const verifie = { sortie: sortieVerifiee }
+  const etapes: readonly EtapeOrchestration[] = resultat.etapes
 
   const idsParReference = await acteur.contexte.fait.findMany({
     where: { communicationId: variante.communicationId },
@@ -425,14 +564,14 @@ export async function genererVariante(
     })
 
     await tx.execution.createMany({
-      data: [redige.trace, verifie.trace].map((trace) => ({
+      data: resultat.traces.map((trace) => ({
         organisationId: acteur.utilisateur.organisationId,
         varianteId: variante.id,
         communicationId: variante.communicationId,
         agent: trace.role,
         modele: trace.modele ?? 'simulation',
         promptVersion: trace.prompt,
-        parametres: { simule: trace.simule },
+        parametres: { simule: trace.simule, serie },
         jetonsEntree: trace.jetonsEntree,
         jetonsSortie: trace.jetonsSortie,
         dureeMs: trace.dureeMs,
@@ -455,6 +594,8 @@ export async function genererVariante(
   return {
     varianteId: variante.id,
     personaNom: variante.persona.nom,
+    mode: jeu.mode,
+    motif: jeu.motif,
     score: verifie.sortie.score,
     bloquant: verifie.sortie.bloquant,
     etapes,
@@ -462,13 +603,19 @@ export async function genererVariante(
   }
 }
 
-/** Une panne d'agent reste une erreur métier nommée, jamais une trace brute. */
+/**
+ * Une panne d'agent reste une erreur métier nommée, jamais une trace brute.
+ *
+ * La cause d'une exception étrangère ne sort pas d'ici : elle va au journal
+ * du serveur. Ce qui n'est PAS une orchestration en échec est un défaut du
+ * programme, pas un refus de génération : il remonte tel quel.
+ */
 function enErreurMetier(erreur: unknown): ErreurMetier {
-  if (estErreurOrchestration(erreur)) {
-    return new ErreurMetier('GENERATION_REFUSEE', erreur.message)
+  if (!estErreurOrchestration(erreur)) throw erreur
+  if (erreur.cause !== undefined && !(erreur.cause instanceof ErreurAgent)) {
+    console.error('[génération] cause de l’échec :', erreur.cause)
   }
-  if (erreur instanceof Error) return new ErreurMetier('GENERATION_REFUSEE', erreur.message)
-  return new ErreurMetier('GENERATION_REFUSEE', 'Génération impossible')
+  return new ErreurMetier('GENERATION_REFUSEE', erreur.message)
 }
 
 // ---------------------------------------------------------------------------
@@ -507,6 +654,50 @@ export interface EcranGeneration {
   bloquee: boolean
 }
 
+/** Un paramètre d'exécution, relu sans présumer de la forme du JSON. */
+function lireParametre(parametres: unknown, nom: string): unknown {
+  return typeof parametres === 'object' && parametres !== null && nom in parametres
+    ? (parametres as Record<string, unknown>)[nom]
+    : undefined
+}
+
+interface ExecutionLue {
+  id: string
+  agent: RoleAgent
+  dureeMs: number
+  parametres: unknown
+  succes: boolean
+  creeLe: Date
+}
+
+/**
+ * Les agents qui ont produit le texte affiché : ceux de la dernière
+ * génération réussie.
+ *
+ * Une génération qui a échoué laisse ses exécutions dans l'historique —
+ * elles ont coûté du travail — mais elles ne s'affichent pas ici : montrer
+ * « Rédacteur » à côté d'une variante dont le texte n'a pas été écrit
+ * laisserait croire qu'il en a produit un. De même, un essai raté avant la
+ * génération réussie ne s'empile pas avec elle.
+ *
+ * Les exécutions d'une même génération partagent une série. Celles qui n'en
+ * portent pas (jeu de démonstration, anciennes lignes) forment à elles
+ * toutes une seule série.
+ */
+function executionsDuTexte(executions: readonly ExecutionLue[]): readonly ExecutionLue[] {
+  const series = new Map<string, ExecutionLue[]>()
+  for (const execution of executions) {
+    const brute = lireParametre(execution.parametres, 'serie')
+    const serie = typeof brute === 'string' ? brute : ''
+    series.set(serie, [...(series.get(serie) ?? []), execution])
+  }
+  const reussies = [...series.values()].filter((groupe) => groupe.every((e) => e.succes))
+  const derniere = reussies
+    .map((groupe) => ({ groupe, fin: Math.max(...groupe.map((e) => e.creeLe.getTime())) }))
+    .toSorted((a, b) => b.fin - a.fin)[0]
+  return derniere?.groupe ?? []
+}
+
 export async function chargerGeneration(
   acteur: Acteur,
   communicationId: string,
@@ -532,7 +723,14 @@ export async function chargerGeneration(
           select: { id: true, message: true },
         },
         executions: {
-          select: { id: true, agent: true, dureeMs: true, parametres: true },
+          select: {
+            id: true,
+            agent: true,
+            dureeMs: true,
+            parametres: true,
+            succes: true,
+            creeLe: true,
+          },
           orderBy: { creeLe: 'asc' },
         },
       },
@@ -564,16 +762,12 @@ export async function chargerGeneration(
         }),
       })),
       blocages: variante.controles,
-      executions: variante.executions.map((execution) => ({
+      executions: executionsDuTexte(variante.executions).map((execution) => ({
         id: execution.id,
         agent: execution.agent,
         dureeMs: execution.dureeMs,
         // `parametres.simule` est posé à l'écriture ; on ne le devine pas.
-        simule:
-          typeof execution.parametres === 'object' &&
-          execution.parametres !== null &&
-          'simule' in execution.parametres &&
-          execution.parametres.simule === true,
+        simule: lireParametre(execution.parametres, 'simule') === true,
       })),
     }
   })

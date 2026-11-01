@@ -22,7 +22,7 @@ import {
 } from '@/server/services/faits'
 import { type ResultatDepot, deposerFichiers, saisirTexte } from '@/server/services/sources'
 
-import { choisirDestinataires, genererVariante } from '@/server/services/generation'
+import { choisirDestinataires } from '@/server/services/generation'
 
 import type { EtatFormulaire } from './etat-formulaire'
 
@@ -255,15 +255,5 @@ export async function actionChoisirDestinataires(
     .filter((valeur): valeur is string => typeof valeur === 'string')
   return executer(formulaire, async (acteur) => {
     await choisirDestinataires(acteur, { communicationId, personaIds })
-  })
-}
-
-export async function actionGenererVariante(
-  _precedent: EtatFormulaire,
-  formulaire: FormData,
-): Promise<EtatFormulaire> {
-  const varianteId = texte(formulaire, 'varianteId') ?? ''
-  return executer(formulaire, async (acteur) => {
-    await genererVariante(acteur, { varianteId })
   })
 }

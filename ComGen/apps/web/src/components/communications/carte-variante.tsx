@@ -1,11 +1,11 @@
 import { Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-import { BoutonGenerer } from '@/components/communications/bouton-generer'
+import { PanneauGeneration } from '@/components/communications/panneau-generation'
 import { Notice } from '@/components/ui/notice'
-import { Panel } from '@/components/ui/panel'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/cn'
+import type { RoleAgentAffiche } from '@/lib/cles-messages'
 import type { VarianteLue } from '@/server/services/generation'
 
 /*
@@ -33,16 +33,18 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
   const factuelles = variante.affirmations.filter((a) => a.verdict !== 'NON_FACTUELLE')
   const soutenues = factuelles.filter((a) => a.verdict === 'SOUTENUE')
   const vide = variante.etat === 'EN_GENERATION'
+  const libelleRole = (role: string): string => {
+    const cle = `roles.${role}` as `roles.${RoleAgentAffiche}`
+    return t.has(cle) ? t(cle) : role
+  }
 
   return (
-    <Panel
-      title={variante.personaNom}
+    <PanneauGeneration
+      varianteId={variante.id}
+      titre={variante.personaNom}
       description={vide ? t('attente.description') : t('mots', { mots: variante.longueurMots })}
-      actions={
-        peutGenerer ? (
-          <BoutonGenerer varianteId={variante.id} libelle={vide ? t('generer') : t('regenerer')} />
-        ) : null
-      }
+      libelle={vide ? t('generer') : t('regenerer')}
+      peutGenerer={peutGenerer}
     >
       {vide ? (
         <p className="flex items-center gap-2 text-sm text-ink-secondary">
@@ -138,7 +140,7 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
                     className="inline-flex items-center gap-1.5 rounded-full border-w border-ai-line bg-ai-bg px-2.5 py-1 text-xs text-ai-ink"
                   >
                     <Sparkles aria-hidden="true" className="size-3" />
-                    {execution.agent}
+                    {libelleRole(execution.agent)}
                     <span className="text-ink-tertiary">
                       {t('duree', { ms: execution.dureeMs })}
                       {execution.simule ? ` · ${t('agentSimule')}` : ''}
@@ -150,6 +152,6 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
           )}
         </div>
       )}
-    </Panel>
+    </PanneauGeneration>
   )
 }

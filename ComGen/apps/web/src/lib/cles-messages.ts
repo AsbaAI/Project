@@ -14,3 +14,7 @@ export type CodeChamp = keyof Communications['champs']
 export type LangueAffichee = keyof Communications['langues']
 export type CanalAffiche = keyof Communications['canaux']
 export type MotifDepot = keyof Communications['entree']['motifs']
+
+type Generation = Messages['generation']
+
+export type RoleAgentAffiche = keyof Generation['roles']

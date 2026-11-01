@@ -18,6 +18,13 @@ const booleen = z
   .optional()
   .default(false)
 
+/** Comme `booleen`, mais vrai quand la variable est absente. */
+const booleenParDefautVrai = z
+  .enum(['true', 'false', '1', '0'])
+  .transform((v) => v === 'true' || v === '1')
+  .optional()
+  .default(true)
+
 const SchemaEnvironnement = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -39,6 +46,12 @@ const SchemaEnvironnement = z
     AUTH_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
     /** Connexion simulée (choix d'un utilisateur de démonstration) : jamais en production. */
     AUTH_SIMULATEUR: booleen,
+    /**
+     * Échelonne les agents simulés (1 à 3 s chacun) pour qu'on les voie
+     * travailler. Actif par défaut : c'est le comportement de la
+     * démonstration. Les tests de bout en bout et la CI peuvent l'éteindre.
+     */
+    COMGEN_DELAIS_SIMULATION: booleenParDefautVrai,
     STOCKAGE_TYPE: z.enum(['fichiers', 's3']).default('fichiers'),
     STOCKAGE_RACINE: z.string().min(1).optional(),
     S3_ENDPOINT: z.string().url().optional(),

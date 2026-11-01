@@ -72,3 +72,27 @@ describe('analyserEnvironnement', () => {
     ).toThrow(ErreurConfiguration)
   })
 })
+
+describe('COMGEN_DELAIS_SIMULATION', () => {
+  const ENV_MINIMAL = {
+    DATABASE_URL: 'postgresql://u:p@127.0.0.1:5432/x',
+    AUTH_SECRET: 'a'.repeat(32),
+    AUTH_SIMULATEUR: 'true',
+    ANTIVIRUS_MODE: 'aucun',
+  }
+
+  it('échelonne la simulation par défaut : une démonstration doit se voir travailler', () => {
+    expect(analyserEnvironnement(ENV_MINIMAL).COMGEN_DELAIS_SIMULATION).toBe(true)
+  })
+
+  it('se désactive explicitement, pour les tests et la CI', () => {
+    expect(
+      analyserEnvironnement({ ...ENV_MINIMAL, COMGEN_DELAIS_SIMULATION: 'false' })
+        .COMGEN_DELAIS_SIMULATION,
+    ).toBe(false)
+    expect(
+      analyserEnvironnement({ ...ENV_MINIMAL, COMGEN_DELAIS_SIMULATION: '0' })
+        .COMGEN_DELAIS_SIMULATION,
+    ).toBe(false)
+  })
+})

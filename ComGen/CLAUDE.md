@@ -158,6 +158,21 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
   `exigerDroit` (`server/auth/droits.ts`) ; lèvent `ErreurMetier(code, …)`.
   Les transitions manuelles sont une liste blanche (`services/etat.ts`) :
   aucun chemin manuel vers `EN_APPROBATION`, `APPROUVEE`, `ENVOYEE`.
+- **Routes API** (`app/api/…`) : minces, comme les actions. Elles
+  contrôlent l'origine (`requeteDeMemeOrigine` : une route API n'a pas la
+  garde CSRF des actions serveur), relisent la session (`exigerSession` →
+  401, jamais de redirection), puis délèguent à un service. Un flux est une
+  ligne JSON par message (`lib/flux-agents.ts`), relu par un schéma côté
+  client : une ligne illisible fait échouer le flux. Un refus de service
+  part en **code** traduisible, jamais en message technique : le motif d'un
+  refus de droit et le message d'une exception étrangère ne sortent pas du
+  serveur.
+- **Agents** : les services passent par `fabriqueAgents()` (jamais
+  `agentsSimules()` en direct) et par `orchestrer()`. Les délais de la
+  simulation sont injectés (`attendre`) au bord du serveur, pas dans
+  l'agent : les tests n'en fournissent pas. Une génération qui échoue
+  trace l'échec dans `Execution` mais n'écrit aucun texte ; l'écran ne
+  montre que les agents de la dernière génération réussie (série).
 - **Formulaires** : React 19 réinitialise un formulaire après son action.
   L'action renvoie les valeurs soumises, le formulaire se remonte avec
   `key={cleFormulaire(etat)}` et relit `valeurSoumise(etat, champ)`.
@@ -233,6 +248,14 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   `docs/DEPLOIEMENT.md`) admet le simulateur et affiche le bandeau. Tout
   décalage sous l'en-tête part de `--layout-chrome-height`, jamais de
   `--layout-header-height` seul.
+- `@comgen/db` peut être embarqué en plusieurs copies par le bundler
+  serveur (une par route API) : la clé du client Prisma est donc un
+  `Symbol.for`, pas un `Symbol` local, sinon une connexion ouverte par une
+  copie est illisible pour une autre (500 sur la première route API).
+- Playwright : si le Chromium attendu n'existe pas mais qu'un autre est
+  fourni (`/opt/pw-browsers/chromium`), `PLAYWRIGHT_CHROMIUM_PATH` le
+  désigne. Les appels d'API de `generation-flux.spec.ts` ne se jouent que
+  sur `bureau-clair`.
 - E2E : la rédactrice Helvea (captures) et la rédactrice Kestrel
   (parcours qui écrivent) se connectent par l'écran réel
   (`e2e/connexion.setup.ts`) ; les écrans capturés ne changent donc pas
@@ -240,8 +263,10 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
 - Le nom accessible d'un champ inclut sa mention (« Titre obligatoire ») ;
   les suggestions `aka getByLabel('Titreobligatoire')` de Playwright
   viennent du `textContent`, pas de l'arbre d'accessibilité.
-- Chromium Playwright préinstallé dans `/opt/pw-browsers` (build 1194 ↔
-  Playwright 1.56) ; ne pas exécuter `playwright install`.
+- Chromium Playwright préinstallé dans `/opt/pw-browsers` ; ne pas exécuter
+  `playwright install`. Son numéro de build change quand l'image de la
+  machine change (1194, puis 1243) : s'il ne correspond pas à celui que
+  Playwright attend, `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium`.
 - Pas d'accès réseau sortant direct depuis le navigateur headless
   (proxy) : polices et ressources doivent être auto-hébergées.
 - Aucune clé de fournisseur de modèle disponible : les adaptateurs sont

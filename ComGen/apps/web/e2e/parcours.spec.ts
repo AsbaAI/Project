@@ -1,6 +1,9 @@
 /* oxlint-disable eslint/no-await-in-loop -- confirmer un fait puis attendre
  * que la liste rétrécisse est séquentiel par nature : c'est le geste humain
  * qu'on reproduit, un fait après l'autre. */
+import { fileURLToPath } from 'node:url'
+
+import { AxeBuilder } from '@axe-core/playwright'
 import { type Page, expect, test } from '@playwright/test'
 
 import { COMPTES } from './environnement'
@@ -19,6 +22,16 @@ const TEXTE_SOURCE = [
   'Pendant la mise à jour, le service sera interrompu pendant 45 minutes pour tous les clients.',
   'Les clients doivent renouveler leur clé avant la fin de la fenêtre de maintenance.',
 ].join('\n')
+
+/** `e2e/captures/<projet>/<nom>.png`, relu avant de déclarer l'écran fini. */
+async function capturer(page: Page, nom: string) {
+  await page.screenshot({
+    path: fileURLToPath(
+      new URL(`./captures/${test.info().project.name}/${nom}.png`, import.meta.url),
+    ),
+    animations: 'disabled',
+  })
+}
 
 async function cadrer(page: Page, titre: string, mode: string) {
   await page.goto('/communications/nouvelle')
@@ -148,23 +161,57 @@ test('de la source au texte généré : chaque valeur vient de la source, mot po
   await assistant.getByRole('link', { name: /Génération/ }).click()
   await expect(page).toHaveURL(/\/generation$/)
   await page.getByRole('button', { name: 'Générer cette version' }).click()
-  await attendreRendu(page)
 
-  // Le texte produit porte les valeurs de la source, telles qu'elles y sont
-  // écrites. C'est la contrainte cardinale, vue depuis l'écran.
+  // 6. Les agents travaillent, et on les voit travailler. Le serveur dit
+  // d'abord qui répond, puis l'état de chacun au fil de l'eau.
+  const chronologie = page.getByRole('region', { name: 'Agents au travail' })
+  await expect(chronologie).toBeVisible()
+  await expect(chronologie.getByText(/Mode démonstration\s*:\s*aucun modèle/)).toBeVisible()
+  await expect(chronologie.getByText('Rédacteur', { exact: true })).toBeVisible()
+  await expect(chronologie.getByText('Vérificateur', { exact: true })).toBeVisible()
+  await expect(chronologie.getByText('En cours', { exact: true })).toBeVisible()
+  // Un agent qui n'a pas commencé n'est pas présenté comme terminé.
+  await expect(chronologie.getByText('En attente', { exact: true })).toBeVisible()
+
+  // La chronologie est un écran à part entière : elle se relit comme les
+  // autres, et elle passe l'audit tant qu'elle est à l'écran.
+  await capturer(page, 'chronologie')
+  const audit = await new AxeBuilder({ page })
+    .include('[data-agents="chronologie"]')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
+    .analyze()
+  expect(
+    audit.violations
+      .filter((v) => v.impact === 'serious' || v.impact === 'critical')
+      .map((v) => `${v.id} : ${v.help}`),
+    'violations graves ou critiques sur la chronologie',
+  ).toEqual([])
+
+  // Un agent terminé dit combien de temps il a pris, et le suivant prend le
+  // relais : le filet de marque a avancé d'un cran.
+  await expect(chronologie.getByText(/Terminé · \d+(?:[.,]\d)? s/)).toBeVisible()
+  await capturer(page, 'chronologie-avancee')
+
+  // 7. Le texte produit porte les valeurs de la source, telles qu'elles y
+  // sont écrites. C'est la contrainte cardinale, vue depuis l'écran. Le
+  // délai est celui de deux agents échelonnés, pas celui d'un clic.
   //
   // On lit le rapport phrase par phrase, et pas `main` : le titre de la
   // communication porte lui aussi « 3.9.2 », et une assertion qui tombe
   // dessus passerait même sans texte généré.
   const principal = page.getByRole('main')
   const rapport = principal.getByRole('list').filter({ hasText: 'Appuyée' }).first()
-  await expect(rapport.getByText('3.9.2', { exact: false }).first()).toBeVisible()
+  const ATTENTE = { timeout: 20_000 }
+  await expect(rapport.getByText('3.9.2', { exact: false }).first()).toBeVisible(ATTENTE)
   await expect(rapport.getByText('12 novembre 2026', { exact: false }).first()).toBeVisible()
   await expect(rapport.getByText('45 minutes', { exact: false }).first()).toBeVisible()
+
+  // La chronologie s'efface une fois le texte relu depuis le serveur.
+  await expect(chronologie).toBeHidden(ATTENTE)
 
   // Chaque phrase factuelle est appuyée, et le dit.
   await expect(principal.getByText('Toutes les phrases sont appuyées')).toBeVisible()
   await expect(principal.getByText('Appuyée').first()).toBeVisible()
-  await expect(principal.getByText('REDACTEUR')).toBeVisible()
-  await expect(principal.getByText('VERIFICATEUR')).toBeVisible()
+  await expect(principal.getByText('Rédacteur').first()).toBeVisible()
+  await expect(principal.getByText('Vérificateur').first()).toBeVisible()
 })
