@@ -27,11 +27,32 @@
     "pending": {
       "title": "En attente de votre approbation",
       "description": "D’après vos droits, relus en base à chaque requête.",
-      "empty": "Rien n’attend votre approbation."
+      "empty": "Rien n’attend votre approbation.",
+      "review": "Relire les variantes",
+      "by": "Par {auteur}",
+      "quota": "{accordees} sur {requises} approbations réunies",
+      "variantes": "{count, plural, one {# variante} other {# variantes}}"
     },
-    "wip": {
-      "title": "Vue approbateur en construction",
-      "description": "Approuver ou rejeter avec un motif, l’historique des décisions et les réglages de notification arrivent à l’étape 4. Aucun raccourci ne permettra d’envoyer sans approbation humaine."
+    "decision": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "motif": "Motif du rejet",
+      "motifHint": "Obligatoire pour rejeter : l'auteur saura quoi corriger.",
+      "comment": "Commentaire",
+      "commentHint": "Facultatif pour approuver.",
+      "done": {
+        "APPROUVEE": "Approuvée",
+        "REJETEE": "Rejetée"
+      }
+    },
+    "history": {
+      "title": "Vos décisions",
+      "description": "Les cinquante dernières.",
+      "empty": "Vous n'avez encore rien décidé."
+    },
+    "submit": {
+      "action": "Soumettre à l'approbation",
+      "hint": "Les approbateurs désignés sont prévenus ; rien ne part sans leur décision."
     }
   },
   "assistant": {

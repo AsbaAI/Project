@@ -2,6 +2,7 @@ import { Sparkles, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { BoutonSoumettre } from '@/components/communications/bouton-soumettre'
 import { CarteVariante } from '@/components/communications/carte-variante'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
 import { Button } from '@/components/ui/button'
@@ -72,6 +73,9 @@ export default async function GenerationPage({ params }: PageProps) {
           {ecran.variantes.map((variante) => (
             <CarteVariante key={variante.id} variante={variante} peutGenerer={peutGenerer} />
           ))}
+          {c.etat === 'EN_CONTROLE' && verifierDroit(acteur.utilisateur, 'SOUMETTRE').autorise ? (
+            <BoutonSoumettre communicationId={c.id} />
+          ) : null}
         </div>
       )}
     </>

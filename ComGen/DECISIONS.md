@@ -890,3 +890,22 @@ originaux, en `currentColor`, servis en ligne — aucune image externe.
   génération.
 - La page `/design` documente les composants, pas encore les nouvelles
   ancres de palette.
+
+## 2026-11-01 — Approbations : soumission et décision humaine
+
+- **Désignation à la soumission.** Les approbateurs sont ceux du persona de
+  chaque variante, sinon tous les approbateurs de l'organisation, jamais
+  l'auteur. S'il n'y en a pas assez pour le quota de la criticité, la
+  soumission est REFUSÉE (`APPROBATIONS_INSUFFISANTES`) plutôt que de
+  laisser une communication bloquée en silence. Être désigné = avoir une
+  approbation en attente : il n'existe pas d'autre porte pour décider.
+- **Relecture.** Pas d'écran propre : la soumission valide les deux
+  transitions de la table (EN_CONTROLE → EN_RELECTURE → EN_APPROBATION) et
+  écrit l'état final.
+- **Un rejet suffit et se motive.** Il rejette la communication, annule les
+  autres décisions en attente. Une approbation n'aboutit à APPROUVEE que si
+  la garde du domaine l'autorise une fois la décision écrite.
+- **Hors périmètre.** Envoi et notifications ; pas de parcours e2e du flux
+  complet (il faudrait un compte approbateur dans les fixtures) — la
+  logique et le déclencheur d'annulation sur écriture de contenu sont
+  couverts par les tests de service.

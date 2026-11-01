@@ -27,11 +27,32 @@
     "pending": {
       "title": "Awaiting your approval",
       "description": "Based on your rights, re-read from the database on every request.",
-      "empty": "Nothing is awaiting your approval."
+      "empty": "Nothing is awaiting your approval.",
+      "review": "Review the variants",
+      "by": "By {auteur}",
+      "quota": "{accordees} of {requises} approvals gathered",
+      "variantes": "{count, plural, one {# variant} other {# variants}}"
     },
-    "wip": {
-      "title": "Reviewer view under construction",
-      "description": "Approving or rejecting with a reason, the decision history and notification settings arrive at step 4. No shortcut will ever allow sending without human approval."
+    "decision": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "motif": "Reason for rejection",
+      "motifHint": "Required to reject: the author will know what to fix.",
+      "comment": "Comment",
+      "commentHint": "Optional when approving.",
+      "done": {
+        "APPROUVEE": "Approved",
+        "REJETEE": "Rejected"
+      }
+    },
+    "history": {
+      "title": "Your decisions",
+      "description": "The last fifty.",
+      "empty": "You have not decided anything yet."
+    },
+    "submit": {
+      "action": "Submit for approval",
+      "hint": "The designated approvers are notified; nothing goes out without their decision."
     }
   },
   "assistant": {

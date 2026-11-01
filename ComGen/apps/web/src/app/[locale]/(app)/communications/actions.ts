@@ -21,6 +21,7 @@ import {
 import { type ResultatDepot, deposerFichiers, saisirTexte } from '@/server/services/sources'
 
 import { choisirDestinataires } from '@/server/services/generation'
+import { decider, soumettreALApprobation } from '@/server/services/approbation'
 import { importerTicketItsm } from '@/server/services/itsm'
 
 import { executer, prochainJeton, texte } from '@/server/actions-formulaire'
@@ -253,4 +254,29 @@ export async function actionImporterTicket(
     redirect({ href: `/communications/${id}/faits`, locale: await getLocale() })
   }
   return etat
+}
+
+/** Soumission à l'approbation : le service désigne les approbateurs et garde la porte. */
+export async function actionSoumettreApprobation(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  return executer(formulaire, async (acteur) => {
+    await soumettreALApprobation(acteur, id)
+  })
+}
+
+/** Décision d'un approbateur. Le bouton pressé porte la décision, pas un champ caché. */
+export async function actionDecider(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  return executer(formulaire, async (acteur) => {
+    await decider(acteur, {
+      communicationId: texte(formulaire, 'communicationId') ?? '',
+      decision: texte(formulaire, 'decision') ?? '',
+      commentaire: texte(formulaire, 'commentaire'),
+    })
+  })
 }
