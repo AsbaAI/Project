@@ -252,6 +252,25 @@ export default async function FichePage({ params }: PageProps) {
                           />
                         </div>
                       ) : null}
+                      {source.origine === null ? null : (
+                        <p className="flex flex-wrap items-center gap-x-2">
+                          <span>{t('fiche.sourcePanel.ticket')}</span>
+                          <span className="font-mono text-ink-primary">
+                            {source.origine.numero}
+                          </span>
+                          {source.origine.systeme === 'mock' ||
+                          source.origine.lien === '' ? null : (
+                            <a
+                              href={source.origine.lien}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="inline-flex min-h-6 items-center rounded-xs text-ink-accent underline focus-ring"
+                            >
+                              {t('fiche.sourcePanel.openTicket')}
+                            </a>
+                          )}
+                        </p>
+                      )}
                       <p>
                         {t('fiche.sourcePanel.frozenOn', {
                           date: formaterInstant(source.figeeLe, locale, fuseau),

@@ -91,11 +91,11 @@ const TYPES_MIME: Readonly<Record<FormatSource, string>> = {
   image: 'application/octet-stream',
 }
 
-function empreinte(texte: string): string {
+export function empreinteTexte(texte: string): string {
   return createHash('sha256').update(texte, 'utf8').digest('hex')
 }
 
-function nouvelIdentifiantSource(): string {
+export function nouvelIdentifiantSource(): string {
   return `src_${randomUUID().replaceAll('-', '')}`
 }
 
@@ -118,15 +118,20 @@ async function communicationOuverte(
   return communication
 }
 
-interface SourcePreparee {
+export interface SourcePreparee {
   id: string
   nom: string
-  type: 'FICHIER' | 'TEXTE_SAISI'
+  type: 'FICHIER' | 'TEXTE_SAISI' | 'CONNECTEUR'
   contenuTexte: string
   empreinte: string
   langue: string | null
   confidentialite: Niveau
   cheminStockage: string | null
+  /**
+   * D'où vient la source quand elle n'est ni un fichier ni un texte saisi :
+   * de quoi retrouver le ticket, jamais le ticket brut.
+   */
+  origineExterne?: Prisma.InputJsonObject
 }
 
 /** Ce que les agents ont lu d'une source : propositions, et trace de chacun. */
@@ -222,7 +227,7 @@ async function lireSource(source: SourcePreparee, agents: AgentsSource): Promise
  * FAITS_A_VALIDER (transition libre, §7). Une citation candidate qui ne se
  * vérifie pas est un défaut du programme : tout est annulé.
  */
-async function enregistrerSources(
+export async function enregistrerSources(
   acteur: Acteur,
   communicationId: string,
   sources: readonly SourcePreparee[],
@@ -299,6 +304,7 @@ async function enregistrerSources(
           // La lecture du suggesteur reste avec la source qu'elle a lue ; elle
           // n'est jamais appliquée au cadrage, que le rédacteur a saisi.
           ...(cadrage === null || cadrage === undefined ? {} : { cadrageSuggere: cadrage }),
+          ...(source.origineExterne === undefined ? {} : { origineExterne: source.origineExterne }),
         }
       }),
     })
@@ -336,7 +342,10 @@ async function enregistrerSources(
   })
 }
 
-async function empreintesExistantes(acteur: Acteur, communicationId: string): Promise<Set<string>> {
+export async function empreintesExistantes(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<Set<string>> {
   const lignes = await acteur.contexte.source.findMany({
     where: { communicationId },
     select: { empreinte: true },
@@ -422,7 +431,7 @@ export async function deposerFichiers(
       resultats.push(analyse)
       continue
     }
-    const somme = empreinte(analyse.texte)
+    const somme = empreinteTexte(analyse.texte)
     if (vues.has(somme)) {
       resultats.push({ nom: analyse.nom, statut: 'REFUSE', motif: 'EN_DOUBLE' })
       continue
@@ -525,7 +534,7 @@ export async function saisirTexte(
   await communicationOuverte(acteur.contexte, communicationId)
 
   const contenuTexte = normaliserTexteSource(analyse.data.texte)
-  const somme = empreinte(contenuTexte)
+  const somme = empreinteTexte(contenuTexte)
   if ((await empreintesExistantes(acteur, communicationId)).has(somme)) {
     throw new ErreurMetier('SOURCE_EN_DOUBLE', 'Ce texte est déjà une source de la communication', {
       champs: { texte: 'en_double' },

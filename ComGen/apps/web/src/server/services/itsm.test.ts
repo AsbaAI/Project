@@ -17,6 +17,7 @@ import { ErreurMetier } from './erreurs'
 import {
   type DependancesItsm,
   apercuSourceItsm,
+  importerTicketItsm,
   enregistrerConfigItsm,
   itsmDisponible,
   lireEtatItsm,
@@ -724,7 +725,7 @@ describe('apercuSourceItsm', () => {
         ...CONFIG,
         masquage: {
           ...CONFIG.masquage,
-          termes: ['Passerelle API Meridian', 'Atlas'],
+          termes: ['Connecteur API Meridian', 'Atlas'],
           identifiants: [{ prefixe: 'E', chiffresMin: 6, chiffresMax: 7 }],
         },
       },
@@ -732,13 +733,13 @@ describe('apercuSourceItsm', () => {
     )
     const { id } = await creerCommunication(propre.redacteur, CADRAGE)
     const resume = await new ConnecteurMock().lister({}, { page: 1, taille: 100 })
-    const avecPasserelle = resume.tickets.find((t) => t.titre.includes('Passerelle API Meridian'))
+    const avecPasserelle = resume.tickets.find((t) => t.titre.includes('Connecteur API Meridian'))
     const apercu = await apercuSourceItsm(
       propre.redacteur,
       { communicationId: id, idExterne: avecPasserelle?.idExterne ?? '', avecNotes: true },
       dependances(),
     )
-    expect(apercu.texte).not.toContain('Passerelle API Meridian')
+    expect(apercu.texte).not.toContain('Connecteur API Meridian')
     expect(apercu.texte).toContain('[MASQUÉ]')
     expect(apercu.texte).not.toMatch(/\bE\d{6,7}\b/u)
   })
@@ -889,5 +890,182 @@ describe('apercuSourceItsm', () => {
       ),
     )
     expect(erreur.code).toBe('MODE_NON_DISPONIBLE')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Import : le ticket devient une source
+// ---------------------------------------------------------------------------
+
+describe('importerTicketItsm', () => {
+  const CADRAGE = {
+    titre: 'Incident portail',
+    nature: 'INCIDENT',
+    criticite: 'IMPORTANTE',
+    portee: 'INTERNE',
+    langue: 'fr',
+    modeEntree: 'CONNECTEUR',
+  } as const
+
+  const importer = async (
+    acteurQui = org.redacteur,
+    surcharge: Partial<Parameters<typeof importerTicketItsm>[1]> = {},
+    dep = mock(),
+  ) => {
+    const { id } = await creerCommunication(acteurQui, CADRAGE)
+    const resultat = await importerTicketItsm(
+      acteurQui,
+      {
+        communicationId: id,
+        idExterne: ticketId,
+        avecNotes: false,
+        confidentialite: 'INTERNE',
+        ...surcharge,
+      },
+      dep,
+    )
+    return { id, resultat }
+  }
+
+  it('est réservé à qui peut éditer', async () => {
+    const { id } = await creerCommunication(org.redacteur, CADRAGE)
+    await expect(
+      importerTicketItsm(
+        admin,
+        { communicationId: id, idExterne: ticketId, avecNotes: false, confidentialite: 'INTERNE' },
+        mock(),
+      ),
+    ).rejects.toBeInstanceOf(ErreurAutorisation)
+  })
+
+  it('écrit une source CONNECTEUR dont le texte est celui de l’aperçu', async () => {
+    const { id } = await creerCommunication(org.redacteur, CADRAGE)
+    const demande = { communicationId: id, idExterne: ticketId, avecNotes: false }
+    const apercu = await apercuSourceItsm(org.redacteur, demande, mock())
+    await importerTicketItsm(org.redacteur, { ...demande, confidentialite: 'RESTREINT' }, mock())
+
+    const source = await clientDeTest(connexion).source.findFirstOrThrow({
+      where: { communicationId: id },
+    })
+    expect(source).toMatchObject({
+      type: 'CONNECTEUR',
+      nom: apercu.nom,
+      empreinte: apercu.empreinte,
+      confidentialite: 'RESTREINT',
+      cheminStockage: null,
+    })
+    expect(source.contenuTexte).toBe(apercu.texte)
+  })
+
+  it('n’écrit jamais la donnée masquée : ni courriel ni téléphone du ticket en base', async () => {
+    const { id } = await importer(org.redacteur, { avecNotes: true })
+    const source = await clientDeTest(connexion).source.findFirstOrThrow({
+      where: { communicationId: id },
+    })
+    expect(source.contenuTexte).not.toMatch(/@/u)
+    expect(source.contenuTexte).toContain('[COURRIEL]')
+  })
+
+  it('range de quoi retrouver le ticket, et rien du ticket', async () => {
+    const { id } = await importer()
+    const source = await clientDeTest(connexion).source.findFirstOrThrow({
+      where: { communicationId: id },
+    })
+    expect(source.origineExterne).toMatchObject({
+      systeme: 'mock',
+      idExterne: ticketId,
+      avecNotes: false,
+    })
+    const origine = source.origineExterne as Record<string, unknown>
+    expect(String(origine['numero'])).toMatch(/^INC\d{7}$/u)
+    expect(JSON.stringify(origine)).not.toContain(source.contenuTexte ?? '')
+  })
+
+  it('propose des faits, comme n’importe quelle autre source', async () => {
+    const { id, resultat } = await importer()
+    expect(resultat.faitsProposes).toBeGreaterThan(0)
+    const faits = await clientDeTest(connexion).fait.findMany({ where: { communicationId: id } })
+    expect(faits.length).toBe(resultat.faitsProposes)
+    expect(faits.every((f) => f.statut === 'PROPOSE')).toBe(true)
+    // Chaque fait est cité dans le texte MASQUÉ : rien ne cite ce qui a disparu.
+    const source = await clientDeTest(connexion).source.findFirstOrThrow({
+      where: { communicationId: id },
+    })
+    expect(faits.every((f) => (source.contenuTexte ?? '').includes(f.citation))).toBe(true)
+  })
+
+  it('ouvre la fiche de faits', async () => {
+    const { id } = await importer()
+    const communication = await clientDeTest(connexion).communication.findUniqueOrThrow({
+      where: { id },
+    })
+    expect(communication.etat).toBe('FAITS_A_VALIDER')
+  })
+
+  it('refuse deux fois le même ticket dans la même communication', async () => {
+    const { id } = await importer()
+    const erreur = await erreurMetier(
+      importerTicketItsm(
+        org.redacteur,
+        { communicationId: id, idExterne: ticketId, avecNotes: false, confidentialite: 'INTERNE' },
+        mock(),
+      ),
+    )
+    expect(erreur.code).toBe('SOURCE_EN_DOUBLE')
+    expect(await clientDeTest(connexion).source.count({ where: { communicationId: id } })).toBe(1)
+  })
+
+  it('accepte le même ticket avec ses notes : ce n’est pas le même texte', async () => {
+    const { id } = await importer()
+    await importerTicketItsm(
+      org.redacteur,
+      { communicationId: id, idExterne: ticketId, avecNotes: true, confidentialite: 'INTERNE' },
+      mock(),
+    )
+    expect(await clientDeTest(connexion).source.count({ where: { communicationId: id } })).toBe(2)
+  })
+
+  it('refuse une confidentialité absente ou inventée, sans rien écrire', async () => {
+    const { id } = await creerCommunication(org.redacteur, CADRAGE)
+    for (const confidentialite of [undefined, 'TRÈS_SECRET']) {
+      // eslint-disable-next-line no-await-in-loop -- un cas après l'autre
+      const erreur = await erreurMetier(
+        importerTicketItsm(
+          org.redacteur,
+          { communicationId: id, idExterne: ticketId, avecNotes: false, confidentialite },
+          mock(),
+        ),
+      )
+      expect(erreur.details.champs).toMatchObject({ confidentialite: 'invalide' })
+    }
+    expect(await clientDeTest(connexion).source.count({ where: { communicationId: id } })).toBe(0)
+  })
+
+  it('refuse une communication dont les sources sont figées', async () => {
+    const { id } = await creerCommunication(org.redacteur, CADRAGE)
+    await clientDeTest(connexion).communication.update({
+      where: { id },
+      data: { etat: 'EN_CONTROLE' },
+    })
+    const erreur = await erreurMetier(
+      importerTicketItsm(
+        org.redacteur,
+        { communicationId: id, idExterne: ticketId, avecNotes: false, confidentialite: 'INTERNE' },
+        mock(),
+      ),
+    )
+    expect(erreur.code).toBe('ETAT_INCOMPATIBLE')
+  })
+
+  it('ne voit pas la communication d’une autre organisation', async () => {
+    const { id } = await creerCommunication(autre.redacteur, CADRAGE)
+    const erreur = await erreurMetier(
+      importerTicketItsm(
+        org.redacteur,
+        { communicationId: id, idExterne: ticketId, avecNotes: false, confidentialite: 'INTERNE' },
+        mock(),
+      ),
+    )
+    expect(erreur.code).toBe('INTROUVABLE')
   })
 })

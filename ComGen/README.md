@@ -56,11 +56,49 @@ packages/core     domaine : machine à états, contrôles déterministes, types 
 packages/agents   agents : schémas Zod, prompts versionnés, FournisseurModele et adaptateurs
 packages/workers  consommateurs BullMQ, un worker par rôle d'agent
 packages/db       schéma Prisma, accès aux données cloisonné par organisation
+packages/connecteurs  outils ITSM : interface commune, adaptateur ServiceNow, mock
 ```
 
 Règle de dépendance : `web` et `workers` dépendent de `core` ; **`core` ne
 dépend de rien**. Les contrôles déterministes sont des fonctions pures dans
 `core`, testées sans modèle.
+
+## Connecteur ITSM
+
+Une communication peut partir d'un ticket (ServiceNow aujourd'hui ; un autre
+outil s'ajoute par un adaptateur, sans toucher au reste). Le ticket choisi
+est composé en un texte déterministe, **masqué**, puis figé comme n'importe
+quelle autre source : les agents n'en lisent rien d'autre.
+
+Trois réglages d'environnement (voir `.env.example`) :
+
+| Variable               | Rôle                                                                        |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `ITSM_MODE`            | `servicenow` (défaut), `mock` (tickets fictifs, démonstration), `desactive` |
+| `ITSM_HOTES_AUTORISES` | hôtes acceptés en plus de `.service-now.com`, séparés par des virgules      |
+| `ITSM_…`               | la valeur d'un secret ; l'écran n'en enregistre que le **nom**              |
+
+Le reste se règle dans **Paramètres → Connecteur ITSM** (rôle
+administrateur) : adresse de l'instance, méthode d'authentification (OAuth
+2.0, ou Basic en repli), identifiant public, nom de la variable qui porte le
+secret, et ce que le masquage retire (courriels, téléphones, identifiants
+internes, termes, demandeur). La configuration n'est enregistrée qu'après un
+test de connexion réussi.
+
+Ce qui ne peut pas arriver, par construction :
+
+- **aucun secret dans la base ni dans l'interface** : seule la référence
+  `ITSM_…` est stockée, et la base refuse tout nom hors de ce préfixe, donc
+  l'écran ne peut pas désigner `AUTH_SECRET` ou `DATABASE_URL` ;
+- **aucun appel hors des hôtes autorisés** : https seulement, pas d'adresse
+  IP ni de nom local, redirections refusées ;
+- **aucune donnée masquée dans la base** : le masquage est appliqué avant
+  l'écriture de la source, pas à l'affichage ; l'aperçu montre exactement le
+  texte qui sera enregistré, empreinte comprise.
+
+En démonstration (`ITSM_MODE=mock`), 48 tickets fictifs déterministes sont
+engendrés localement : adresses en `.test`, numéros de la plage de fiction
+de l'ARCEP, aucune donnée réelle.
 
 ## Pile
 
@@ -68,7 +106,8 @@ Next.js 16 (App Router) · React 19 · TypeScript strict avec
 `noUncheckedIndexedAccess` · Tailwind CSS v4 + primitives Radix, composants
 maison entièrement restylés · next-intl (fr, en) · PostgreSQL 16 + Prisma ·
 Redis + BullMQ · S3 compatible (MinIO) · TipTap · NextAuth (OIDC) ·
-Vitest · Playwright + axe-core · Storybook · oxlint · Prettier.
+Vitest · Playwright + axe-core · Storybook · oxlint · Prettier · connecteur
+ServiceNow (API Table REST, OAuth 2.0 ou Basic).
 
 ## Démarrage
 

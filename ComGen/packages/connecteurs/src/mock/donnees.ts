@@ -43,13 +43,18 @@ const PRIORITES: readonly { niveau: NiveauPriorite; libelle: string }[] = [
   { niveau: 3, libelle: '3 - Modérée' },
 ]
 
+/*
+ * Tous les noms sont masculins : les modèles écrivent « du <produit> » et
+ * « le <produit> », et une démonstration ne doit pas donner à lire du
+ * français fautif.
+ */
 const PRODUITS = [
   'Portail client Atlas',
-  'Passerelle API Meridian',
-  'plateforme Track & Trace',
-  'Console de supervision Borealis',
+  'Connecteur API Meridian',
+  'Portail logistique Track & Trace',
+  'Tableau de supervision Borealis',
   'Service de facturation Orion',
-  'Messagerie interne Lyra',
+  'Service de messagerie Lyra',
 ] as const
 
 const PERSONNES = [

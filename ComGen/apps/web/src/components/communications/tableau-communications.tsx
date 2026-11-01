@@ -13,6 +13,8 @@ import { cn } from '@/lib/cn'
 import { formaterInstant } from '@/lib/dates'
 import type { ResumeCommunication } from '@/server/services/communications'
 
+import { Badge } from '@/components/ui/badge'
+
 import { CriticiteBadge, EtatBadge } from './badges'
 
 /*
@@ -85,6 +87,12 @@ export function TableauCommunications({
               >
                 {c.titre}
               </Link>
+              {/* Origine externe : le numéro du ticket, pour retrouver d'où vient la source. */}
+              {c.ticket === null ? null : (
+                <span className="mt-1 block">
+                  <Badge tone="neutral">{c.ticket.numero}</Badge>
+                </span>
+              )}
             </TableCell>
             {complet ? (
               <TableCell className="hidden text-ink-secondary lg:table-cell">

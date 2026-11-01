@@ -154,7 +154,7 @@
     "modes": {
       "FICHIER": "Dépôt de fichiers",
       "TEXTE_SAISI": "Rédaction directe",
-      "CONNECTEUR": "Connecteur",
+      "CONNECTEUR": "Source ITSM",
       "COURRIEL": "Courriel transféré",
       "DICTEE": "Dictée",
       "API": "API",
@@ -163,7 +163,7 @@
     "modesDescriptions": {
       "FICHIER": "Documents Word, PDF, Excel, CSV, Markdown ou texte, déposés et lus côté serveur.",
       "TEXTE_SAISI": "Vous écrivez le message ; il devient la source.",
-      "CONNECTEUR": "Récupération d'un ticket ou d'une note de version par sa référence.",
+      "CONNECTEUR": "Un ticket de l'outil ITSM (ServiceNow), choisi dans une liste puis masqué.",
       "COURRIEL": "Un courriel transféré à une adresse de dépôt.",
       "DICTEE": "Un enregistrement transcrit, relu puis validé.",
       "API": "Un brouillon créé par un outil tiers.",
@@ -344,6 +344,11 @@
         "ANTIVIRUS_INDISPONIBLE": "L'antivirus ne répond pas : le fichier n'a pas été accepté. Réessayez plus tard.",
         "EN_DOUBLE": "Ce contenu est déjà une source de cette communication.",
         "NOM_INVALIDE": "Nom de fichier vide ou trop long."
+      },
+      "itsm": {
+        "title": "Source ITSM",
+        "description": "Choisir un ticket dans l'outil ITSM : son texte, masqué, devient une source comme une autre.",
+        "action": "Parcourir les tickets"
       }
     },
     "fiche": {
@@ -423,7 +428,9 @@
         "language": "Langue détectée",
         "file": "Fichier conservé",
         "noText": "Aucun texte.",
-        "readBy": "Lue par"
+        "readBy": "Lue par",
+        "ticket": "Ticket d'origine",
+        "openTicket": "Ouvrir le ticket dans l'outil"
       },
       "next": {
         "title": "Valider la fiche",
@@ -527,7 +534,14 @@
     },
     "byState": "Répartition par état",
     "stateCount": "{count, plural, one {# communication} other {# communications}}",
-    "seeAll": "Toutes les communications"
+    "seeAll": "Toutes les communications",
+    "byOrigin": "Par origine",
+    "origins": {
+      "FICHIER": "Fichiers déposés",
+      "TEXTE_SAISI": "Texte saisi",
+      "CONNECTEUR": "Tickets ITSM"
+    },
+    "originCount": "{count, plural, one {# communication} other {# communications}}"
   },
   "design": {
     "title": "Système de design",
@@ -795,6 +809,163 @@
       "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
     }
   },
+  "itsm": {
+    "title": "Source ITSM",
+    "settings": {
+      "title": "Connecteur ITSM",
+      "description": "L'adresse de l'instance, la méthode d'authentification et ce que le masquage retire avant qu'un agent ne lise un ticket.",
+      "back": "Retour aux paramètres",
+      "demo": {
+        "title": "Mode démonstration",
+        "description": "Les tickets proposés sont fictifs et engendrés localement : aucune instance n'est jointe, il n'y a rien à configurer."
+      },
+      "disabled": {
+        "title": "Connecteur désactivé",
+        "description": "La source ITSM est retirée de toute l'application par la configuration du déploiement."
+      },
+      "readOnly": "Seul un administrateur modifie le connecteur.",
+      "fields": {
+        "urlInstance": "Adresse de l'instance",
+        "urlInstanceHint": "Par exemple « https://acme.service-now.com ». Seuls les domaines autorisés par le déploiement sont acceptés.",
+        "methodeAuth": "Méthode d'authentification",
+        "identifiantPublic": "Identifiant client",
+        "identifiantPublicHintOauth": "L'identifiant client OAuth 2.0.",
+        "identifiantPublicHintBasic": "Le nom du compte de service, si la méthode est Basic.",
+        "refSecret": "Variable qui porte le secret",
+        "refSecretHint": "Le NOM d'une variable d'environnement commençant par « ITSM_ », jamais sa valeur : le secret reste côté serveur et n'est ni saisi ici, ni enregistré en base.",
+        "actif": "Connecteur actif",
+        "actifHint": "Décoché, la source ITSM disparaît des écrans d'entrée sans que la configuration soit perdue."
+      },
+      "methodes": {
+        "oauth2": "OAuth 2.0",
+        "basic": "Basic (repli)"
+      },
+      "masking": {
+        "title": "Masquage",
+        "description": "Appliqué au texte du ticket avant qu'il ne devienne une source : ce qui est masqué n'est lu par aucun agent et ne peut être cité.",
+        "courriel": "Masquer les adresses de courriel",
+        "telephone": "Masquer les numéros de téléphone",
+        "demandeur": "Retirer le demandeur",
+        "identifiants": "Identifiants internes",
+        "identifiantsHint": "Une règle par ligne, sous la forme « E:6-7 » : préfixe, puis le nombre de chiffres admis. Les préfixes de ticket (INC, CHG…) ne se masquent jamais.",
+        "termes": "Termes à masquer",
+        "termesHint": "Un terme par ligne (un nom, un projet). La casse est ignorée."
+      },
+      "test": "Tester la connexion",
+      "save": "Tester et enregistrer",
+      "result": {
+        "ok": "Connexion établie.",
+        "failed": "Connexion refusée ; rien n'a été enregistré."
+      },
+      "saved": "Configuration enregistrée après un test réussi.",
+      "state": {
+        "title": "État",
+        "configured": "Configuré",
+        "notConfigured": "Non configuré",
+        "secretPresent": "Secret présent dans l'environnement",
+        "secretMissing": "Secret absent de l'environnement : la variable {reference} n'est pas renseignée.",
+        "testedOn": "Dernier test réussi le {date}",
+        "neverTested": "Jamais testé"
+      }
+    },
+    "picker": {
+      "title": "Choisir un ticket",
+      "description": "Le ticket choisi devient une source : son texte est figé, masqué, puis lu par les agents comme n'importe quelle autre source.",
+      "unavailable": {
+        "title": "Aucun connecteur ITSM",
+        "description": "Le connecteur n'est pas configuré pour cette organisation, ou il est désactivé."
+      },
+      "back": "Retour à l'entrée des sources",
+      "filters": {
+        "title": "Filtrer",
+        "statut": "Statut",
+        "priorite": "Priorité",
+        "groupe": "Groupe",
+        "du": "Ouvert à partir du",
+        "au": "Ouvert jusqu'au",
+        "submit": "Filtrer",
+        "reset": "Tout afficher"
+      },
+      "columns": {
+        "numero": "Numéro",
+        "titre": "Titre",
+        "statut": "Statut",
+        "priorite": "Priorité",
+        "groupe": "Groupe",
+        "misAJour": "Mis à jour"
+      },
+      "legend": "Tickets de l'outil ITSM",
+      "empty": {
+        "title": "Aucun ticket",
+        "description": "Aucun ticket ne correspond à ces filtres."
+      },
+      "count": "{count, plural, =0 {Aucun ticket} one {# ticket} other {# tickets}}",
+      "pageOf": "Page {page}",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "select": "Aperçu"
+    },
+    "preview": {
+      "title": "Ce que les agents liront",
+      "description": "Le texte ci-dessous est exactement celui qui deviendra la source, masquage compris.",
+      "openTicket": "Ouvrir le ticket dans l'outil",
+      "withNotes": "Inclure les notes de travail",
+      "withoutNotes": "Retirer les notes de travail",
+      "notesHint": "Les notes de travail sont internes : elles n'entrent que si vous le demandez.",
+      "masked": "Masqué : {details}",
+      "maskedNone": "Rien n'a été masqué dans ce ticket.",
+      "counts": {
+        "courriel": "{count, plural, one {# courriel} other {# courriels}}",
+        "telephone": "{count, plural, one {# téléphone} other {# téléphones}}",
+        "identifiant": "{count, plural, one {# identifiant} other {# identifiants}}",
+        "terme": "{count, plural, one {# terme} other {# termes}}"
+      },
+      "fingerprint": "Empreinte",
+      "notesIncluded": "Notes de travail incluses"
+    },
+    "statuts": {
+      "NOUVEAU": "Nouveau",
+      "EN_COURS": "En cours",
+      "EN_ATTENTE": "En attente",
+      "RESOLU": "Résolu",
+      "CLOS": "Clos",
+      "ANNULE": "Annulé",
+      "AUTRE": "Autre"
+    },
+    "priorites": {
+      "1": "1 — Critique",
+      "2": "2 — Élevée",
+      "3": "3 — Modérée",
+      "4": "4 — Faible",
+      "5": "5 — Planification"
+    },
+    "erreurs": {
+      "titre": "Opération refusée",
+      "CONFIG": "La configuration du connecteur est refusée.",
+      "AUTH_REFUSEE": "L'instance refuse ces identifiants.",
+      "AUTH_EXPIREE": "La session avec l'instance a expiré.",
+      "DELAI_DEPASSE": "L'instance n'a pas répondu à temps.",
+      "QUOTA": "L'instance limite le nombre d'appels ; réessayez plus tard.",
+      "INDISPONIBLE": "L'instance est indisponible.",
+      "INTROUVABLE": "Ce ticket est introuvable.",
+      "REPONSE_INVALIDE": "La réponse de l'instance n'est pas exploitable.",
+      "MODE_NON_DISPONIBLE": "Aucun connecteur ITSM n'est disponible.",
+      "SOURCE_EN_DOUBLE": "Ce ticket est déjà une source de cette communication.",
+      "ETAT_INCOMPATIBLE": "Les sources de cette communication sont figées.",
+      "DONNEES_INVALIDES": "La demande est refusée.",
+      "NON_AUTORISE": "Votre rôle ne permet pas cette opération."
+    },
+    "champs": {
+      "invalide": "Valeur refusée.",
+      "absent": "Cette variable n'est pas renseignée côté serveur.",
+      "avant_debut": "La fin de période précède son début."
+    },
+    "import": {
+      "title": "Utiliser ce ticket",
+      "description": "Le texte masqué ci-dessus devient une source figée, et les agents y relèvent des faits.",
+      "submit": "Utiliser comme source"
+    }
+  },
   "locale": {
     "label": "Langue",
     "fr": "Français",
@@ -827,6 +998,10 @@
     "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
     "soon": "Bientôt",
     "sections": {
+      "itsm": {
+        "title": "Connecteur ITSM",
+        "description": "Instance ServiceNow, authentification et masquage des tickets."
+      },
       "models": {
         "title": "Modèles d'IA",
         "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
@@ -843,7 +1018,8 @@
         "title": "Gabarits",
         "description": "Formats et variantes de mise en page."
       }
-    }
+    },
+    "open": "Configurer"
   },
   "states": {
     "BROUILLON": "Brouillon",

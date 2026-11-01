@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { exigerDroit, verifierDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
+import { type OrigineExterne, lireOrigineExterne } from './itsm'
 import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelles } from './etat'
 import { lireParametre } from './executions'
 
@@ -74,6 +75,8 @@ export interface SourceDeFiche {
   figeeLe: Date
   contenuTexte: string
   fichierConserve: boolean
+  /** Le ticket d'où vient la source, quand elle vient d'un connecteur. */
+  origine: OrigineExterne | null
   lecture: LectureDeSource
 }
 
@@ -234,6 +237,8 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
       figeeLe: s.figeeLe,
       contenuTexte: s.contenuTexte ?? '',
       fichierConserve: s.cheminStockage !== null,
+      // D'où vient la source quand ce n'est pas un dépôt : le ticket.
+      origine: lireOrigineExterne(s.origineExterne),
       lecture: {
         agents: executions
           .filter((e) => lireParametre(e.parametres, 'sourceId') === s.id)

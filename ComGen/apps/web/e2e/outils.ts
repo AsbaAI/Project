@@ -21,6 +21,13 @@ export const PAGES = [
   { nom: 'generation', chemin: '/communications/com_2026_0031/generation' },
   { nom: 'analyses', chemin: '/analyses' },
   { nom: 'parametres', chemin: '/parametres' },
+  { nom: 'parametres-itsm', chemin: '/parametres/itsm' },
+  { nom: 'tickets-itsm', chemin: '/communications/com_2026_0001/entree/itsm' },
+  {
+    nom: 'tickets-itsm-apercu',
+    chemin:
+      '/communications/com_2026_0001/entree/itsm?ticket=00000000000000000000000000000001&notes=1',
+  },
   { nom: 'design', chemin: '/design' },
 ] as const
 

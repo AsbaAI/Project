@@ -733,3 +733,86 @@ agent réel comme simulé : l'orchestrateur est l'autorité sur le temps
   correspondant ».
 - Le seed des 156 communications ne passe pas par les agents : ses
   sources n'ont ni trace de lecture ni suggestion.
+
+## 2026-11-01 — Source ITSM : le ticket devient une source, masqué
+
+Une communication peut désormais partir d'un ticket (ServiceNow ; un autre
+outil s'ajoute par un adaptateur). Les choix qui ne découlaient pas de la
+spécification sont ici.
+
+### Le secret n'est pas saisi, il est désigné
+
+Le propriétaire demandait un écran de paramétrage ; la décision D2 et §19
+interdisent toute clé en base ou dans le code. Les deux tiennent ensemble
+parce que l'écran n'enregistre **que le nom** d'une variable
+d'environnement (`ITSM_SERVICENOW_SECRET`), jamais sa valeur. Le serveur la
+résout au moment de l'appel.
+
+Le nom est contraint **en base** (`refSecret ~ '^ITSM_[A-Z0-9_]{1,60}$'`),
+pas seulement dans le formulaire : sans cela, un administrateur aurait pu
+désigner `AUTH_SECRET` ou `DATABASE_URL` et lire le secret par le détour
+d'une erreur de connexion. L'état du connecteur ne dit qu'une chose de la
+variable : si elle est renseignée.
+
+La configuration n'est écrite qu'après un test de connexion réussi. Un test
+qui échoue ne remplace pas la configuration précédente : on ne perd pas un
+accès qui marche en en essayant un autre.
+
+### L'adresse de l'instance est bornée
+
+C'est la configuration qui décide vers quel serveur partent les
+identifiants : elle est donc une surface d'attaque (SSRF). `verifierUrlInstance`
+n'accepte que https, sans identifiants dans l'URL, sans port, sans adresse IP
+ni nom local, et sur un hôte de la liste autorisée (`.service-now.com`, plus
+ce que l'environnement ajoute). Les redirections sont refusées
+(`redirect: 'error'`), la réponse est bornée en taille, et aucun message
+d'erreur ne reprend l'adresse saisie ni le corps de la réponse.
+
+Limite assumée : on juge le **nom**, pas l'adresse qu'il résout. Un nom
+autorisé pointant vers une adresse interne n'est pas détecté ; la liste
+autorisée est la défense.
+
+### Le masquage précède l'écriture, pas l'affichage
+
+Masquer à l'affichage aurait laissé les courriels et les téléphones en base,
+et surtout aurait permis à un agent de citer ce que l'écran cachait. Le
+texte du ticket est donc composé, **masqué**, puis figé comme source : ce
+qui est masqué n'existe nulle part dans l'application. La contrainte
+cardinale reste vraie mot pour mot, la source de référence étant le texte
+masqué.
+
+Une seule fonction (`preparerSourceItsm`) sert l'aperçu et l'import : ce que
+l'écran montre est, à la virgule et à l'empreinte près, ce qui sera
+enregistré. Une configuration de masquage illisible arrête l'opération
+(`ErreurItsm('CONFIG')`) au lieu de retomber sur un masquage plus faible.
+
+Le masquage est une fonction pure de `core`, en une passe : le motif qui
+commence le premier gagne, le plus long en cas d'égalité, et rien n'est
+masqué deux fois. Les motifs sont bornés et les termes configurés sont
+échappés — une configuration ne peut pas ralentir le serveur.
+
+Les préfixes de ticket (INC, CHG, RITM…) ne se masquent jamais : un numéro
+de ticket est une valeur que la communication cite.
+
+### Les notes de travail n'entrent que sur demande
+
+Elles sont internes et souvent plus crues que la description. Elles ne sont
+donc ni lues ni enregistrées tant que l'utilisateur ne les demande pas, et
+le même ticket avec ses notes est une autre source (texte différent,
+empreinte différente) : le refus de doublon ne s'y oppose pas.
+
+### Le texte composé suit la langue de la communication
+
+Les libellés et les dates du texte de source sont écrits dans la langue de
+la communication, aux formats que l'extraction sait relire (« 12 octobre
+2026 », « October 12, 2026 »). Le contenu du ticket, lui, reste dans la
+langue de l'outil : c'est de la donnée, elle n'est jamais traduite.
+
+### Ce qui reste hors de portée
+
+- L'adaptateur ServiceNow n'a pas été essayé contre une vraie instance :
+  il est testé contre un serveur HTTP local, cas d'erreur compris.
+- Le masquage ne détecte pas les noms propres en texte libre ; seuls les
+  termes listés le sont.
+- Les bornes de date d'un filtre sont interprétées en UTC.
+- La démonstration (`ITSM_MODE=mock`) n'engendre que des tickets français.

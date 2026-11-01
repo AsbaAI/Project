@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
 import { EtatBadge } from '@/components/communications/badges'
+import type { OrigineAffichee } from '@/lib/cles-messages'
 import { TableauCommunications } from '@/components/communications/tableau-communications'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
@@ -14,7 +15,11 @@ import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage } from '@/server/pages'
-import { chargerTableauDeBord, fuseauDeSaisie } from '@/server/services/communications'
+import {
+  MODES_DISPONIBLES,
+  chargerTableauDeBord,
+  fuseauDeSaisie,
+} from '@/server/services/communications'
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -42,6 +47,8 @@ export default async function DashboardPage({ params }: PageProps) {
   const etatsPresents = ETATS_COMMUNICATION.filter(
     (etat): etat is EtatCommunication => (tableau.parEtat[etat] ?? 0) > 0,
   )
+  // Modes d'entrée réellement livrés : la ligne ne promet pas ce qui n'existe pas.
+  const originesPresentes = MODES_DISPONIBLES.filter((mode) => (tableau.parOrigine[mode] ?? 0) > 0)
 
   const nouvelle = peutCreer ? (
     <Button asChild variant="primary" icon={<Plus aria-hidden="true" />}>
@@ -90,6 +97,23 @@ export default async function DashboardPage({ params }: PageProps) {
                   ))}
                 </ul>
               </div>
+              {originesPresentes.length > 0 ? (
+                <div className="border-b-w border-line-subtle px-4 py-3">
+                  <h3 className="visually-hidden">{t('byOrigin')}</h3>
+                  <ul className="flex flex-wrap gap-x-4 gap-y-2" aria-label={t('byOrigin')}>
+                    {originesPresentes.map((mode) => (
+                      <li key={mode} className="flex items-center gap-2 text-sm text-ink-secondary">
+                        <span className="font-medium text-ink-primary">
+                          {t(`origins.${mode}` as `origins.${OrigineAffichee}`)}
+                        </span>
+                        <span className="tnum">
+                          {t('originCount', { count: tableau.parOrigine[mode] ?? 0 })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <TableauCommunications
                 communications={tableau.mesCommunications}
                 fuseau={fuseau}

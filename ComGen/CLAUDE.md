@@ -47,9 +47,14 @@ packages/agents   agents : contrat `Agent`, orchestrateur, agents simulés,
                   schémas Zod, prompts versionnés, FournisseurModele
 packages/workers  consommateurs BullMQ, un worker par rôle d'agent
 packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
+packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
+                  ServiceNow, adaptateur mock, garde d'URL, texte de source
 ```
 
 - `web` et `workers` dépendent de `core`. **`core` ne dépend de rien.**
+- `connecteurs` ne connaît ni la base, ni l'interface, ni l'environnement :
+  les identifiants lui sont remis déjà résolus. Le masquage, lui, est une
+  fonction pure de `core` — il s'applique AVANT que la source soit écrite.
 - Les contrôles déterministes sont des **fonctions pures** dans `core`,
   testées unitairement, sans modèle.
 - Aucun SDK de fournisseur hors de son adaptateur (`packages/agents/src/fournisseurs/*`).

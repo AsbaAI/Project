@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto'
-
 import {
   type ConfigConnecteur,
   type ConnecteurItsm,
@@ -17,12 +15,17 @@ import {
   estErreurItsm,
   verifierUrlInstance,
 } from '@comgen/connecteurs'
+import { fabriqueAgents } from '@comgen/agents'
 import {
   CONFIG_MASQUAGE_PAR_DEFAUT,
   type ConfigMasquage,
+  NIVEAUX,
+  type Niveau,
   PREFIXES_DE_TICKET,
   type ResultatMasquage,
+  detecterLangue,
   masquer,
+  normaliserTexteSource,
 } from '@comgen/core'
 import type { Prisma } from '@comgen/db'
 import { z } from 'zod'
@@ -32,6 +35,13 @@ import { environnement } from '@/server/env'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
 import { ETATS_ENTREE_OUVERTE } from './etat'
+import {
+  type SourcePreparee,
+  empreinteTexte,
+  empreintesExistantes,
+  enregistrerSources,
+  nouvelIdentifiantSource,
+} from './sources'
 
 /**
  * Connecteur ITSM côté application : configuration, liste des tickets, et
@@ -431,6 +441,28 @@ export interface OrigineExterne {
   masquages: ResultatMasquage['remplacements']
 }
 
+/**
+ * Relit l'origine écrite à l'import. Une origine illisible n'est pas
+ * devinée : l'appelant affiche la source sans ticket plutôt qu'avec un
+ * numéro inventé.
+ */
+export function lireOrigineExterne(valeur: unknown): OrigineExterne | null {
+  if (typeof valeur !== 'object' || valeur === null || Array.isArray(valeur)) return null
+  const brut = valeur as Record<string, unknown>
+  const { systeme, numero, idExterne, lien, instance } = brut
+  if (typeof systeme !== 'string' || typeof numero !== 'string') return null
+  return {
+    systeme,
+    instance: typeof instance === 'string' ? instance : '',
+    numero,
+    idExterne: typeof idExterne === 'string' ? idExterne : '',
+    lien: typeof lien === 'string' ? lien : '',
+    recupereLe: typeof brut['recupereLe'] === 'string' ? brut['recupereLe'] : '',
+    avecNotes: brut['avecNotes'] === true,
+    masquages: { courriel: 0, telephone: 0, identifiant: 0, terme: 0 },
+  }
+}
+
 export interface SourceItsmPreparee {
   nom: string
   /** Le texte MASQUÉ : ce que les agents liront, et ce que l'écran montre. */
@@ -472,11 +504,13 @@ export async function preparerSourceItsm(
     avecNotes: demande.avecNotes,
     avecDemandeur: !masquage.champs.includes('demandeur'),
   })
-  const { texte, remplacements } = masquer(brut, masquage, langue)
+  // Normalisé comme toute autre source : l'aperçu, le texte figé et
+  // l'empreinte portent exactement les mêmes caractères.
+  const { texte, remplacements } = masquer(normaliserTexteSource(brut), masquage, langue)
   return {
     nom: `Ticket ${ticket.numero}`,
     texte,
-    empreinte: createHash('sha256').update(texte, 'utf8').digest('hex'),
+    empreinte: empreinteTexte(texte),
     avecNotes: demande.avecNotes,
     masquages: remplacements,
     origine: {
@@ -493,3 +527,55 @@ export async function preparerSourceItsm(
 }
 
 export const apercuSourceItsm = preparerSourceItsm
+
+/**
+ * Importe le ticket choisi : le texte masqué devient une source figée, par
+ * le même chemin que les fichiers et le texte saisi (mêmes agents, mêmes
+ * citations vérifiées, même transition d'état). La référence du ticket est
+ * rangée à côté de la source ; le ticket brut n'est jamais écrit.
+ */
+export async function importerTicketItsm(
+  acteur: Acteur,
+  demande: DemandeSourceItsm & { confidentialite: string | undefined },
+  dep: DependancesItsm = dependancesItsm(),
+): Promise<{ sourceId: string; faitsProposes: number; langue: string | null }> {
+  const confidentialite = NIVEAUX.find((n): n is Niveau => n === demande.confidentialite)
+  if (confidentialite === undefined) {
+    throw new ErreurMetier('DONNEES_INVALIDES', 'Confidentialité invalide', {
+      champs: { confidentialite: 'invalide' },
+    })
+  }
+  const preparee = await preparerSourceItsm(acteur, demande, dep)
+  const vues = await empreintesExistantes(acteur, demande.communicationId)
+  if (vues.has(preparee.empreinte)) {
+    throw new ErreurMetier(
+      'SOURCE_EN_DOUBLE',
+      'Ce ticket est déjà une source de la communication',
+      {
+        champs: { ticket: 'en_double' },
+      },
+    )
+  }
+  const source: SourcePreparee = {
+    id: nouvelIdentifiantSource(),
+    nom: preparee.nom,
+    type: 'CONNECTEUR',
+    contenuTexte: preparee.texte,
+    empreinte: preparee.empreinte,
+    langue: detecterLangue(preparee.texte),
+    confidentialite,
+    cheminStockage: null,
+    origineExterne: { ...preparee.origine, masquages: { ...preparee.origine.masquages } },
+  }
+  const faits = await enregistrerSources(
+    acteur,
+    demande.communicationId,
+    [source],
+    fabriqueAgents().agents,
+  )
+  return {
+    sourceId: source.id,
+    faitsProposes: faits.get(source.id) ?? 0,
+    langue: source.langue,
+  }
+}

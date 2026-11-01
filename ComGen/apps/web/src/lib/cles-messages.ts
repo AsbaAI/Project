@@ -17,6 +17,10 @@ export type NatureAffichee = keyof Communications['natures']
 export type CriticiteAffichee = keyof Communications['criticites']
 export type MotifDepot = keyof Communications['entree']['motifs']
 
+type Dashboard = Messages['dashboard']
+
+export type OrigineAffichee = keyof Dashboard['origins']
+
 type Generation = Messages['generation']
 
 export type RoleAgentAffiche = keyof Generation['roles']

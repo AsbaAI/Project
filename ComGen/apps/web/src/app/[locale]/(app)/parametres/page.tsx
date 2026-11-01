@@ -1,9 +1,10 @@
-import { Bot, LayoutTemplate, type LucideIcon, Mail, UsersRound } from 'lucide-react'
+import { Bot, LayoutTemplate, type LucideIcon, Mail, PlugZap, UsersRound } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
+import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { acteurDePage } from '@/server/pages'
 
@@ -40,6 +41,22 @@ export default async function ParametresPage({ params }: PageProps) {
     <>
       <PageHeader title={t('title')} description={t('description')} />
       <ul className="grid gap-3 sm:grid-cols-2">
+        <li className="flex items-start gap-3 rounded-lg border-w border-line-default bg-surface-raised p-4">
+          <span
+            aria-hidden="true"
+            className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent-bg text-ink-accent [&_svg]:size-5"
+          >
+            <PlugZap strokeWidth={1.75} />
+          </span>
+          <div className="flex min-w-0 flex-col gap-1">
+            <h2 className="text-base font-semibold text-ink-primary">
+              <Link href="/parametres/itsm" className="rounded-xs focus-ring hover:text-ink-accent">
+                {t('sections.itsm.title')}
+              </Link>
+            </h2>
+            <p className="text-sm text-ink-secondary">{t('sections.itsm.description')}</p>
+          </div>
+        </li>
         {SECTIONS.map(({ cle, icone: Icone }) => (
           <li
             key={cle}
