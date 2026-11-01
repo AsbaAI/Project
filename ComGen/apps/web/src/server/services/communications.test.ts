@@ -94,7 +94,7 @@ describe('cadrage', () => {
 
   it('refuse un mode d’entrée non livré plutôt que de créer une communication sans entrée', async () => {
     const erreur = (await erreurDe(
-      creerCommunication(helvea.redacteur, { ...CADRAGE, modeEntree: 'CONNECTEUR' }),
+      creerCommunication(helvea.redacteur, { ...CADRAGE, modeEntree: 'COURRIEL' }),
     )) as ErreurMetier
     expect(erreur.details.champs).toEqual({ modeEntree: 'mode_non_disponible' })
   })

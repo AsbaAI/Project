@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   env: { COMGEN_VERSION: version },
   // Les paquets du dépôt sont publiés en sources TypeScript : Next les
   // transpile lui-même, il n'y a pas d'étape de build intermédiaire.
-  transpilePackages: ['@comgen/agents', '@comgen/core', '@comgen/db'],
+  transpilePackages: ['@comgen/agents', '@comgen/connecteurs', '@comgen/core', '@comgen/db'],
   typescript: {
     // Un avertissement de type est une erreur de build (définition de « terminé »).
     ignoreBuildErrors: false,

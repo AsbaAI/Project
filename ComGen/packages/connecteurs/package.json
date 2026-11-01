@@ -1,0 +1,23 @@
+{
+  "name": "@comgen/connecteurs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Connecteurs ITSM de ComGen : interface commune, ServiceNow (API Table REST) et adaptateur de démonstration. Sans dépendance vers le reste de l'application.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.1"
+  }
+}

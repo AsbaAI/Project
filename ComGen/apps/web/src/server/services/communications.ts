@@ -32,7 +32,7 @@ import {
  */
 
 /** Modes d'entrée livrés à ce jour ; les autres sont refusés explicitement. */
-export const MODES_DISPONIBLES: readonly ModeEntree[] = ['FICHIER', 'TEXTE_SAISI']
+export const MODES_DISPONIBLES: readonly ModeEntree[] = ['FICHIER', 'TEXTE_SAISI', 'CONNECTEUR']
 
 /** Langues de rédaction prises en charge (l'interface et les contrôles). */
 export const LANGUES_COMMUNICATION = ['fr', 'en'] as const

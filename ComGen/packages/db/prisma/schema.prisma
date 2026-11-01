@@ -260,6 +260,7 @@ model Organisation {
   canevas        Canevas[]
   entites        Entite[]
   listes         ListeDiffusion[]
+  connecteurItsm ConnecteurItsm?
 }
 
 model Region {
@@ -364,6 +365,35 @@ model Communication {
   @@index([organisationId, auteurId])
 }
 
+/// Configuration du connecteur ITSM d'une organisation.
+///
+/// Ne porte AUCUN secret : `refSecret` est le NOM de la variable
+/// d'environnement qui le contient, jamais sa valeur (spécification §19,
+/// décision D2). La base refuse un nom qui ne commence pas par `ITSM_` : la
+/// configuration ne peut pas désigner `AUTH_SECRET` ou `DATABASE_URL`.
+model ConnecteurItsm {
+  id                String    @id @default(cuid())
+  organisationId    String    @unique
+  /// `servicenow`. D'autres outils viendront ; la liste est contrainte en base.
+  systeme           String
+  urlInstance       String
+  /// `oauth2` ou `basic`.
+  methodeAuth       String
+  /// L'identifiant client (OAuth) ou le nom d'utilisateur (Basic) : public.
+  identifiantPublic String
+  /// Nom d'une variable d'environnement `ITSM_…`, jamais sa valeur.
+  refSecret         String
+  /// Ce que le masquage retire du texte avant qu'un agent ne le lise.
+  masquage          Json
+  actif             Boolean   @default(true)
+  /// Dernier test de connexion réussi.
+  testeLe           DateTime?
+  creeLe            DateTime  @default(now())
+  modifieLe         DateTime  @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+}
+
 model Source {
   id              String     @id @default(cuid())
   organisationId  String
@@ -382,6 +412,11 @@ model Source {
   /// `{ titre, nature, criticite }`, chacun `null` ou `{ valeur, extrait }`.
   /// Écrit à l'insertion, avec la source figée dont il est la lecture.
   cadrageSuggere  Json?
+  /// D'où vient la source quand ce n'est pas un fichier ou un texte saisi : un
+  /// ticket ITSM. `{ systeme, instance, numero, idExterne, lien, recupereLe,
+  /// avecNotes, masquages }`. Écrit à l'insertion ; ne contient jamais le
+  /// ticket brut, seulement de quoi le retrouver.
+  origineExterne  Json?
 
   communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
   faits         Fait[]
