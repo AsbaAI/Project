@@ -22,9 +22,13 @@
     /* -----------------------------------------------------------------
      * Gabarits de mise en page
      * ----------------------------------------------------------------- */
-    --layout-header-height: 3rem; /* 48px */
-    --layout-gutter: 1.5rem; /* 24px, 16px sur téléphone (voir base.css) */
-    --layout-max-width: 90rem; /* 1440px */
+    /* Barre supérieure : contextuelle et compacte, elle ne porte plus la
+     * navigation (passée en colonne), mais un fil d'Ariane et les actions. */
+    --layout-header-height: 3.5rem; /* 56px */
+    --layout-gutter: 1.75rem; /* 28px, 16px sur téléphone (voir base.css) */
+    --layout-max-width: 108rem; /* 1728px — l'atelier occupe l'écran */
+    /* Colonne de navigation, à partir de `lg`. */
+    --layout-sidebar-width: 15.5rem; /* 248px */
     /* Bandeau de démonstration publique (COMGEN_ENV=demo), une ligne. */
     --layout-demo-height: 2rem; /* 32px */
     /* Hauteur collante en tête de page : l'en-tête, plus le bandeau quand

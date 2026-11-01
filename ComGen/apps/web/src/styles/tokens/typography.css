@@ -13,16 +13,22 @@
 @layer tokens {
   :root {
     /* -----------------------------------------------------------------
-     * Familles
-     * Instrument Sans (variable, auto-hébergée via Fontsource) :
-     * grotesque contemporaine, ouvertures resserrées, très lisible en
-     * petit corps. Choisie pour ne pas ressembler à la fonte par défaut
-     * de tous les outils récents. Les replis système garantissent un
-     * rendu correct si les fichiers ne sont pas encore chargés.
+     * Familles — deux, et deux seulement.
+     *
+     * DM Sans (variable, auto-hébergée via Fontsource) porte le corps :
+     * grotesque humaniste, très lisible en petit corps, sans la raideur
+     * des sans-serif d'interface par défaut.
+     *
+     * Manrope porte les TITRES et les grands nombres, en graisse légère
+     * et interlettrage resserré : c'est ce qui donne à l'atelier son air
+     * éditorial plutôt que tableau de bord. Les deux sont servies depuis
+     * le serveur ; aucun appel réseau sortant.
      * ----------------------------------------------------------------- */
     --font-sans:
-      'Instrument Sans Variable', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system,
-      'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+
+    --font-display: 'Manrope Variable', 'Manrope', var(--font-sans);
 
     --font-mono:
       'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas,
@@ -75,7 +81,10 @@
      * Négatif sur les grandes tailles (elles paraissent trop aérées),
      * légèrement positif sur les petites capitales (elles se collent).
      * ----------------------------------------------------------------- */
-    --tracking-tight: -0.02em;
+    /* Les titres en Manrope supportent un resserrement plus net que le
+     * corps : c'est l'interlettrage de la référence (-0.045em à 34px). */
+    --tracking-display: -0.042em;
+    --tracking-tight: -0.028em;
     --tracking-snug: -0.011em;
     --tracking-normal: 0;
     --tracking-wide: 0.02em;

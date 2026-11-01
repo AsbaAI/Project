@@ -179,28 +179,28 @@ test('l’état du moteur est dit à toute largeur d’écran', async ({ page })
   await expect(page.getByText('Mode démonstration').filter({ visible: true })).toHaveCount(1)
 })
 
-test('la barre ne se chevauche jamais, à toute largeur de bureau', async ({ page }) => {
-  test.skip(estTelephone(), 'la barre d’onglets n’existe pas sur téléphone')
+test('la barre et la colonne ne se chevauchent jamais, à toute largeur de bureau', async ({
+  page,
+}) => {
+  test.skip(estTelephone(), 'la colonne et la barre n’existent pas sur téléphone')
   await page.goto('/generateur')
   await attendreRendu(page)
 
   /*
-   * Six onglets, la marque, l'état du moteur, la langue, le thème et le
-   * compte se disputent une barre d'une seule ligne. Quand ça ne tient
-   * pas, rien ne proteste : les boîtes se superposent et le dernier
-   * onglet passe sous la pastille — invisible aux tests de rôle, visible
-   * à l'œil. Ce test mesure, à chaque largeur de la plage bureau, que
-   * l'ensemble des éléments de la barre reste dans l'ordre et disjoint.
+   * La navigation est une colonne, la barre ne porte plus que le contexte
+   * et les actions. Deux choses peuvent casser en silence : les boîtes de
+   * la barre qui se superposent quand la fenêtre se resserre, et la
+   * colonne qui mord sur le contenu. Les deux sont mesurées ici, à chaque
+   * largeur de la plage bureau — l'œil les verrait, un test de rôle non.
    */
   for (const largeur of [1024, 1152, 1280, 1366, 1440, 1600, 1920]) {
     await page.setViewportSize({ width: largeur, height: 760 })
     await attendreRendu(page)
 
     const boites = await page.evaluate(() =>
-      // Les boîtes de la barre : chaque onglet, puis chaque groupe de droite.
       [
         ...document.querySelectorAll(
-          '[data-barre="onglets"] li, [data-barre="moteur"], [data-barre="langue"], [data-barre="theme"], [data-barre="compte"]',
+          '[data-barre="fil"], [data-barre="moteur"], [data-barre="langue"], [data-barre="theme"], [data-barre="action"]',
         ),
       ]
         .map((e) => {
@@ -211,12 +211,24 @@ test('la barre ne se chevauche jamais, à toute largeur de bureau', async ({ pag
         .toSorted((a, b) => a.x - b.x),
     )
 
-    expect(boites.length, `largeur ${largeur} : la barre est vide`).toBeGreaterThan(6)
+    expect(boites.length, `largeur ${largeur} : la barre est vide`).toBeGreaterThan(2)
     const chevauchements = boites
       .map((boite, i) => ({ boite, avant: boites[i - 1] }))
       .filter(({ boite, avant }) => avant !== undefined && boite.x < avant.droite)
       .map(({ boite, avant }) => `« ${avant?.nom} » chevauche « ${boite.nom} »`)
     expect(chevauchements, `largeur ${largeur}`).toEqual([])
+
+    // La colonne s'arrête là où le contenu commence.
+    const colonne = await page
+      .getByRole('complementary', { name: 'Navigation principale' })
+      .boundingBox()
+    const principal = await page.getByRole('main').boundingBox()
+    expect(colonne, `largeur ${largeur} : la colonne a disparu`).not.toBeNull()
+    expect(principal).not.toBeNull()
+    expect(
+      (colonne?.x ?? 0) + (colonne?.width ?? 0),
+      `largeur ${largeur} : la colonne mord sur le contenu`,
+    ).toBeLessThanOrEqual(principal?.x ?? 0)
   }
 })
 

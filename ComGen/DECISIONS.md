@@ -816,3 +816,77 @@ langue de l'outil : c'est de la donnée, elle n'est jamais traduite.
   termes listés le sont.
 - Les bornes de date d'un filtre sont interprétées en UTC.
 - La démonstration (`ITSM_MODE=mock`) n'engendre que des tickets français.
+
+## 2026-11-01 — Direction « Atelier » : la refonte visuelle V5
+
+Le propriétaire a fourni un jeu de références (V5 clair, V5 sombre, modèle 3)
+et demandé de l'implémenter dans les composants réels. Ce qui a été décidé,
+et ce qui ne l'a pas été.
+
+### La palette change d'ancre, pas de structure
+
+R1 posait une palette inspirée de TotalEnergies (bleu, orange). La référence
+V5 pose un atelier éditorial : canevas ivoire froid, surfaces blanches,
+encre graphite, lavande maîtrisée. Les deux niveaux de jetons (palette brute
+`--p-*`, sémantique `--color-*`) n'ont pas bougé : seules les ANCRES des
+rampes ont été remplacées, converties en OKLCH depuis les valeurs de la
+référence. Aucun composant n'a eu à changer de classe pour suivre.
+
+Deux ajustements ne viennent pas de la référence mais de l'accessibilité,
+vérifiée par `pnpm check:contrast` (250 couples, deux thèmes) :
+
+- **l'aplat de l'action principale est le graphite**, pas la lavande : un
+  bouton lavande plein sous un libellé blanc ne tient pas 4,5:1. La lavande
+  reste au texte, aux liens, à l'entrée de navigation retenue et aux
+  pastilles d'agent ;
+- les paliers qui portent du texte (encre tertiaire, encres d'état, encre
+  d'agent) sont descendus en luminosité jusqu'à tenir l'AA sur leur fond.
+
+### La barre de navigation devient une colonne
+
+Six onglets, la marque, l'état du moteur, la langue, le thème et le compte
+se disputaient une seule ligne ; le test « la barre ne se chevauche jamais »
+existait pour cette raison. La colonne libère la barre, qui ne porte plus
+que le contexte et les actions. Les entrées restent une liste unique
+(`lib/navigation.ts`), désormais réparties en trois familles, et le tiroir
+du téléphone en vit toujours.
+
+Conséquence assumée : colonne et barre SUIVENT le thème, alors que l'ancienne
+barre marine était sombre dans les deux. Une colonne de travail n'est pas
+une bannière de marque.
+
+### Le modèle 3 est reconnaissable là où il a un sens
+
+Colonne → barre contextuelle → titre → quatre tuiles de mesure → les cinq
+étapes en cartes → deux colonnes de travail en bas. Les tuiles sont au
+tableau de bord, où les nombres existent et sont comptés en base ; les cinq
+cartes d'étapes sont sur chaque écran d'une communication (l'assistant les
+portait déjà) ; la colonne de droite existe déjà sur la fiche de faits
+(texte des sources) et sur le détail (faire avancer).
+
+Ce qui n'a PAS été repris de la référence, et pourquoi :
+
+- les agents nommés (« Alexandre », « Hélène »), les scores, les durées en
+  secondes, les numéros de conformité : ce sont des données de démonstration.
+  Les cartes d'étapes n'affichent que ce que la base sait réellement ;
+- le bandeau d'accueil ne porte aucun chiffre : il dit ce que l'application
+  garantit, jamais ce qu'elle est en train de faire ;
+- aucun écran nouveau n'a été inventé pour coller à la référence : rien
+  n'est offert qui ne mène quelque part.
+
+### Typographie et signature
+
+DM Sans pour le corps, Manrope pour les titres et les grands nombres, en
+graisse 400 et interlettrage resserré. Les deux sont auto-hébergées
+(Fontsource) : aucun appel réseau sortant, conformément à la contrainte de
+cette machine. Le monogramme et la constellation sont des tracés SVG
+originaux, en `currentColor`, servis en ligne — aucune image externe.
+
+### Limites connues
+
+- Le modèle 3 pose un « graphe d'agents » à cinq étapes ; nos cinq étapes
+  sont celles du parcours (cadrage → génération), pas cinq agents. La
+  chronologie des agents, elle, reste le composant en direct de l'écran de
+  génération.
+- La page `/design` documente les composants, pas encore les nouvelles
+  ancres de palette.

@@ -9,8 +9,10 @@ import {
 } from 'lucide-react'
 
 /*
- * Onglets de la barre supérieure, dans l'ordre du récit : je génère, on
+ * Entrées de la barre latérale, dans l'ordre du récit : je génère, on
  * approuve, je gère mes gabarits, je les construis, je mesure, je règle.
+ * Elles sont réparties en trois familles (`groupe`) ; la liste reste
+ * unique, et le tiroir du téléphone comme la colonne en vivent.
  *
  * Un onglet ne ment jamais sur l'état de l'application : tant qu'un écran
  * n'est pas livré, sa page le dit et annonce ce qu'elle portera. Mieux vaut
@@ -33,11 +35,17 @@ export type NavHref =
 export type NavKey =
   'generator' | 'approvals' | 'templates' | 'templateBuilder' | 'analytics' | 'settings'
 
+/** Les trois familles de la barre latérale, dans l'ordre du récit. */
+export const NAV_GROUPES = ['workspace', 'intelligence', 'operations'] as const
+export type NavGroupe = (typeof NAV_GROUPES)[number]
+
 export interface NavTab {
   /** Clé de traduction sous `nav.*`. */
   key: NavKey
   href: NavHref
   icon: LucideIcon
+  /** Famille de la barre latérale. */
+  groupe: NavGroupe
   /** Chemins hérités qui relèvent de cet onglet (préfixes, sans barre finale). */
   alias?: readonly string[]
 }
@@ -47,6 +55,7 @@ export const NAV_TABS: readonly NavTab[] = [
     key: 'generator',
     href: '/generateur',
     icon: Sparkles,
+    groupe: 'workspace',
     // Le cadrage, l'entrée des sources et la fiche de faits sont les écrans
     // que l'assistant absorbera à l'étape 3 : ils relèvent du générateur.
     alias: ['/communications'],
@@ -55,13 +64,14 @@ export const NAV_TABS: readonly NavTab[] = [
     key: 'approvals',
     href: '/approbations',
     icon: CircleCheckBig,
+    groupe: 'workspace',
     // Ce qui attend une approbation vit encore dans le tableau de bord.
     alias: ['/tableau-de-bord'],
   },
-  { key: 'templates', href: '/gabarits', icon: LayoutTemplate },
-  { key: 'templateBuilder', href: '/gabarits/constructeur', icon: Blocks },
-  { key: 'analytics', href: '/analyses', icon: BarChart3 },
-  { key: 'settings', href: '/parametres', icon: Settings },
+  { key: 'templates', href: '/gabarits', icon: LayoutTemplate, groupe: 'intelligence' },
+  { key: 'templateBuilder', href: '/gabarits/constructeur', icon: Blocks, groupe: 'intelligence' },
+  { key: 'analytics', href: '/analyses', icon: BarChart3, groupe: 'operations' },
+  { key: 'settings', href: '/parametres', icon: Settings, groupe: 'operations' },
 ]
 
 /** Le système de design est un outil d'équipe, pas une destination du produit. */

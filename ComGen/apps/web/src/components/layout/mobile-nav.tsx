@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { usePathname } from '@/i18n/navigation'
-import { NAV_DESIGN, NAV_TABS, ongletCourant } from '@/lib/navigation'
+import { NAV_DESIGN, NAV_GROUPES, NAV_TABS, ongletCourant } from '@/lib/navigation'
 
 import type { EtatMoteur } from '@/server/moteur'
 
@@ -44,7 +44,7 @@ export function MobileNav({ moteur }: { moteur?: { etat: EtatMoteur; reference: 
           variant="ghost"
           iconOnly
           icon={<Menu aria-hidden="true" />}
-          className="text-nav-ink-muted hover:bg-nav-hover hover:text-nav-ink lg:hidden"
+          className="-ml-1 text-ink-secondary hover:bg-surface-hover hover:text-ink-primary lg:hidden"
         >
           {t('openMenu')}
         </Button>
@@ -66,20 +66,30 @@ export function MobileNav({ moteur }: { moteur?: { etat: EtatMoteur; reference: 
             </Dialog.Close>
           </div>
 
+          {/* Mêmes familles que la colonne : une seule liste, deux rendus. */}
           <nav aria-label={tNav('label')} className="flex-1 overflow-y-auto p-3">
-            <ul className="flex flex-col gap-0.5">
-              {NAV_TABS.map((onglet) => (
-                <li key={onglet.key}>
-                  <NavItem
-                    href={onglet.href}
-                    icon={onglet.icon}
-                    label={tNav(onglet.key)}
-                    current={courant === onglet.href}
-                    onNavigate={fermer}
-                  />
-                </li>
+            <div className="flex flex-col gap-5">
+              {NAV_GROUPES.map((groupe) => (
+                <div key={groupe}>
+                  <h3 className="mb-2 px-2.5 text-2xs font-semibold tracking-caps text-ink-tertiary uppercase">
+                    {tNav(`groupes.${groupe}`)}
+                  </h3>
+                  <ul className="flex flex-col gap-0.5">
+                    {NAV_TABS.filter((onglet) => onglet.groupe === groupe).map((onglet) => (
+                      <li key={onglet.key}>
+                        <NavItem
+                          href={onglet.href}
+                          icon={onglet.icon}
+                          label={tNav(onglet.key)}
+                          current={courant === onglet.href}
+                          onNavigate={fermer}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
             <div className="mt-3 border-t-w border-line-subtle pt-3">
               <NavItem
                 href={NAV_DESIGN}

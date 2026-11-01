@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Panel } from '@/components/ui/panel'
+import { StatTile } from '@/components/ui/stat-tile'
 import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
@@ -58,7 +59,40 @@ export default async function DashboardPage({ params }: PageProps) {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={nouvelle} />
+      <PageHeader title={t('title')} description={t('description')} />
+
+      {/* Quatre mesures, comptées en base pour la session : combien de
+          communications je porte, combien attendent ma revue, combien
+          attendent une décision humaine, combien sont bloquées. */}
+      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatTile
+          label={t('tuiles.total')}
+          meta={t('tuiles.totalMeta')}
+          value={tableau.mesCommunications.length}
+          caption={t('tuiles.totalCaption')}
+        />
+        <StatTile
+          label={t('tuiles.aValider')}
+          meta={t('tuiles.aValiderMeta')}
+          value={tableau.parEtat['FAITS_A_VALIDER'] ?? 0}
+          caption={t('tuiles.aValiderCaption')}
+          ton="accent"
+        />
+        <StatTile
+          label={t('tuiles.enApprobation')}
+          meta={t('tuiles.enApprobationMeta')}
+          value={tableau.parEtat['EN_APPROBATION'] ?? 0}
+          caption={t('tuiles.enApprobationCaption')}
+          ton="attente"
+        />
+        <StatTile
+          label={t('tuiles.bloquees')}
+          meta={t('tuiles.bloqueesMeta')}
+          value={tableau.bloquees.length}
+          caption={tableau.bloquees.length === 0 ? t('tuiles.aucune') : t('tuiles.bloqueesCaption')}
+          ton={tableau.bloquees.length === 0 ? 'succes' : 'bloquant'}
+        />
+      </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <Panel

@@ -95,11 +95,12 @@
   --color-ai-ink: var(--color-ai-ink);
   --color-ai-solid: var(--color-ai-solid);
 
-  /* Barre de navigation supérieure (sombre dans les deux thèmes) */
+  /* Barre latérale et barre supérieure (elles suivent le thème) */
   --color-nav-surface: var(--color-nav-surface);
   --color-nav-hover: var(--color-nav-hover);
   --color-nav-sunken: var(--color-nav-sunken);
   --color-nav-selected: var(--color-nav-selected);
+  --color-nav-line: var(--color-nav-line);
   --color-nav-ink: var(--color-nav-ink);
   --color-nav-ink-muted: var(--color-nav-ink-muted);
   --color-nav-ok: var(--color-nav-ok);
@@ -115,6 +116,7 @@
 
   /* Typographie */
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --font-mono: var(--font-mono);
 
   --text-2xs: var(--text-2xs);
@@ -141,6 +143,7 @@
   --font-weight-semibold: var(--weight-semibold);
   --font-weight-bold: var(--weight-bold);
 
+  --tracking-display: var(--tracking-display);
   --tracking-tight: var(--tracking-tight);
   --tracking-snug: var(--tracking-snug);
   --tracking-normal: var(--tracking-normal);
@@ -172,6 +175,7 @@
   --spacing-chrome: var(--layout-chrome-height);
   --spacing-demo: var(--layout-demo-height);
   --spacing-page: var(--layout-max-width);
+  --spacing-sidebar: var(--layout-sidebar-width);
   --spacing-control-sm: var(--control-height-sm);
   --spacing-control-md: var(--control-height-md);
   --spacing-control-lg: var(--control-height-lg);

@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { ActionCard } from '@/components/ui/action-card'
+import { HeroBand } from '@/components/ui/hero-band'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage } from '@/server/pages'
@@ -31,8 +32,15 @@ export default async function GenerateurPage({ params }: PageProps) {
   const peutCreer = verifierDroit(acteur.utilisateur, 'CREER').autorise
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader title={t('title')} description={t('description')} />
+
+      <HeroBand
+        eyebrow={t('hero.eyebrow')}
+        title={t('hero.title')}
+        description={t('hero.description')}
+        chips={[t('hero.chips.etapes'), t('hero.chips.approbation'), t('hero.chips.citations')]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         {peutCreer ? (

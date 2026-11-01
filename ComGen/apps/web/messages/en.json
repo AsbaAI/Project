@@ -17,7 +17,9 @@
       "short": "Fictional data only."
     },
     "version": "Version {version}",
-    "poweredBy": "Powered by Multi-Provider AI"
+    "poweredBy": "Powered by Multi-Provider AI",
+    "studio": "Intelligence Studio",
+    "newCommunication": "New communication"
   },
   "approvals": {
     "title": "Approvals",
@@ -43,6 +45,26 @@
       "faite": "Done",
       "courante": "To do",
       "aVenir": "Upcoming"
+    },
+    "descriptions": {
+      "cadrage": "Nature, criticality, scope",
+      "source": "Document, text or ticket",
+      "faits": "Verified quotations",
+      "destinataires": "Audiences and templates",
+      "generation": "Variants and checks"
+    },
+    "compteurs": {
+      "source": "Frozen sources",
+      "faits": "Facts to review",
+      "destinataires": "Selected audiences",
+      "generation": "Variants produced"
+    },
+    "courts": {
+      "cadrage": "Framing",
+      "source": "Source",
+      "faits": "Facts",
+      "destinataires": "Audiences",
+      "generation": "Generation"
     }
   },
   "auth": {
@@ -541,7 +563,22 @@
       "TEXTE_SAISI": "Typed text",
       "CONNECTEUR": "ITSM tickets"
     },
-    "originCount": "{count, plural, one {# communication} other {# communications}}"
+    "originCount": "{count, plural, one {# communication} other {# communications}}",
+    "tuiles": {
+      "total": "My communications",
+      "totalMeta": "Excl. archived",
+      "totalCaption": "Where you are the author",
+      "aValider": "Facts to validate",
+      "aValiderMeta": "Review",
+      "aValiderCaption": "Sheets to review before generation",
+      "enApprobation": "In approval",
+      "enApprobationMeta": "Human",
+      "enApprobationCaption": "Awaiting a decision",
+      "bloquees": "Blocked",
+      "bloqueesMeta": "Action",
+      "bloqueesCaption": "A contradiction or a refusal to settle",
+      "aucune": "Nothing to settle"
+    }
   },
   "design": {
     "title": "Design system",
@@ -788,6 +825,16 @@
     "wip": {
       "title": "Wizard under construction",
       "description": "The five steps — start, fact check, recipients, output, approval — arrive at step 3 of the redesign. The two doors above lead to the existing screens, which already work."
+    },
+    "hero": {
+      "eyebrow": "Verified workflow",
+      "title": "Every communication stays tied to its source.",
+      "description": "Agents read, extract and suggest; the value of a number, a date or a version is injected by code and checked again word for word. Nothing is sent without human approval.",
+      "chips": {
+        "etapes": "Five steps",
+        "approbation": "Human approval",
+        "citations": "Verified quotations"
+      }
     }
   },
   "home": {
@@ -979,7 +1026,14 @@
     "templateBuilder": "Template Builder",
     "analytics": "Analytics",
     "settings": "Settings",
-    "design": "Design system"
+    "design": "Design system",
+    "groupes": {
+      "workspace": "Workspace",
+      "intelligence": "Intelligence",
+      "operations": "Operations"
+    },
+    "workspace": "Workspace",
+    "breadcrumb": "Breadcrumb"
   },
   "notFound": {
     "title": "Page not found",

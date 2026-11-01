@@ -80,13 +80,22 @@ packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
 - Composants shadcn/Radix copiés et **entièrement restylés** : livrer
   l'apparence par défaut est interdit.
 - Une seule famille d'icônes (Lucide). Polices auto-hébergées (Fontsource).
-- Palette inspirée de TotalEnergies (voir `DECISIONS.md`, R1) : bleu
-  profond pour l'action et les liens, bleu vif pour les grandes surfaces,
-  orange (`emphasis-*`) pour l'action secondaire sous texte sombre, violet
-  (`ai-*`) pour ce qui vient d'un agent, jaune pour l'attente. Une couleur
-  vive ne porte jamais de texte sans passer par son palier 700. Dégradé
-  `bg-brand-gradient` : filet d'en-tête et chronologie des agents, nulle
-  part ailleurs. Une seule action principale par écran.
+- Direction « Atelier » (V5, voir `DECISIONS.md`) : canevas ivoire froid,
+  surfaces blanches, encre graphite, **lavande** (`accent-*`) pour le texte
+  d'accent, les liens et la navigation retenue, **graphite** pour l'aplat de
+  l'action principale (une lavande pleine sous du blanc ne tient pas l'AA),
+  sauge pour le succès, champagne (`emphasis-*`) pour l'attente, rose
+  profond pour le blocage, lavande vive (`ai-*`) pour ce qui vient d'un
+  agent. Une couleur vive ne porte jamais de texte sans passer par son
+  palier foncé. Lavis `bg-brand-wash` : bandeau d'accueil seulement. Une
+  seule action principale par écran.
+- Deux familles : **DM Sans** pour le corps, **Manrope** pour les titres et
+  les grands nombres, en graisse légère et interlettrage resserré
+  (`font-display`, `tracking-display`). Les deux sont auto-hébergées.
+- La navigation est une **colonne** (`components/layout/sidebar.tsx`), trois
+  familles tirées de `lib/navigation.ts` ; la barre supérieure ne porte que
+  le fil d'Ariane, l'état du moteur, la langue, le thème et l'action
+  principale. Colonne et barre suivent le thème.
 - Aucune chaîne codée en dur : tout passe par `next-intl` (fr, en).
 - Chaque écran est capturé (clair/sombre × bureau/téléphone) et **relu**
   avant d'être déclaré fini.

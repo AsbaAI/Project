@@ -17,7 +17,9 @@
       "short": "Données fictives uniquement."
     },
     "version": "Version {version}",
-    "poweredBy": "Propulsé par Multi-Provider AI"
+    "poweredBy": "Propulsé par Multi-Provider AI",
+    "studio": "Intelligence Studio",
+    "newCommunication": "Nouvelle communication"
   },
   "approvals": {
     "title": "Approbations",
@@ -43,6 +45,26 @@
       "faite": "Fait",
       "courante": "À faire",
       "aVenir": "À venir"
+    },
+    "descriptions": {
+      "cadrage": "Nature, criticité, portée",
+      "source": "Document, texte ou ticket",
+      "faits": "Citations vérifiées",
+      "destinataires": "Audiences et gabarits",
+      "generation": "Variantes et contrôles"
+    },
+    "compteurs": {
+      "source": "Sources figées",
+      "faits": "Faits à revoir",
+      "destinataires": "Audiences retenues",
+      "generation": "Variantes produites"
+    },
+    "courts": {
+      "cadrage": "Cadrage",
+      "source": "Source",
+      "faits": "Faits",
+      "destinataires": "Audiences",
+      "generation": "Génération"
     }
   },
   "auth": {
@@ -541,7 +563,22 @@
       "TEXTE_SAISI": "Texte saisi",
       "CONNECTEUR": "Tickets ITSM"
     },
-    "originCount": "{count, plural, one {# communication} other {# communications}}"
+    "originCount": "{count, plural, one {# communication} other {# communications}}",
+    "tuiles": {
+      "total": "Mes communications",
+      "totalMeta": "Hors archives",
+      "totalCaption": "Dont vous êtes l'auteur",
+      "aValider": "Faits à valider",
+      "aValiderMeta": "Revue",
+      "aValiderCaption": "Fiches à revoir avant génération",
+      "enApprobation": "En approbation",
+      "enApprobationMeta": "Humain",
+      "enApprobationCaption": "Attendent une décision",
+      "bloquees": "Bloquées",
+      "bloqueesMeta": "Action",
+      "bloqueesCaption": "Une contradiction ou un refus à trancher",
+      "aucune": "Rien à trancher"
+    }
   },
   "design": {
     "title": "Système de design",
@@ -788,6 +825,16 @@
     "wip": {
       "title": "Assistant en cours de construction",
       "description": "Les cinq étapes — départ, vérification des faits, destinataires, sortie, approbation — arrivent à l’étape 3 de la refonte. Les deux portes ci-dessus mènent aux écrans existants, qui fonctionnent déjà."
+    },
+    "hero": {
+      "eyebrow": "Parcours vérifié",
+      "title": "Chaque communication reste attachée à sa source.",
+      "description": "Les agents lisent, relèvent et proposent ; la valeur d'un nombre, d'une date ou d'une version est injectée par du code et revérifiée mot pour mot. Rien ne part sans une approbation humaine.",
+      "chips": {
+        "etapes": "Cinq étapes",
+        "approbation": "Approbation humaine",
+        "citations": "Citations vérifiées"
+      }
     }
   },
   "home": {
@@ -979,7 +1026,14 @@
     "templateBuilder": "Constructeur",
     "analytics": "Analyses",
     "settings": "Paramètres",
-    "design": "Système de design"
+    "design": "Système de design",
+    "groupes": {
+      "workspace": "Espace de travail",
+      "intelligence": "Intelligence",
+      "operations": "Opérations"
+    },
+    "workspace": "Espace de travail",
+    "breadcrumb": "Fil d'Ariane"
   },
   "notFound": {
     "title": "Page introuvable",

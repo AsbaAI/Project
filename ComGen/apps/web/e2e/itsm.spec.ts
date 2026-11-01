@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { COMPTES } from './environnement'
-import { attendreRendu } from './outils'
+import { attendreRendu, estTelephone } from './outils'
 
 /*
  * Source ITSM, de bout en bout, sur l'adaptateur de démonstration
@@ -40,7 +40,11 @@ test('un ticket devient une source masquée, et la fiche de faits s’ouvre', as
   await page.getByRole('button', { name: 'Filtrer' }).click()
   await expect(page).toHaveURL(/statuts=EN_COURS/)
   await attendreRendu(page)
-  await expect(page.getByRole('cell', { name: 'EN COURS' }).first()).toBeVisible()
+  // La colonne « statut » cède la place sur téléphone : on ne la vérifie
+  // qu'où elle existe.
+  if (!estTelephone()) {
+    await expect(page.getByRole('cell', { name: 'EN COURS' }).first()).toBeVisible()
+  }
 
   const numero =
     (await page
@@ -63,9 +67,8 @@ test('un ticket devient une source masquée, et la fiche de faits s’ouvre', as
 
   // Les notes de travail n'entrent que sur demande.
   await page.getByRole('link', { name: 'Inclure les notes de travail' }).click()
-  await attendreRendu(page)
-  const avecNotes = (await page.locator('pre').first().textContent()) ?? ''
-  expect(avecNotes).toMatch(/Notes de travail|Work notes/u)
+  await expect(page).toHaveURL(/notes=1/)
+  await expect(page.locator('pre').first()).toContainText(/Notes de travail|Work notes/u)
 
   await page.getByRole('button', { name: 'Utiliser comme source' }).click()
   await expect(page).toHaveURL(/\/faits$/)

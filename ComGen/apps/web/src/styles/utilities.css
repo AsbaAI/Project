@@ -128,3 +128,17 @@
     transform: translateY(0);
   }
 }
+
+/*
+ * Lavis de marque : le fond du bandeau d'accueil. Un seul dégradé, très
+ * peu contrasté, qui ne porte jamais de texte à lui seul — le texte posé
+ * dessus reste sur les jetons d'encre habituels.
+ */
+@utility bg-brand-wash {
+  background-image: linear-gradient(
+    113deg,
+    var(--color-accent-bg) 0%,
+    var(--color-surface-raised) 62%,
+    var(--color-ai-bg) 100%
+  );
+}
