@@ -38,6 +38,34 @@ export function texteDuDocument(document: unknown): string {
   return morceaux.join('').replace(/\n+$/, '')
 }
 
+/** Rôle d'un paragraphe dans la communication. Inconnu si le document n'en porte pas. */
+export type RoleParagraphe = 'ouverture' | 'corps' | 'cloture'
+
+const ROLES = new Set<string>(['ouverture', 'corps', 'cloture'])
+
+/**
+ * Paragraphes d'un document, avec leur rôle quand il est écrit.
+ *
+ * Le rôle sert à la mise en page — une ouverture ne se lit pas comme un
+ * corps. Un document ancien n'en porte pas : ses paragraphes sont alors
+ * tous rendus en corps, ce qui reste juste, seulement moins précis.
+ */
+export function paragraphesDuDocument(
+  document: unknown,
+): readonly { role: RoleParagraphe; texte: string }[] {
+  if (!estObjet(document)) return []
+  const contenu = document['content']
+  if (!Array.isArray(contenu)) return []
+  return contenu.flatMap((noeud) => {
+    const texte = texteDuDocument({ type: 'doc', content: [noeud] })
+    if (texte.length === 0) return []
+    const attrs = estObjet(noeud) ? noeud['attrs'] : undefined
+    const brut = estObjet(attrs) ? attrs['role'] : undefined
+    const role = typeof brut === 'string' && ROLES.has(brut) ? (brut as RoleParagraphe) : 'corps'
+    return [{ role, texte }]
+  })
+}
+
 /** Nombre de mots : suites de lettres, chiffres ou apostrophes séparées par des blancs. */
 export function compterMots(texte: string): number {
   const mots = texte.match(/[\p{L}\p{N}][\p{L}\p{N}'’.,-]*/gu)

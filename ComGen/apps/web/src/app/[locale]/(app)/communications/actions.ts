@@ -1,18 +1,16 @@
 'use server'
 
+import { estErreurItsm } from '@comgen/connecteurs'
 import { ETATS_COMMUNICATION, type EtatCommunication } from '@comgen/core'
-import { revalidatePath } from 'next/cache'
 import { getLocale } from 'next-intl/server'
 
 import { redirect } from '@/i18n/navigation'
-import { CHEMIN_CONNEXION } from '@/server/auth/config'
-import { ErreurAutorisation } from '@/server/auth/droits'
-import { ErreurAuthentification, exigerSession } from '@/server/auth/session'
+
 import { changerEtat, creerCommunication } from '@/server/services/communications'
 import { dependancesEntree } from '@/server/services/dependances'
-import { type Acteur, ErreurMetier } from '@/server/services/erreurs'
 import {
   ajouterFait,
+  confirmerTousLesFaits,
   amenderValeur,
   changerConfidentialiteFait,
   confirmerFait,
@@ -22,6 +20,14 @@ import {
 } from '@/server/services/faits'
 import { type ResultatDepot, deposerFichiers, saisirTexte } from '@/server/services/sources'
 
+import { choisirDestinataires } from '@/server/services/generation'
+import { decider, soumettreALApprobation } from '@/server/services/approbation'
+import { annulerEnvoi, confirmerEnvoi, planifierEnvoi } from '@/server/services/envoi'
+import { importerTicketItsm } from '@/server/services/itsm'
+
+import { executer, prochainJeton, texte } from '@/server/actions-formulaire'
+import { ErreurMetier } from '@/server/services/erreurs'
+
 import type { EtatFormulaire } from './etat-formulaire'
 
 /*
@@ -30,61 +36,6 @@ import type { EtatFormulaire } from './etat-formulaire'
  * traduisent son issue en un état que le formulaire affiche. Le droit, la
  * validation et les règles sont dans les services.
  */
-
-function texte(formulaire: FormData, champ: string): string | undefined {
-  const valeur = formulaire.get(champ)
-  return typeof valeur === 'string' ? valeur : undefined
-}
-
-let jeton = 0
-const prochainJeton = () => {
-  jeton += 1
-  return jeton
-}
-
-/**
- * Exécute une opération pour l'acteur de la session. Une erreur attendue
- * (métier, droit) devient un état affichable ; toute autre erreur remonte
- * telle quelle jusqu'à la page d'erreur : jamais de succès supposé.
- */
-async function executer(
-  formulaire: FormData,
-  operation: (acteur: Acteur) => Promise<EtatFormulaire | void>,
-): Promise<EtatFormulaire> {
-  const valeurs: Record<string, string> = {}
-  for (const [cle, valeur] of formulaire.entries()) {
-    if (typeof valeur === 'string') valeurs[cle] = valeur
-  }
-  let acteur: Acteur
-  try {
-    acteur = await exigerSession()
-  } catch (erreur) {
-    if (erreur instanceof ErreurAuthentification) {
-      redirect({ href: CHEMIN_CONNEXION, locale: await getLocale() })
-    }
-    throw erreur
-  }
-  try {
-    const resultat = await operation(acteur)
-    revalidatePath('/', 'layout')
-    return resultat ?? { statut: 'ok', jeton: prochainJeton() }
-  } catch (erreur) {
-    if (erreur instanceof ErreurMetier) {
-      return {
-        statut: 'erreur',
-        code: erreur.code,
-        ...(erreur.details.champs ? { champs: { ...erreur.details.champs } } : {}),
-        ...(erreur.details.motifs ? { motifs: [...erreur.details.motifs] } : {}),
-        valeurs,
-        jeton: prochainJeton(),
-      }
-    }
-    if (erreur instanceof ErreurAutorisation) {
-      return { statut: 'erreur', code: 'NON_AUTORISE', valeurs, jeton: prochainJeton() }
-    }
-    throw erreur
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Cadrage
@@ -235,5 +186,113 @@ export async function actionAjouterFait(
       valeur: texte(formulaire, 'valeur'),
       confidentialite: texte(formulaire, 'confidentialite'),
     })
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Destinataires et génération
+// ---------------------------------------------------------------------------
+
+export async function actionChoisirDestinataires(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const communicationId = texte(formulaire, 'communicationId') ?? ''
+  // Plusieurs cases du même nom : `getAll`, pas `get`.
+  const personaIds = formulaire
+    .getAll('personaIds')
+    .filter((valeur): valeur is string => typeof valeur === 'string')
+  return executer(formulaire, async (acteur) => {
+    await choisirDestinataires(acteur, { communicationId, personaIds })
+  })
+}
+
+/*
+ * Import d'un ticket ITSM comme source. Une panne de l'outil (instance
+ * indisponible, jeton expiré) n'est pas une erreur de saisie : son code
+ * part tel quel et l'écran le traduit.
+ */
+/*
+ * Confirmation en lot. Le service décide seul de ce qu'il confirme et de
+ * ce qu'il laisse ; l'action ne fait que rapporter son bilan, pour que
+ * l'écran ne laisse jamais croire que tout a été revu.
+ */
+export async function actionConfirmerTousLesFaits(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  return executer(formulaire, async (acteur) => {
+    const bilan = await confirmerTousLesFaits(acteur, id)
+    return { statut: 'bilan', ...bilan, jeton: prochainJeton() }
+  })
+}
+
+export async function actionImporterTicket(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  let importe = false
+  const etat = await executer(formulaire, async (acteur) => {
+    try {
+      await importerTicketItsm(acteur, {
+        communicationId: id,
+        idExterne: texte(formulaire, 'idExterne') ?? '',
+        avecNotes: formulaire.get('avecNotes') !== null,
+        confidentialite: texte(formulaire, 'confidentialite'),
+      })
+    } catch (erreur) {
+      if (estErreurItsm(erreur)) {
+        return { statut: 'erreur', code: erreur.code, jeton: prochainJeton() }
+      }
+      throw erreur
+    }
+    importe = true
+    return undefined
+  })
+  if (importe) {
+    redirect({ href: `/communications/${id}/faits`, locale: await getLocale() })
+  }
+  return etat
+}
+
+/** Soumission à l'approbation : le service désigne les approbateurs et garde la porte. */
+export async function actionSoumettreApprobation(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  return executer(formulaire, async (acteur) => {
+    await soumettreALApprobation(acteur, id)
+  })
+}
+
+/** Décision d'un approbateur. Le bouton pressé porte la décision, pas un champ caché. */
+export async function actionDecider(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  return executer(formulaire, async (acteur) => {
+    await decider(acteur, {
+      communicationId: texte(formulaire, 'communicationId') ?? '',
+      decision: texte(formulaire, 'decision') ?? '',
+      commentaire: texte(formulaire, 'commentaire'),
+    })
+  })
+}
+
+/** Les trois gestes de l'envoi, portés par le bouton pressé (`intention`). */
+export async function actionEnvoi(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  const intention = texte(formulaire, 'intention')
+  return executer(formulaire, async (acteur) => {
+    if (intention === 'planifier') await planifierEnvoi(acteur, id)
+    else if (intention === 'confirmer') await confirmerEnvoi(acteur, id)
+    else if (intention === 'annuler') await annulerEnvoi(acteur, id)
+    else throw new ErreurMetier('DONNEES_INVALIDES', 'Intention inconnue')
   })
 }

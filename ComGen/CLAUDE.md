@@ -43,15 +43,24 @@ factuelle impossible, pas celle qui rend l'usage plus fluide.
 ```
 apps/web          Next.js (App Router) — interface et routes API
 packages/core     domaine : machine à états, contrôles déterministes, types
-packages/agents   agents : schémas Zod, prompts versionnés, FournisseurModele
+packages/agents   agents : contrat `Agent`, orchestrateur, agents simulés,
+                  schémas Zod, prompts versionnés, FournisseurModele
 packages/workers  consommateurs BullMQ, un worker par rôle d'agent
 packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
+packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
+                  ServiceNow, adaptateur mock, garde d'URL, texte de source
 ```
 
 - `web` et `workers` dépendent de `core`. **`core` ne dépend de rien.**
+- `connecteurs` ne connaît ni la base, ni l'interface, ni l'environnement :
+  les identifiants lui sont remis déjà résolus. Le masquage, lui, est une
+  fonction pure de `core` — il s'applique AVANT que la source soit écrite.
 - Les contrôles déterministes sont des **fonctions pures** dans `core`,
   testées unitairement, sans modèle.
 - Aucun SDK de fournisseur hors de son adaptateur (`packages/agents/src/fournisseurs/*`).
+- Un seul contrat d'agent (`Agent<E, S>`), réel ou simulé ; la sortie est
+  validée par son schéma Zod à la frontière de l'orchestrateur, et la trace
+  dit toujours `simule`. La fabrique nomme la raison du mode.
 - Aucun client Prisma nu dans le code applicatif : accès via un contexte
   porteur de l'organisation.
 - Aucune logique métier dans un composant React. Aucune décision de droit
@@ -71,13 +80,22 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
 - Composants shadcn/Radix copiés et **entièrement restylés** : livrer
   l'apparence par défaut est interdit.
 - Une seule famille d'icônes (Lucide). Polices auto-hébergées (Fontsource).
-- Palette inspirée de TotalEnergies (voir `DECISIONS.md`, R1) : bleu
-  profond pour l'action et les liens, bleu vif pour les grandes surfaces,
-  orange (`emphasis-*`) pour l'action secondaire sous texte sombre, violet
-  (`ai-*`) pour ce qui vient d'un agent, jaune pour l'attente. Une couleur
-  vive ne porte jamais de texte sans passer par son palier 700. Dégradé
-  `bg-brand-gradient` : filet d'en-tête et chronologie des agents, nulle
-  part ailleurs. Une seule action principale par écran.
+- Direction « Atelier » (V5, voir `DECISIONS.md`) : canevas ivoire froid,
+  surfaces blanches, encre graphite, **lavande** (`accent-*`) pour le texte
+  d'accent, les liens et la navigation retenue, **graphite** pour l'aplat de
+  l'action principale (une lavande pleine sous du blanc ne tient pas l'AA),
+  sauge pour le succès, champagne (`emphasis-*`) pour l'attente, rose
+  profond pour le blocage, lavande vive (`ai-*`) pour ce qui vient d'un
+  agent. Une couleur vive ne porte jamais de texte sans passer par son
+  palier foncé. Lavis `bg-brand-wash` : bandeau d'accueil seulement. Une
+  seule action principale par écran.
+- Deux familles : **DM Sans** pour le corps, **Manrope** pour les titres et
+  les grands nombres, en graisse légère et interlettrage resserré
+  (`font-display`, `tracking-display`). Les deux sont auto-hébergées.
+- La navigation est une **colonne** (`components/layout/sidebar.tsx`), trois
+  familles tirées de `lib/navigation.ts` ; la barre supérieure ne porte que
+  le fil d'Ariane, l'état du moteur, la langue, le thème et l'action
+  principale. Colonne et barre suivent le thème.
 - Aucune chaîne codée en dur : tout passe par `next-intl` (fr, en).
 - Chaque écran est capturé (clair/sombre × bureau/téléphone) et **relu**
   avant d'être déclaré fini.
@@ -154,6 +172,27 @@ packages/db       schéma Prisma, contexte d'accès cloisonné par organisation
   `exigerDroit` (`server/auth/droits.ts`) ; lèvent `ErreurMetier(code, …)`.
   Les transitions manuelles sont une liste blanche (`services/etat.ts`) :
   aucun chemin manuel vers `EN_APPROBATION`, `APPROUVEE`, `ENVOYEE`.
+- **Routes API** (`app/api/…`) : minces, comme les actions. Elles
+  contrôlent l'origine (`requeteDeMemeOrigine` : une route API n'a pas la
+  garde CSRF des actions serveur), relisent la session (`exigerSession` →
+  401, jamais de redirection), puis délèguent à un service. Un flux est une
+  ligne JSON par message (`lib/flux-agents.ts`), relu par un schéma côté
+  client : une ligne illisible fait échouer le flux. Un refus de service
+  part en **code** traduisible, jamais en message technique : le motif d'un
+  refus de droit et le message d'une exception étrangère ne sortent pas du
+  serveur. Exceptions : les sondes `/api/sante` et `/api/pret`, sans
+  session, qui ne disent qu'un verdict (`server/sante.ts`).
+- **Consignes d'agent** : le texte vit en base (`ConsigneAgent`, une par
+  organisation et par rôle), versionné par un déclencheur SQL ; seul
+  l'identifiant `org/<role>@<version>` voyage dans une trace. Une consigne
+  est refusée par `verifierConsigne` (core) si elle demande d'écrire une
+  valeur, d'inventer, d'ignorer la source ou de répondre en texte libre.
+- **Agents** : les services passent par `fabriqueAgents()` (jamais
+  `agentsSimules()` en direct) et par `orchestrer()`. Les délais de la
+  simulation sont injectés (`attendre`) au bord du serveur, pas dans
+  l'agent : les tests n'en fournissent pas. Une génération qui échoue
+  trace l'échec dans `Execution` mais n'écrit aucun texte ; l'écran ne
+  montre que les agents de la dernière génération réussie (série).
 - **Formulaires** : React 19 réinitialise un formulaire après son action.
   L'action renvoie les valeurs soumises, le formulaire se remonte avec
   `key={cleFormulaire(etat)}` et relit `valeurSoumise(etat, champ)`.
@@ -213,6 +252,15 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   `apps/web`, projet Vitest `services`, migrée par son `globalSetup`),
   `comgen_e2e` (Playwright, migrée puis remise au seed par la commande du
   `webServer` — Playwright lance le serveur **avant** `globalSetup`).
+- Le seed charge 6 communications écrites à la main puis 150 engendrées
+  (`prisma/seed/historique.ts`), six mois, déterministes. Les faits y sont
+  **relevés** du texte, jamais recopiés ; une communication `ENVOYEE` porte
+  sa variante, son approbation et son envoi, sinon le seed refuse.
+- **Un seul `.env`, à la racine de l'espace de travail.** Prisma 7 ne le
+  charge plus seul et Next ne lit que ceux de `apps/web` : il est chargé
+  explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+  `next.config.ts`, et par `--env-file-if-exists` pour le seed. Ces appels
+  n'écrasent aucune variable déjà posée (plateforme, shell, Playwright).
 - `.env.example` documente chaque variable. `COMGEN_ENV` sépare le lieu
   de déploiement du mode de build : `next start` vaut production, où le
   simulateur de connexion est refusé ; Playwright déclare `COMGEN_ENV=test`.
@@ -220,6 +268,14 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
   `docs/DEPLOIEMENT.md`) admet le simulateur et affiche le bandeau. Tout
   décalage sous l'en-tête part de `--layout-chrome-height`, jamais de
   `--layout-header-height` seul.
+- `@comgen/db` peut être embarqué en plusieurs copies par le bundler
+  serveur (une par route API) : la clé du client Prisma est donc un
+  `Symbol.for`, pas un `Symbol` local, sinon une connexion ouverte par une
+  copie est illisible pour une autre (500 sur la première route API).
+- Playwright : si le Chromium attendu n'existe pas mais qu'un autre est
+  fourni (`/opt/pw-browsers/chromium`), `PLAYWRIGHT_CHROMIUM_PATH` le
+  désigne. Les appels d'API de `generation-flux.spec.ts` ne se jouent que
+  sur `bureau-clair`.
 - E2E : la rédactrice Helvea (captures) et la rédactrice Kestrel
   (parcours qui écrivent) se connectent par l'écran réel
   (`e2e/connexion.setup.ts`) ; les écrans capturés ne changent donc pas
@@ -227,8 +283,10 @@ configurations, axe-core sans violation grave, `CLAUDE.md` et
 - Le nom accessible d'un champ inclut sa mention (« Titre obligatoire ») ;
   les suggestions `aka getByLabel('Titreobligatoire')` de Playwright
   viennent du `textContent`, pas de l'arbre d'accessibilité.
-- Chromium Playwright préinstallé dans `/opt/pw-browsers` (build 1194 ↔
-  Playwright 1.56) ; ne pas exécuter `playwright install`.
+- Chromium Playwright préinstallé dans `/opt/pw-browsers` ; ne pas exécuter
+  `playwright install`. Son numéro de build change quand l'image de la
+  machine change (1194, puis 1243) : s'il ne correspond pas à celui que
+  Playwright attend, `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium`.
 - Pas d'accès réseau sortant direct depuis le navigateur headless
   (proxy) : polices et ressources doivent être auto-hébergées.
 - Aucune clé de fournisseur de modèle disponible : les adaptateurs sont

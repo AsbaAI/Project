@@ -20,6 +20,9 @@ export const ENV_E2E = {
   AUTH_URL: URL_E2E,
   AUTH_SIMULATEUR: 'true',
   ANTIVIRUS_MODE: 'aucun',
+  // Connecteur ITSM en démonstration : des tickets fictifs, aucune instance
+  // jointe, et donc aucun identifiant en jeu dans les tests.
+  ITSM_MODE: 'mock',
   STOCKAGE_TYPE: 'fichiers',
   STOCKAGE_RACINE: path.join(RACINE_DEPOT, '.local', 'e2e', 'stockage'),
 } as const
@@ -30,6 +33,11 @@ export const COMPTES = {
   redactrice: {
     courriel: 'claire.fontaine@helvea.example',
     etat: path.join(import.meta.dirname, '.auth', 'redactrice.json'),
+  },
+  /** Administratrice Helvea : écrans de paramétrage, lus sans jamais être modifiés. */
+  administratrice: {
+    courriel: 'nadia.benali@helvea.example',
+    etat: path.join(import.meta.dirname, '.auth', 'administratrice.json'),
   },
   /** Rédactrice Kestrel : parcours qui écrivent, isolés des captures par l'organisation. */
   parcours: {

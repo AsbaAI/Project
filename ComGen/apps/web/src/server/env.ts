@@ -18,6 +18,34 @@ const booleen = z
   .optional()
   .default(false)
 
+/** Comme `booleen`, mais vrai quand la variable est absente. */
+const booleenParDefautVrai = z
+  .enum(['true', 'false', '1', '0'])
+  .transform((v) => v === 'true' || v === '1')
+  .optional()
+  .default(true)
+
+/**
+ * Une liste d'hôtes séparés par des virgules : `.service-now.com`
+ * (suffixe de domaine) ou `itsm.entreprise.example` (hôte entier). Ni schéma,
+ * ni chemin, ni générique : ce que l'on écrit ici décide où partent les
+ * identifiants de l'ITSM.
+ */
+const HOTE_OU_SUFFIXE =
+  /^\.?[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/u
+const listeDHotes = z
+  .string()
+  .optional()
+  .transform((brut) =>
+    (brut ?? '')
+      .split(',')
+      .map((entree) => entree.trim().toLowerCase())
+      .filter((entree) => entree.length > 0),
+  )
+  .refine((entrees) => entrees.every((entree) => HOTE_OU_SUFFIXE.test(entree)), {
+    error: 'une liste d’hôtes (`.exemple.com` ou `itsm.exemple.com`), séparés par des virgules',
+  })
+
 const SchemaEnvironnement = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -39,6 +67,24 @@ const SchemaEnvironnement = z
     AUTH_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
     /** Connexion simulée (choix d'un utilisateur de démonstration) : jamais en production. */
     AUTH_SIMULATEUR: booleen,
+    /**
+     * Échelonne les agents simulés (1 à 3 s chacun) pour qu'on les voie
+     * travailler. Actif par défaut : c'est le comportement de la
+     * démonstration. Les tests de bout en bout et la CI peuvent l'éteindre.
+     */
+    COMGEN_DELAIS_SIMULATION: booleenParDefautVrai,
+    /**
+     * Connecteur ITSM. `mock` : tickets fictifs pour tout le monde (démonstration) ;
+     * `servicenow` : la configuration de chaque organisation, en base ;
+     * `desactive` : pas de source ITSM nulle part.
+     */
+    ITSM_MODE: z.enum(['mock', 'servicenow', 'desactive']).default('servicenow'),
+    /**
+     * Hôtes autorisés EN PLUS de `.service-now.com`, pour une instance privée. Les
+     * secrets du connecteur sont, eux, des variables `ITSM_…` désignées par la
+     * configuration de l'organisation : jamais saisis, jamais en base.
+     */
+    ITSM_HOTES_AUTORISES: listeDHotes,
     STOCKAGE_TYPE: z.enum(['fichiers', 's3']).default('fichiers'),
     STOCKAGE_RACINE: z.string().min(1).optional(),
     S3_ENDPOINT: z.string().url().optional(),

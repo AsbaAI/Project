@@ -1,12 +1,22 @@
 import { createHash, randomUUID } from 'node:crypto'
 
 import {
+  type Agent,
+  type JeuAgents,
+  type SortieAnalyste,
+  type SortieExtracteur,
+  type SortieSuggesteur,
+  estErreurOrchestration,
+  etape,
+  fabriqueAgents,
+  orchestrer,
+} from '@comgen/agents'
+import {
   NIVEAUX,
   type Niveau,
   detecterLangue,
   formaterReferenceFait,
   normaliserTexteSource,
-  proposerFaitsCandidats,
   verifierCitation,
 } from '@comgen/core'
 import type { ContexteTransaction, Prisma } from '@comgen/db'
@@ -25,6 +35,7 @@ import { type Stockage, cleSource } from '@/server/stockage'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
 import { ETATS_ENTREE_OUVERTE } from './etat'
+import { type LigneExecution, ligneEchouee, ligneReussie } from './executions'
 
 /**
  * Entrée des sources (spécification §10) : dépôt de fichiers et texte saisi.
@@ -80,11 +91,11 @@ const TYPES_MIME: Readonly<Record<FormatSource, string>> = {
   image: 'application/octet-stream',
 }
 
-function empreinte(texte: string): string {
+export function empreinteTexte(texte: string): string {
   return createHash('sha256').update(texte, 'utf8').digest('hex')
 }
 
-function nouvelIdentifiantSource(): string {
+export function nouvelIdentifiantSource(): string {
   return `src_${randomUUID().replaceAll('-', '')}`
 }
 
@@ -107,15 +118,107 @@ async function communicationOuverte(
   return communication
 }
 
-interface SourcePreparee {
+export interface SourcePreparee {
   id: string
   nom: string
-  type: 'FICHIER' | 'TEXTE_SAISI'
+  type: 'FICHIER' | 'TEXTE_SAISI' | 'CONNECTEUR'
   contenuTexte: string
   empreinte: string
   langue: string | null
   confidentialite: Niveau
   cheminStockage: string | null
+  /**
+   * D'où vient la source quand elle n'est ni un fichier ni un texte saisi :
+   * de quoi retrouver le ticket, jamais le ticket brut.
+   */
+  origineExterne?: Prisma.InputJsonObject
+}
+
+/** Ce que les agents ont lu d'une source : propositions, et trace de chacun. */
+interface LectureSource {
+  faits: SortieExtracteur['faits']
+  audiences: SortieAnalyste['suggestions']
+  cadrage: SortieSuggesteur | null
+  executions: LigneExecution[]
+}
+
+type AgentsSource = Pick<JeuAgents['agents'], 'extracteur' | 'analyste' | 'suggesteur'>
+
+/**
+ * Un agent, seul, par l'orchestrateur : sa sortie est revalidée contre son
+ * schéma, et son échec devient un résultat daté plutôt qu'une exception.
+ *
+ * Seul et non en chaîne : l'extracteur, l'analyste et le suggesteur lisent
+ * la même source sans rien se transmettre. En chaîne, l'échec de l'un
+ * annulerait les autres — or une source sans valeur fait légitimement
+ * échouer l'extracteur, et l'analyste a encore quelque chose à en dire.
+ */
+async function lireAvec<E, S>(
+  agent: Agent<E, S>,
+  entree: E,
+  serie: string,
+  sourceId: string,
+): Promise<
+  { sortie: S; ligne: LigneExecution } | { sortie: null; ligne: LigneExecution; code: string }
+> {
+  try {
+    const resultat = await orchestrer<{ sortie: S | null }>({
+      etapes: [
+        etape(
+          agent,
+          () => entree,
+          (_dossier, sortie) => ({ sortie }),
+        ),
+      ],
+      dossier: { sortie: null },
+      contexte: {},
+    })
+    const trace = resultat.traces[0]
+    if (resultat.dossier.sortie === null || trace === undefined) {
+      throw new Error(`L'agent ${agent.role} a fini sans sortie ni trace`)
+    }
+    return { sortie: resultat.dossier.sortie, ligne: ligneReussie(trace, serie, sourceId) }
+  } catch (erreur) {
+    if (!estErreurOrchestration(erreur)) throw erreur
+    const echouee = erreur.etapes.find((e) => e.etat === 'ECHOUEE') ?? {
+      role: agent.role,
+      version: agent.version,
+    }
+    return {
+      sortie: null,
+      code: erreur.code,
+      ligne: ligneEchouee(echouee, 'simulation', serie, erreur.message, sourceId),
+    }
+  }
+}
+
+/**
+ * Les trois agents lisent une source.
+ *
+ * Seule l'extraction est indispensable : un extracteur qui tombe en panne
+ * fait échouer le dépôt, un résultat sans faits ne se présente pas comme un
+ * résultat. Mais une source dont rien ne se laisse relever (`SOURCE_INEXPLOITABLE`)
+ * n'est pas une panne : elle se dépose sans fait, et le rédacteur en ajoute
+ * à la main. L'analyste et le suggesteur, eux, ne font que proposer : leur
+ * échec est tracé, il ne bloque rien.
+ */
+async function lireSource(source: SourcePreparee, agents: AgentsSource): Promise<LectureSource> {
+  const serie = randomUUID()
+  const entree = { texte: source.contenuTexte }
+  const [extraction, analyse, suggestion] = await Promise.all([
+    lireAvec(agents.extracteur, entree, serie, source.id),
+    lireAvec(agents.analyste, entree, serie, source.id),
+    lireAvec(agents.suggesteur, entree, serie, source.id),
+  ])
+  if (extraction.sortie === null && extraction.code !== 'SOURCE_INEXPLOITABLE') {
+    throw new Error(`Extraction impossible pour ${source.nom} : ${extraction.ligne.erreur ?? ''}`)
+  }
+  return {
+    faits: extraction.sortie?.faits ?? [],
+    audiences: analyse.sortie?.suggestions ?? [],
+    cadrage: suggestion.sortie,
+    executions: [extraction.ligne, analyse.ligne, suggestion.ligne],
+  }
 }
 
 /**
@@ -124,11 +227,16 @@ interface SourcePreparee {
  * FAITS_A_VALIDER (transition libre, §7). Une citation candidate qui ne se
  * vérifie pas est un défaut du programme : tout est annulé.
  */
-async function enregistrerSources(
+export async function enregistrerSources(
   acteur: Acteur,
   communicationId: string,
   sources: readonly SourcePreparee[],
+  agents: AgentsSource,
 ): Promise<Map<string, number>> {
+  // Les agents lisent AVANT la transaction : on ne tient pas une transaction
+  // ouverte pendant qu'on attend un agent, et une lecture ratée n'a rien écrit.
+  const lectures = await Promise.all(sources.map((source) => lireSource(source, agents)))
+
   return acteur.contexte.$transaction(async (tx) => {
     await communicationOuverte(tx, communicationId)
 
@@ -143,9 +251,12 @@ async function enregistrerSources(
 
     const faits: Prisma.FaitCreateManyInput[] = []
     const parSource = new Map<string, number>()
-    for (const source of sources) {
-      const candidats = proposerFaitsCandidats(source.contenuTexte)
+    for (const [indice, source] of sources.entries()) {
+      const candidats = lectures[indice]?.faits ?? []
       for (const candidat of candidats) {
+        // La sortie d'un agent est une proposition, pas une donnée de
+        // confiance : la citation est relue dans le texte exact de la
+        // source, et la valeur dans sa citation, avant d'être écrite.
         const verification = verifierCitation(
           source.contenuTexte,
           candidat.citation,
@@ -153,6 +264,9 @@ async function enregistrerSources(
         )
         if (!verification.valide) {
           throw new Error(`Citation candidate invalide (${verification.motif}) dans ${source.id}`)
+        }
+        if (!candidat.citation.includes(candidat.valeur)) {
+          throw new Error(`Valeur absente de sa citation dans ${source.id}`)
         }
         numero += 1
         faits.push({
@@ -174,20 +288,52 @@ async function enregistrerSources(
     }
 
     await tx.source.createMany({
-      data: sources.map((source) => ({
-        id: source.id,
-        organisationId: acteur.utilisateur.organisationId,
-        communicationId,
-        type: source.type,
-        nom: source.nom,
-        empreinte: source.empreinte,
-        cheminStockage: source.cheminStockage,
-        contenuTexte: source.contenuTexte,
-        langue: source.langue,
-        confidentialite: source.confidentialite,
-      })),
+      data: sources.map((source, indice) => {
+        const cadrage = lectures[indice]?.cadrage
+        return {
+          id: source.id,
+          organisationId: acteur.utilisateur.organisationId,
+          communicationId,
+          type: source.type,
+          nom: source.nom,
+          empreinte: source.empreinte,
+          cheminStockage: source.cheminStockage,
+          contenuTexte: source.contenuTexte,
+          langue: source.langue,
+          confidentialite: source.confidentialite,
+          // La lecture du suggesteur reste avec la source qu'elle a lue ; elle
+          // n'est jamais appliquée au cadrage, que le rédacteur a saisi.
+          ...(cadrage === null || cadrage === undefined ? {} : { cadrageSuggere: cadrage }),
+          ...(source.origineExterne === undefined ? {} : { origineExterne: source.origineExterne }),
+        }
+      }),
     })
     if (faits.length > 0) await tx.fait.createMany({ data: faits })
+
+    const audiences = lectures.flatMap((lecture) => lecture.audiences)
+    if (audiences.length > 0) {
+      await tx.suggestionAudience.createMany({
+        data: audiences.map((audience) => ({
+          organisationId: acteur.utilisateur.organisationId,
+          communicationId,
+          origine: audience.origine,
+          dimension: audience.dimension,
+          justification: audience.justification,
+          extrait: audience.extrait,
+          pertinence: audience.pertinence,
+        })),
+      })
+    }
+    await tx.execution.createMany({
+      data: lectures
+        .flatMap((lecture) => lecture.executions)
+        .map((ligne) =>
+          Object.assign({}, ligne, {
+            organisationId: acteur.utilisateur.organisationId,
+            communicationId,
+          }),
+        ),
+    })
     await tx.communication.updateMany({
       where: { id: communicationId, etat: 'BROUILLON' },
       data: { etat: 'FAITS_A_VALIDER' },
@@ -196,7 +342,10 @@ async function enregistrerSources(
   })
 }
 
-async function empreintesExistantes(acteur: Acteur, communicationId: string): Promise<Set<string>> {
+export async function empreintesExistantes(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<Set<string>> {
   const lignes = await acteur.contexte.source.findMany({
     where: { communicationId },
     select: { empreinte: true },
@@ -247,7 +396,7 @@ export async function deposerFichiers(
   dependances: DependancesEntree,
   communicationId: string,
   fichiers: readonly FichierDepose[],
-  options: { confidentialite: string | undefined },
+  options: { confidentialite: string | undefined; agents?: Partial<AgentsSource> | undefined },
 ): Promise<ResultatDepot> {
   exigerDroit(acteur.utilisateur, 'EDITER')
   if (fichiers.length === 0 || fichiers.length > FICHIERS_PAR_DEPOT) {
@@ -282,7 +431,7 @@ export async function deposerFichiers(
       resultats.push(analyse)
       continue
     }
-    const somme = empreinte(analyse.texte)
+    const somme = empreinteTexte(analyse.texte)
     if (vues.has(somme)) {
       resultats.push({ nom: analyse.nom, statut: 'REFUSE', motif: 'EN_DOUBLE' })
       continue
@@ -323,7 +472,10 @@ export async function deposerFichiers(
     )
     let faitsParSource: Map<string, number>
     try {
-      faitsParSource = await enregistrerSources(acteur, communicationId, preparees)
+      faitsParSource = await enregistrerSources(acteur, communicationId, preparees, {
+        ...fabriqueAgents().agents,
+        ...options.agents,
+      })
     } catch (erreur) {
       await Promise.allSettled(
         preparees.map((source) => dependances.stockage.supprimer(source.cheminStockage ?? '')),
@@ -370,6 +522,7 @@ export async function saisirTexte(
   acteur: Acteur,
   communicationId: string,
   entree: EntreeTexteSaisi,
+  options: { agents?: Partial<AgentsSource> | undefined } = {},
 ): Promise<{ sourceId: string; faitsProposes: number; langue: string | null }> {
   exigerDroit(acteur.utilisateur, 'EDITER')
   const analyse = SchemaTexteSaisi.safeParse(entree)
@@ -381,7 +534,7 @@ export async function saisirTexte(
   await communicationOuverte(acteur.contexte, communicationId)
 
   const contenuTexte = normaliserTexteSource(analyse.data.texte)
-  const somme = empreinte(contenuTexte)
+  const somme = empreinteTexte(contenuTexte)
   if ((await empreintesExistantes(acteur, communicationId)).has(somme)) {
     throw new ErreurMetier('SOURCE_EN_DOUBLE', 'Ce texte est déjà une source de la communication', {
       champs: { texte: 'en_double' },
@@ -397,7 +550,10 @@ export async function saisirTexte(
     confidentialite: analyse.data.confidentialite,
     cheminStockage: null,
   }
-  const faitsParSource = await enregistrerSources(acteur, communicationId, [source])
+  const faitsParSource = await enregistrerSources(acteur, communicationId, [source], {
+    ...fabriqueAgents().agents,
+    ...options.agents,
+  })
   return {
     sourceId: source.id,
     faitsProposes: faitsParSource.get(source.id) ?? 0,

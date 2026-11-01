@@ -7,10 +7,12 @@ import { cn } from '@/lib/cn'
 import type { NavHref } from '@/lib/navigation'
 
 /*
- * Entrée de navigation. La page courante est marquée par `aria-current`
- * — le style s'y accroche, pas l'inverse — et par une barre latérale de
- * 2px en plus de la couleur du texte. Quelle entrée est courante se décide
- * une fois pour toute la liste (`entreeCourante`), pas entrée par entrée.
+ * Entrée du tiroir de navigation (téléphone). Sur fond clair, à la
+ * différence des onglets de la barre : le tiroir est une surface de
+ * contenu, pas la barre de marque.
+ *
+ * La page courante est marquée par `aria-current` — le style s'y accroche,
+ * pas l'inverse — et par une barre de 2px en plus de la couleur du texte.
  */
 export interface NavItemProps {
   href: NavHref

@@ -3,10 +3,12 @@ import { FileSearch, OctagonX } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { BoutonConfirmerTout } from '@/components/communications/bouton-confirmer-tout'
 import { BoutonTransition } from '@/components/communications/bouton-transition'
 import { CarteFait } from '@/components/communications/carte-fait'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
 import { FormulaireAjoutFait } from '@/components/communications/formulaire-ajout-fait'
+import { PucesAgents } from '@/components/communications/puces-agents'
 import { TexteSource } from '@/components/communications/texte-source'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -16,8 +18,10 @@ import { Progress } from '@/components/ui/progress'
 import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { formaterInstant } from '@/lib/dates'
+import type { CriticiteAffichee, NatureAffichee } from '@/lib/cles-messages'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage, ou404 } from '@/server/pages'
+import { chargerAvancement } from '@/server/services/assistant'
 import { fuseauDeSaisie } from '@/server/services/communications'
 import { ETATS_ENTREE_OUVERTE, ETATS_FICHE_OUVERTE } from '@/server/services/etat'
 import { chargerFiche } from '@/server/services/faits'
@@ -42,19 +46,51 @@ export default async function FichePage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications')
   const acteur = await acteurDePage()
-  const [fiche, fuseau] = await Promise.all([
-    ou404(chargerFiche(acteur, id)),
-    fuseauDeSaisie(acteur),
-  ])
+  const [fiche, fuseau, avancement] = await ou404(
+    Promise.all([chargerFiche(acteur, id), fuseauDeSaisie(acteur), chargerAvancement(acteur, id)]),
+  )
   const { communication: c, faits, sources, contradictions, transitions, modifiable } = fiche
   const nomSource = new Map(sources.map((s) => [s.id, s.nom]))
   const revus = faits.filter((f) => f.statut !== 'PROPOSE').length
+  /*
+   * Ce qu'une confirmation en lot confirmerait : les faits encore proposés
+   * qui ne sont pris dans aucune contradiction. Le compte est calculé ici
+   * pour que le bouton dise un nombre vrai ; c'est le service qui décide
+   * à nouveau, au moment d'écrire.
+   */
+  const confirmables = faits.filter(
+    (f) => f.statut === 'PROPOSE' && f.contradiction === null,
+  ).length
   const validation = transitions.find((tr) => tr.vers === 'PRETE_A_GENERER')
   const peutEditer = verifierDroit(acteur.utilisateur, 'EDITER').autorise
 
+  // Là où la lecture du suggesteur ne rejoint pas le cadrage saisi.
+  const ecarts = sources.flatMap((source) =>
+    source.lecture.ecarts.map((ecart) => ({
+      cle: `${source.id}-${ecart.champ}`,
+      champ: ecart.champ,
+      cadrage: ecart.cadrage,
+      lecture: ecart.lecture,
+      extrait: ecart.extrait,
+    })),
+  )
+  const libelleValeur = (champ: 'nature' | 'criticite', valeur: string): string => {
+    if (champ === 'nature') {
+      const cle = `natures.${valeur}` as `natures.${NatureAffichee}`
+      return t.has(cle) ? t(cle) : valeur
+    }
+    const cle = `criticites.${valeur}` as `criticites.${CriticiteAffichee}`
+    return t.has(cle) ? t(cle) : valeur
+  }
+
   return (
     <>
-      <EnTeteCommunication id={c.id} reference={c.reference} titre={c.titre} etat={c.etat} />
+      <EnTeteCommunication
+        avancement={avancement}
+        reference={c.reference}
+        titre={c.titre}
+        etat={c.etat}
+      />
       <p className="mb-4 max-w-measure text-sm text-ink-secondary">{t('fiche.description')}</p>
 
       {!ETATS_FICHE_OUVERTE.has(c.etat) ? (
@@ -82,6 +118,27 @@ export default async function FichePage({ params }: PageProps) {
         </Panel>
       ) : (
         <div className="flex flex-col gap-4">
+          {ecarts.length > 0 ? (
+            <Notice level="info" title={t('fiche.ecarts.title')}>
+              <p>{t('fiche.ecarts.description')}</p>
+              <ul className="mt-2 flex flex-col gap-2">
+                {ecarts.map((ecart) => (
+                  <li key={ecart.cle}>
+                    <span className="font-medium text-ink-primary">
+                      {t('fiche.ecarts.item', {
+                        champ: t(`fiche.ecarts.champs.${ecart.champ}`),
+                        cadrage: libelleValeur(ecart.champ, ecart.cadrage),
+                        lecture: libelleValeur(ecart.champ, ecart.lecture),
+                      })}
+                    </span>
+                    <span className="block text-xs text-ink-secondary">
+                      {t('fiche.ecarts.extrait', { extrait: ecart.extrait })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Notice>
+          ) : null}
           {contradictions.length > 0 ? (
             <Notice
               level="blocking"
@@ -102,7 +159,9 @@ export default async function FichePage({ params }: PageProps) {
                           <li key={f.id}>
                             <a
                               href={`#fait-${reference}`}
-                              className="block rounded-xs py-0.5 text-ink-primary underline focus-ring"
+                              // min-h-6 : 24 px, la cible minimale de WCAG 2.2 AA.
+                              // Sans elle, le lien fait 20 px et axe le refuse.
+                              className="flex min-h-6 items-center rounded-xs py-0.5 text-ink-primary underline focus-ring"
                             >
                               {t('fiche.contradictions.value', {
                                 valeur: f.valeur ?? '',
@@ -133,6 +192,11 @@ export default async function FichePage({ params }: PageProps) {
                 tone={revus === faits.length ? 'success' : 'accent'}
                 className="mb-1"
               />
+              {/* Rendu dès qu'il y a des faits : le bilan d'une confirmation
+                  en lot doit rester lisible une fois le lot confirmé. */}
+              {modifiable && faits.length > 0 ? (
+                <BoutonConfirmerTout communicationId={c.id} confirmables={confirmables} />
+              ) : null}
               {faits.map((fait) => (
                 <CarteFait
                   key={fait.id}
@@ -189,7 +253,37 @@ export default async function FichePage({ params }: PageProps) {
                       : t('entree.result.languageUnknown'),
                   ].join(' · ')}
                   footer={
-                    <div className="flex flex-col gap-1 text-xs text-ink-secondary">
+                    <div className="flex flex-col gap-2 text-xs text-ink-secondary">
+                      {source.lecture.agents.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          <p>{t('fiche.sourcePanel.readBy')}</p>
+                          <PucesAgents
+                            agents={source.lecture.agents.map((agent, rang) => ({
+                              id: `${source.id}-${String(rang)}`,
+                              ...agent,
+                            }))}
+                          />
+                        </div>
+                      ) : null}
+                      {source.origine === null ? null : (
+                        <p className="flex flex-wrap items-center gap-x-2">
+                          <span>{t('fiche.sourcePanel.ticket')}</span>
+                          <span className="font-mono text-ink-primary">
+                            {source.origine.numero}
+                          </span>
+                          {source.origine.systeme === 'mock' ||
+                          source.origine.lien === '' ? null : (
+                            <a
+                              href={source.origine.lien}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="inline-flex min-h-6 items-center rounded-xs text-ink-accent underline focus-ring"
+                            >
+                              {t('fiche.sourcePanel.openTicket')}
+                            </a>
+                          )}
+                        </p>
+                      )}
                       <p>
                         {t('fiche.sourcePanel.frozenOn', {
                           date: formaterInstant(source.figeeLe, locale, fuseau),

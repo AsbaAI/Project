@@ -38,6 +38,7 @@ import {
   COMMUNICATIONS,
   type DescriptionCommunication,
 } from './seed/communications.ts'
+import { communicationsHistoriques } from './seed/historique.ts'
 import { texteBrut } from './seed/contenus.ts'
 import {
   CANEVAS,
@@ -68,7 +69,21 @@ interface LignesCommunication {
   communication: Prisma.CommunicationCreateManyInput
   sources: Prisma.SourceCreateManyInput[]
   faits: Prisma.FaitCreateManyInput[]
+  variantes: Prisma.VarianteCreateManyInput[]
+  affirmations: Prisma.AffirmationCreateManyInput[]
+  approbations: Prisma.ApprobationCreateManyInput[]
+  envois: Prisma.EnvoiCreateManyInput[]
 }
+
+/**
+ * Les six communications écrites à la main, puis six mois d'historique
+ * engendré. L'ordre compte : les parents précèdent leurs reprises, et
+ * l'historique ne reprend rien.
+ */
+const TOUTES_COMMUNICATIONS: DescriptionCommunication[] = [
+  ...COMMUNICATIONS,
+  ...communicationsHistoriques(),
+]
 
 function empreinteSha256(texte: string): string {
   return createHash('sha256').update(texte, 'utf8').digest('hex')
@@ -144,6 +159,99 @@ function preparerCommunication(
     }
   })
 
+  /*
+   * Une affirmation désigne ses appuis par citation ; c'est ici qu'elles
+   * deviennent des identifiants de faits. Une citation qui n'appuie rien
+   * est une erreur de description, pas une affirmation sans appui : une
+   * affirmation réellement sans appui ne cite rien.
+   */
+  const faitsParCitation = new Map<string, string[]>()
+  for (const ligne of faits) {
+    const existantes = faitsParCitation.get(ligne.citation) ?? []
+    existantes.push(ligne.id as string)
+    faitsParCitation.set(ligne.citation, existantes)
+  }
+
+  const variantes: Prisma.VarianteCreateManyInput[] = []
+  const affirmations: Prisma.AffirmationCreateManyInput[] = []
+  const approbations: Prisma.ApprobationCreateManyInput[] = []
+  const envois: Prisma.EnvoiCreateManyInput[] = []
+
+  for (const [rang, variante] of (description.variantes ?? []).entries()) {
+    const varianteId = `var_${description.id.replace(/^com_/, '')}_${String(rang + 1).padStart(2, '0')}`
+    variantes.push({
+      id: varianteId,
+      organisationId: description.organisationId,
+      communicationId: description.id,
+      personaId: variante.personaId,
+      templateId: variante.templateId,
+      templateVersion: variante.templateVersion,
+      contenu: variante.contenu as Prisma.InputJsonValue,
+      etat: variante.etat,
+      score: variante.score,
+      longueurMots: variante.longueurMots,
+      creeLe: description.creeLe,
+      modifieLe: description.creeLe,
+    })
+
+    for (const [indice, affirmation] of variante.affirmations.entries()) {
+      const faitIds = [...new Set(affirmation.citationsAppui)].flatMap((citation) => {
+        const trouves = faitsParCitation.get(citation)
+        if (trouves === undefined) {
+          throw new ErreurSeed(
+            `${reference} ${varianteId} : l'affirmation cite « ${citation} », qui n'appuie aucun fait`,
+          )
+        }
+        return trouves
+      })
+      if (affirmation.verdict === 'SOUTENUE' && faitIds.length === 0) {
+        throw new ErreurSeed(
+          `${reference} ${varianteId} : affirmation SOUTENUE sans fait d'appui — « ${affirmation.texte} »`,
+        )
+      }
+      affirmations.push({
+        id: `aff_${varianteId.replace(/^var_/, '')}_${String(indice + 1).padStart(2, '0')}`,
+        organisationId: description.organisationId,
+        varianteId,
+        texte: affirmation.texte,
+        position: affirmation.position as unknown as Prisma.InputJsonValue,
+        verdict: affirmation.verdict,
+        faitIds,
+      })
+    }
+
+    approbations.push({
+      id: `apr_${varianteId.replace(/^var_/, '')}`,
+      organisationId: description.organisationId,
+      communicationId: description.id,
+      varianteId,
+      utilisateurId: variante.approbation.utilisateurId,
+      regime: variante.approbation.regime,
+      decision: variante.approbation.decision,
+      decideLe: variante.approbation.decideLe ?? null,
+      creeLe: description.creeLe,
+    })
+
+    if (variante.envoi !== undefined) {
+      if (variante.approbation.decision !== 'APPROUVEE') {
+        throw new ErreurSeed(
+          `${reference} ${varianteId} : un envoi sans approbation accordée — aucun chemin n'envoie sans approbation humaine`,
+        )
+      }
+      envois.push({
+        id: `env_${varianteId.replace(/^var_/, '')}`,
+        organisationId: description.organisationId,
+        varianteId,
+        canal: variante.envoi.canal,
+        destinataires: variante.envoi.destinataires as Prisma.InputJsonValue,
+        envoyeLe: variante.envoi.envoyeLe,
+        etatRemise: variante.envoi.etatRemise as Prisma.InputJsonValue,
+        annulable: false,
+        creeLe: variante.envoi.envoyeLe,
+      })
+    }
+  }
+
   return {
     communication: {
       id: description.id,
@@ -167,6 +275,10 @@ function preparerCommunication(
     },
     sources,
     faits,
+    variantes,
+    affirmations,
+    approbations,
+    envois,
   }
 }
 
@@ -209,10 +321,14 @@ async function inserer(client: PrismaClient, lignes: LignesCommunication[]): Pro
     await tx.communication.createMany({ data: lignes.map((l) => l.communication) })
     await tx.source.createMany({ data: lignes.flatMap((l) => l.sources) })
     await tx.fait.createMany({ data: lignes.flatMap((l) => l.faits) })
+    await tx.variante.createMany({ data: lignes.flatMap((l) => l.variantes) })
+    await tx.affirmation.createMany({ data: lignes.flatMap((l) => l.affirmations) })
+    await tx.approbation.createMany({ data: lignes.flatMap((l) => l.approbations) })
+    await tx.envoi.createMany({ data: lignes.flatMap((l) => l.envois) })
     await tx.compteurReference.create({
       data: {
         annee: ANNEE_REFERENCES,
-        dernier: Math.max(...COMMUNICATIONS.map((c) => c.numero)),
+        dernier: Math.max(...TOUTES_COMMUNICATIONS.map((c) => c.numero)),
       },
     })
   })
@@ -230,7 +346,7 @@ async function principal(): Promise<void> {
   }
 
   // 1. Tout ce qui peut échouer sans toucher à la base est vérifié d'abord.
-  const fichiers = await fichiersDeDemonstration(COMMUNICATIONS)
+  const fichiers = await fichiersDeDemonstration(TOUTES_COMMUNICATIONS)
   await verifierFichiersVersionnes(fichiers)
   const cheminsStockage = new Map<string, string>()
   const organisationDeSource = new Map<string, string>()
@@ -241,7 +357,7 @@ async function principal(): Promise<void> {
     )
     organisationDeSource.set(fichier.source.id, organisationDe(fichier.communicationId))
   }
-  const lignes = COMMUNICATIONS.map((description) =>
+  const lignes = TOUTES_COMMUNICATIONS.map((description) =>
     preparerCommunication(description, cheminsStockage),
   )
 
@@ -285,6 +401,10 @@ async function principal(): Promise<void> {
   console.log(`  communications ${lignes.length}`)
   console.log(`  sources       ${nbSources} (dont ${fichiers.length} fichiers déposés)`)
   console.log(`  faits         ${nbFaits}`)
+  console.log(`  variantes     ${lignes.reduce((t, l) => t + l.variantes.length, 0)}`)
+  console.log(`  affirmations  ${lignes.reduce((t, l) => t + l.affirmations.length, 0)}`)
+  console.log(`  approbations  ${lignes.reduce((t, l) => t + l.approbations.length, 0)}`)
+  console.log(`  envois        ${lignes.reduce((t, l) => t + l.envois.length, 0)}`)
 }
 
 async function baseVide(url: string): Promise<boolean> {
@@ -297,7 +417,7 @@ async function baseVide(url: string): Promise<boolean> {
 }
 
 function organisationDe(communicationId: string): string {
-  const description = COMMUNICATIONS.find((c) => c.id === communicationId)
+  const description = TOUTES_COMMUNICATIONS.find((c) => c.id === communicationId)
   if (description === undefined) {
     throw new ErreurSeed(`Communication inconnue : ${communicationId}`)
   }

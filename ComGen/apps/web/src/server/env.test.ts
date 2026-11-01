@@ -72,3 +72,68 @@ describe('analyserEnvironnement', () => {
     ).toThrow(ErreurConfiguration)
   })
 })
+
+describe('COMGEN_DELAIS_SIMULATION', () => {
+  const ENV_MINIMAL = {
+    DATABASE_URL: 'postgresql://u:p@127.0.0.1:5432/x',
+    AUTH_SECRET: 'a'.repeat(32),
+    AUTH_SIMULATEUR: 'true',
+    ANTIVIRUS_MODE: 'aucun',
+  }
+
+  it('échelonne la simulation par défaut : une démonstration doit se voir travailler', () => {
+    expect(analyserEnvironnement(ENV_MINIMAL).COMGEN_DELAIS_SIMULATION).toBe(true)
+  })
+
+  it('se désactive explicitement, pour les tests et la CI', () => {
+    expect(
+      analyserEnvironnement({ ...ENV_MINIMAL, COMGEN_DELAIS_SIMULATION: 'false' })
+        .COMGEN_DELAIS_SIMULATION,
+    ).toBe(false)
+    expect(
+      analyserEnvironnement({ ...ENV_MINIMAL, COMGEN_DELAIS_SIMULATION: '0' })
+        .COMGEN_DELAIS_SIMULATION,
+    ).toBe(false)
+  })
+})
+
+describe('connecteur ITSM', () => {
+  const MINIMAL = {
+    DATABASE_URL: 'postgresql://u:p@127.0.0.1:5432/x',
+    AUTH_SECRET: 'a'.repeat(32),
+    AUTH_SIMULATEUR: 'true',
+    ANTIVIRUS_MODE: 'aucun',
+  }
+  const lire = (surcharge: Record<string, string> = {}) =>
+    analyserEnvironnement({ ...MINIMAL, ...surcharge })
+
+  it('se règle par organisation tant qu’on ne dit rien d’autre', () => {
+    expect(lire().ITSM_MODE).toBe('servicenow')
+  })
+
+  it.each(['mock', 'servicenow', 'desactive'] as const)('admet le mode « %s »', (mode) => {
+    expect(lire({ ITSM_MODE: mode }).ITSM_MODE).toBe(mode)
+  })
+
+  it('refuse un mode qu’il ne connaît pas', () => {
+    expect(() => lire({ ITSM_MODE: 'jira' })).toThrow(ErreurConfiguration)
+  })
+
+  it('n’ajoute aucun hôte par défaut : le domaine de ServiceNow est déjà autorisé ailleurs', () => {
+    expect(lire().ITSM_HOTES_AUTORISES).toEqual([])
+  })
+
+  it('lit la liste d’hôtes autorisés, en minuscules et sans blancs', () => {
+    expect(
+      lire({ ITSM_HOTES_AUTORISES: ' .Service-Now.com , itsm.entreprise.example,, ' })
+        .ITSM_HOTES_AUTORISES,
+    ).toEqual(['.service-now.com', 'itsm.entreprise.example'])
+  })
+
+  it.each(['https://itsm.example', 'itsm.example/chemin', 'itsm example', '*.example.com', 'a@b'])(
+    'refuse « %s » : ce n’est ni un hôte ni un suffixe de domaine',
+    (valeur) => {
+      expect(() => lire({ ITSM_HOTES_AUTORISES: valeur })).toThrow(ErreurConfiguration)
+    },
+  )
+})

@@ -2,8 +2,20 @@ import { PrismaPg } from '@prisma/adapter-pg'
 
 import { PrismaClient } from './generated/client.ts'
 
-/** Clé privée du module : le client Prisma nu ne sort jamais de ce paquet. */
-export const CLIENT_BRUT: unique symbol = Symbol('comgen.client-brut')
+/**
+ * Clé du client Prisma nu : le paquet ne l'exporte pas, le code applicatif
+ * ne la voit donc pas et n'a accès à la base que par un contexte cloisonné.
+ *
+ * Elle vient du registre global (`Symbol.for`) et non d'un symbole propre à
+ * ce module : l'application peut embarquer ce module en plusieurs copies,
+ * et la connexion qu'elle partage doit rester lisible de toutes. Avec un
+ * symbole local, une connexion ouverte par une copie était illisible pour
+ * une autre — la première route API créée aurait répondu 500. Ce n'est pas
+ * une frontière de sécurité (le code du même processus peut toujours lister
+ * les symboles d'un objet) : c'est une barrière contre l'usage par mégarde,
+ * que le typage continue d'assurer.
+ */
+export const CLIENT_BRUT: unique symbol = Symbol.for('comgen.client-brut')
 
 /**
  * Une connexion à la base (un pool). À ouvrir une fois par processus et à
@@ -11,6 +23,11 @@ export const CLIENT_BRUT: unique symbol = Symbol('comgen.client-brut')
  */
 export interface Connexion {
   readonly [CLIENT_BRUT]: PrismaClient
+  /**
+   * Sonde de disponibilité : la base répond-elle ? `SELECT 1`, aucune
+   * donnée métier lue ni écrite. Lève l'erreur du pilote si elle ne répond pas.
+   */
+  verifier(): Promise<void>
   fermer(): Promise<void>
 }
 
@@ -29,6 +46,9 @@ export function ouvrirConnexion(options: OptionsConnexion): Connexion {
   const client = new PrismaClient({ adapter })
   return {
     [CLIENT_BRUT]: client,
+    verifier: async () => {
+      await client.$queryRaw`SELECT 1`
+    },
     fermer: () => client.$disconnect(),
   }
 }

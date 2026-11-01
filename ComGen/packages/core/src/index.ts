@@ -5,6 +5,7 @@
  * types partagés, machine à états, contrôles déterministes. Aucun appel
  * réseau, aucun modèle de langage, aucune base de données.
  */
+export * from './agents/consignes.ts'
 export * from './agents/roles.ts'
 export * from './agents/independance.ts'
 export * from './domaine/enumerations.ts'
@@ -13,8 +14,15 @@ export * from './domaine/approbations.ts'
 export * from './domaine/droits.ts'
 export * from './domaine/references.ts'
 export * from './domaine/sources.ts'
+export * from './domaine/audiences.ts'
 export * from './domaine/document.ts'
+export * from './domaine/gabarits.ts'
+export * from './domaine/gardien.ts'
+export * from './domaine/voix.ts'
+export * from './domaine/masquage.ts'
 export * from './domaine/langue.ts'
 export * from './domaine/faits-candidats.ts'
+export * from './domaine/injection.ts'
+export * from './domaine/canaux.ts'
 export * from './domaine/contradictions.ts'
 export * from './domaine/temps.ts'

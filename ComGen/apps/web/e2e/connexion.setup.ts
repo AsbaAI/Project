@@ -11,7 +11,9 @@ for (const compte of Object.values(COMPTES)) {
     await page.goto('/connexion')
     await page.getByLabel('Compte', { exact: true }).selectOption(compte.courriel)
     await page.getByRole('button', { name: 'Ouvrir la session' }).click()
-    await expect(page).toHaveURL(/\/$/)
+    // La connexion aboutit à la racine, qui redirige vers le générateur,
+    // premier pas du parcours : c'est là qu'on attend la session ouverte.
+    await expect(page).toHaveURL(/\/generateur$/)
     await page.context().storageState({ path: compte.etat })
   })
 }

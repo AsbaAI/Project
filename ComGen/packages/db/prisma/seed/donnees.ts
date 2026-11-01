@@ -440,7 +440,7 @@ export const PERSONAS: Prisma.PersonaCreateManyInput[] = [
     nom: 'Fournisseurs',
     actif: true,
     voix: {
-      registre: 'formel',
+      registre: 'soutenu',
       ton: 'contractuel, neutre, sans information sur les clients finaux',
       personne: 'vous',
       longueurCible: 180,
@@ -474,9 +474,9 @@ export const PERSONAS: Prisma.PersonaCreateManyInput[] = [
     nom: 'Clients Amérique du Nord',
     actif: true,
     voix: {
-      registre: 'professional',
+      registre: 'professionnel',
       ton: 'clear, courteous, factual; times always given in Eastern Time',
-      personne: 'you',
+      personne: 'vous',
       longueurCible: 200,
       structure: [
         'what changes for you',
@@ -513,9 +513,9 @@ export const PERSONAS: Prisma.PersonaCreateManyInput[] = [
     nom: 'Customers',
     actif: true,
     voix: {
-      registre: 'professional',
+      registre: 'professionnel',
       ton: 'direct, practical, developer-friendly where relevant',
-      personne: 'you',
+      personne: 'vous',
       longueurCible: 220,
       structure: ['what is changing', 'when', 'what you need to do', 'where to get help'],
     },

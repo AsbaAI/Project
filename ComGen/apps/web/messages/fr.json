@@ -1,4 +1,40 @@
 {
+  "analytics": {
+    "title": "Analyses",
+    "description": "Envois, attentes, rejets et taux d'approbation, par persona et par format.",
+    "tiles": {
+      "total": "Communications",
+      "totalCaption": "Dans l'organisation",
+      "rate": "Taux d'approbation",
+      "rateCaption": "{approuvees} approuvées · {rejetees} rejetées",
+      "noDecision": "Aucune décision prise",
+      "sent": "Envois enregistrés",
+      "sentCaption": "{remis} remis · {simules} simulés",
+      "delay": "Délai médian",
+      "delayCaption": "De la création à l'envoi",
+      "noMeasure": "Pas de mesure",
+      "hours": "h"
+    },
+    "byState": "Par état",
+    "byOrigin": "Par origine",
+    "blocking": "Contrôles bloquants",
+    "blockingEmpty": "Aucun contrôle bloquant relevé.",
+    "types": {
+      "ANCRAGE": "Ancrage dans la source",
+      "COMPARAISON_EXACTE": "Comparaison exacte",
+      "TOXICITE": "Toxicité",
+      "DONNEES_SENSIBLES": "Données sensibles",
+      "CONFIDENTIALITE_PERSONA": "Garde-fous du persona",
+      "TEMPLATE": "Gabarit",
+      "LISTE": "Liste de diffusion",
+      "TON": "Lexique et ton",
+      "LISIBILITE": "Lisibilité",
+      "LONGUEUR": "Longueur",
+      "COHERENCE_INTER_VARIANTES": "Cohérence entre variantes"
+    },
+    "count": "{count, plural, one {# communication} other {# communications}}",
+    "occurrences": "{count, plural, one {# occurrence} other {# occurrences}}"
+  },
   "app": {
     "name": "ComGen",
     "tagline": "Communications inter-entreprises vérifiées",
@@ -7,27 +43,113 @@
       "label": "Démonstration.",
       "message": "Données fictives, visibles de tous : n’y saisissez aucune information réelle.",
       "short": "Données fictives uniquement."
+    },
+    "version": "Version {version}",
+    "poweredBy": "Propulsé par Multi-Provider AI",
+    "studio": "Intelligence Studio",
+    "newCommunication": "Nouvelle communication"
+  },
+  "approvals": {
+    "title": "Approbations",
+    "description": "Ce qui attend une décision, et les décisions déjà prises.",
+    "pending": {
+      "title": "En attente de votre approbation",
+      "description": "D’après vos droits, relus en base à chaque requête.",
+      "empty": "Rien n’attend votre approbation.",
+      "review": "Relire les variantes",
+      "by": "Par {auteur}",
+      "quota": "{accordees} sur {requises} approbations réunies",
+      "variantes": "{count, plural, one {# variante} other {# variantes}}"
+    },
+    "decision": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "motif": "Motif du rejet",
+      "motifHint": "Obligatoire pour rejeter : l'auteur saura quoi corriger.",
+      "comment": "Commentaire",
+      "commentHint": "Facultatif pour approuver.",
+      "done": {
+        "APPROUVEE": "Approuvée",
+        "REJETEE": "Rejetée"
+      }
+    },
+    "history": {
+      "title": "Vos décisions",
+      "description": "Les cinquante dernières.",
+      "empty": "Vous n'avez encore rien décidé."
+    },
+    "submit": {
+      "action": "Soumettre à l'approbation",
+      "hint": "Les approbateurs désignés sont prévenus ; rien ne part sans leur décision."
     }
   },
-  "nav": {
-    "label": "Navigation principale",
-    "newCommunication": "Nouvelle communication",
-    "dashboard": "Tableau de bord",
-    "history": "Historique",
-    "analytics": "Analyses",
-    "settings": "Paramètres",
-    "design": "Système de design"
+  "assistant": {
+    "label": "Étapes de la génération",
+    "cadrage": "Cadrage",
+    "source": "Source",
+    "faits": "Fiche de faits",
+    "destinataires": "Destinataires",
+    "generation": "Génération",
+    "etat": {
+      "faite": "Fait",
+      "courante": "À faire",
+      "aVenir": "À venir"
+    },
+    "descriptions": {
+      "cadrage": "Nature, criticité, portée",
+      "source": "Document, texte ou ticket",
+      "faits": "Citations vérifiées",
+      "destinataires": "Audiences et gabarits",
+      "generation": "Variantes et contrôles"
+    },
+    "compteurs": {
+      "source": "Sources figées",
+      "faits": "Faits à revoir",
+      "destinataires": "Audiences retenues",
+      "generation": "Variantes produites"
+    },
+    "courts": {
+      "cadrage": "Cadrage",
+      "source": "Source",
+      "faits": "Faits",
+      "destinataires": "Audiences",
+      "generation": "Génération"
+    }
   },
-  "theme": {
-    "label": "Thème",
-    "system": "Système",
-    "light": "Clair",
-    "dark": "Sombre"
-  },
-  "locale": {
-    "label": "Langue",
-    "fr": "Français",
-    "en": "English"
+  "auth": {
+    "signedInAs": "Connecté en tant que",
+    "signOut": "Se déconnecter",
+    "signIn": {
+      "title": "Connexion",
+      "description": "Identifiez-vous pour accéder aux communications de votre organisation.",
+      "oidc": {
+        "title": "Compte d'entreprise",
+        "description": "Authentification par le fournisseur d'identité de votre organisation.",
+        "submit": "Continuer avec le SSO"
+      },
+      "simulator": {
+        "title": "Compte de démonstration",
+        "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
+        "descriptionDemo": "Démonstration publique : choisissez un compte fictif, sans mot de passe. Un compte « Rédacteur » peut créer une communication.",
+        "account": "Compte",
+        "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
+        "submit": "Ouvrir la session"
+      },
+      "none": {
+        "title": "Aucun moyen de connexion configuré",
+        "description": "Déclarez un fournisseur OIDC (AUTH_OIDC_ISSUER, AUTH_OIDC_CLIENT_ID, AUTH_OIDC_CLIENT_SECRET) ou, hors production, AUTH_SIMULATEUR=true."
+      },
+      "errors": {
+        "compte-inconnu": {
+          "title": "Compte inconnu",
+          "description": "Ce compte n'existe pas dans l'annuaire de l'application ou il est désactivé. Aucune session n'a été ouverte."
+        },
+        "generique": {
+          "title": "Connexion refusée",
+          "description": "Le fournisseur d'identité n'a pas confirmé votre identité, ou votre compte n'est pas connu de l'application."
+        }
+      }
+    }
   },
   "common": {
     "loading": "Chargement…",
@@ -47,39 +169,426 @@
     "no": "Non",
     "unknown": "Inconnue"
   },
-  "states": {
-    "BROUILLON": "Brouillon",
-    "FAITS_A_VALIDER": "Faits à valider",
-    "PRETE_A_GENERER": "Prête à générer",
-    "EN_GENERATION": "En génération",
-    "EN_CONTROLE": "En contrôle",
-    "A_CORRIGER": "À corriger",
-    "EN_RELECTURE": "En relecture",
-    "EN_APPROBATION": "En approbation",
-    "APPROUVEE": "Approuvée",
-    "ENVOI_PLANIFIE": "Envoi planifié",
-    "ENVOYEE": "Envoyée",
-    "REJETEE": "Rejetée",
-    "ARCHIVEE": "Archivée"
-  },
-  "home": {
-    "metaTitle": "Accueil",
-    "greeting": "Bonjour {prenom}",
-    "question": "Que voulez-vous faire ?",
-    "new": {
+  "communications": {
+    "list": {
+      "title": "Historique",
+      "description": "Les communications de votre organisation, de la plus récente à la plus ancienne.",
+      "extrait": "{montrees} communications sur {total} — les plus récentes d’abord.",
+      "empty": {
+        "title": "Aucune communication",
+        "description": "Rien n'a encore été cadré dans votre organisation."
+      },
+      "caption": "Communications de l'organisation",
+      "columns": {
+        "reference": "Référence",
+        "titre": "Titre",
+        "nature": "Nature",
+        "criticite": "Criticité",
+        "etat": "État",
+        "auteur": "Auteur",
+        "modifieLe": "Modifiée le"
+      }
+    },
+    "natures": {
+      "SPEC_UPDATE": "Évolution de spécification",
+      "CHANGE": "Changement",
+      "INCIDENT": "Incident",
+      "RELEASE": "Livraison",
+      "ORG": "Organisation",
+      "REGULATORY": "Réglementaire"
+    },
+    "criticites": {
+      "COURANTE": "Courante",
+      "IMPORTANTE": "Importante",
+      "CRITIQUE": "Critique"
+    },
+    "criticitesDescriptions": {
+      "COURANTE": "Information de routine.",
+      "IMPORTANTE": "Impact notable pour les destinataires.",
+      "CRITIQUE": "Impact majeur ; double approbation et fenêtre d'annulation."
+    },
+    "portees": {
+      "INTERNE": "Interne",
+      "INTER_ORG": "Inter-organisations",
+      "EXTERNE": "Externe"
+    },
+    "canaux": {
+      "COURRIEL": "Courriel",
+      "MESSAGERIE_INSTANTANEE": "Messagerie instantanée",
+      "PORTAIL": "Portail",
+      "DOCUMENT": "Document"
+    },
+    "langues": {
+      "fr": "Français",
+      "en": "Anglais"
+    },
+    "modes": {
+      "FICHIER": "Dépôt de fichiers",
+      "TEXTE_SAISI": "Rédaction directe",
+      "CONNECTEUR": "Source ITSM",
+      "COURRIEL": "Courriel transféré",
+      "DICTEE": "Dictée",
+      "API": "API",
+      "FORMULAIRE": "Formulaire"
+    },
+    "modesDescriptions": {
+      "FICHIER": "Documents Word, PDF, Excel, CSV, Markdown ou texte, déposés et lus côté serveur.",
+      "TEXTE_SAISI": "Vous écrivez le message ; il devient la source.",
+      "CONNECTEUR": "Un ticket de l'outil ITSM (ServiceNow), choisi dans une liste puis masqué.",
+      "COURRIEL": "Un courriel transféré à une adresse de dépôt.",
+      "DICTEE": "Un enregistrement transcrit, relu puis validé.",
+      "API": "Un brouillon créé par un outil tiers.",
+      "FORMULAIRE": "Un questionnaire propre à la nature de la communication."
+    },
+    "intentions": {
+      "MISE_A_JOUR": "Mise à jour",
+      "CORRECTIF": "Correctif — annule et remplace",
+      "RAPPEL": "Rappel"
+    },
+    "niveaux": {
+      "PUBLIC": "Public",
+      "INTERNE": "Interne",
+      "RESTREINT": "Restreint",
+      "SECRET": "Secret"
+    },
+    "typesValeur": {
+      "DATE": "Date ou heure",
+      "NOMBRE": "Nombre",
+      "VERSION": "Version",
+      "IDENTIFIANT": "Identifiant",
+      "NOM": "Nom propre",
+      "TEXTE": "Énoncé sans valeur"
+    },
+    "typesSource": {
+      "FICHIER": "Fichier",
+      "TEXTE_SAISI": "Texte saisi",
+      "CONNECTEUR": "Connecteur",
+      "COURRIEL": "Courriel",
+      "DICTEE": "Dictée",
+      "API": "API",
+      "FORMULAIRE": "Formulaire"
+    },
+    "statutsFait": {
+      "PROPOSE": "À revoir",
+      "CONFIRME": "Confirmé",
+      "RETIRE": "Retiré",
+      "PERIME": "Périmé",
+      "DECLARE": "Déclaré"
+    },
+    "cadrage": {
       "title": "Nouvelle communication",
-      "description": "Partir d'un document, d'un texte ou d'un modèle."
+      "description": "Le cadrage fixe ce que l'on communique, à qui et avec quelle exigence de contrôle. Il ne se devine pas : chaque champ est déclaré.",
+      "sections": {
+        "sujet": "Sujet",
+        "exigence": "Exigence",
+        "calendrier": "Calendrier",
+        "rattachement": "Rattachement",
+        "entree": "Mode d'entrée"
+      },
+      "fields": {
+        "titre": {
+          "label": "Titre",
+          "hint": "Le sujet en une ligne, tel qu'il apparaîtra dans les listes."
+        },
+        "nature": {
+          "label": "Nature"
+        },
+        "criticite": {
+          "label": "Criticité"
+        },
+        "portee": {
+          "label": "Portée"
+        },
+        "langue": {
+          "label": "Langue de rédaction",
+          "hint": "Langues autorisées dans votre région."
+        },
+        "dateEffet": {
+          "label": "Date d'effet",
+          "hint": "Heure locale ({fuseau})."
+        },
+        "echeance": {
+          "label": "Échéance",
+          "hint": "Heure locale ({fuseau})."
+        },
+        "parentId": {
+          "label": "Communication d'origine",
+          "hint": "Pour une mise à jour, un correctif ou un rappel. L'originale reste inchangée."
+        },
+        "intentionReprise": {
+          "label": "Nature de la reprise"
+        },
+        "modeEntree": {
+          "label": "Comment la source arrive-t-elle ?"
+        }
+      },
+      "noParent": "Aucune — nouvelle communication",
+      "choose": "Choisir…",
+      "submit": "Créer et passer à l'entrée",
+      "refus": {
+        "title": "Création non autorisée",
+        "description": "Votre rôle ne permet pas d'ouvrir une communication. Un rédacteur de votre organisation peut la créer ; vous la retrouverez ensuite dans la liste."
+      }
     },
-    "existing": {
-      "title": "Communication existante",
-      "description": "Reprendre, suivre ou dupliquer depuis l'historique."
+    "detail": {
+      "facts": "Faits",
+      "sources": "Sources",
+      "toReview": "À revoir",
+      "metadata": "Cadrage",
+      "author": "Auteur",
+      "createdOn": "Créée le",
+      "updatedOn": "Modifiée le",
+      "effectiveDate": "Date d'effet",
+      "deadline": "Échéance",
+      "language": "Langue",
+      "scope": "Portée",
+      "mode": "Mode d'entrée",
+      "parent": "Reprise de",
+      "notSet": "Non renseignée",
+      "steps": {
+        "title": "Étapes",
+        "entree": "Entrée des sources",
+        "entreeDescription": "Déposer des fichiers ou saisir le texte source.",
+        "fiche": "Fiche de faits",
+        "ficheDescription": "Revoir chaque fait, citation en regard, et trancher les contradictions.",
+        "closed": "Fermée à ce stade"
+      },
+      "transitions": {
+        "title": "Faire avancer",
+        "description": "Chaque passage est vérifié côté serveur ; un refus dit tout ce qui manque.",
+        "refused": "Pas encore possible",
+        "none": "Aucune transition manuelle depuis cet état."
+      },
+      "toState": {
+        "BROUILLON": "Revenir au brouillon",
+        "FAITS_A_VALIDER": "Passer à la validation des faits",
+        "PRETE_A_GENERER": "Déclarer la fiche validée",
+        "ARCHIVEE": "Archiver"
+      }
     },
-    "todo": {
-      "title": "À traiter",
-      "blocked": "{count, plural, =0 {Aucune bloquée} one {# bloquée} other {# bloquées}}",
-      "approval": "{count, plural, =0 {Rien à approuver} one {# à approuver} other {# à approuver}}",
-      "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
-    }
+    "entree": {
+      "title": "Entrée des sources",
+      "description": "Chaque source est figée à l'entrée : texte lu côté serveur, empreinte, langue détectée. Les faits qu'on y relève restent à revoir.",
+      "closed": {
+        "title": "Les sources sont figées",
+        "description": "La communication a dépassé l'étape d'entrée ; une nouvelle source passe par une reprise."
+      },
+      "files": {
+        "title": "Déposer des fichiers",
+        "description": "Jusqu'à 20 fichiers, 25 Mio chacun, 50 Mio au total. Formats lus : .docx, .pdf (avec texte), .xlsx, .csv, .md, .txt.",
+        "label": "Fichiers",
+        "hint": "Les .pptx, .eml, .msg et les images (OCR) ne sont pas encore lus : ils sont refusés et signalés.",
+        "submit": "Déposer et analyser",
+        "drop": "Choisissez des fichiers ou glissez-les ici",
+        "none": "Aucun fichier choisi.",
+        "selected": "{count, plural, one {# fichier choisi} other {# fichiers choisis}}"
+      },
+      "text": {
+        "title": "Saisir le texte",
+        "description": "Le texte saisi devient une source, au mot près. Les variantes ne pourront rien y ajouter.",
+        "titre": "Intitulé de la source",
+        "titreHint": "Par exemple « Déclaration de l'astreinte ».",
+        "texte": "Texte",
+        "submit": "Enregistrer la source"
+      },
+      "confidentiality": {
+        "label": "Confidentialité des sources",
+        "hint": "Héritée par les faits relevés ; modifiable fait par fait."
+      },
+      "result": {
+        "title": "Résultat du dépôt",
+        "deposited": "{count, plural, one {# fait relevé} other {# faits relevés}}",
+        "refused": "Refusé",
+        "accepted": "Déposé",
+        "languageDetected": "langue détectée : {langue}",
+        "languageUnknown": "langue non détectée",
+        "toFacts": "Revoir la fiche de faits"
+      },
+      "antivirusOff": {
+        "title": "Aucune analyse antivirale",
+        "description": "Cet environnement est configuré sans antivirus (ANTIVIRUS_MODE=aucun). Les fichiers ont été lus sans être analysés."
+      },
+      "motifs": {
+        "FORMAT_INCONNU": "Format non reconnu.",
+        "FORMAT_INCOHERENT": "Le contenu ne correspond pas à l'extension du fichier.",
+        "FORMAT_NON_PRIS_EN_CHARGE": "Ce format n'est pas encore lu (présentations, courriels, images).",
+        "TEXTE_ABSENT": "Aucun texte lisible : un PDF numérisé demande une reconnaissance de caractères, pas encore disponible.",
+        "FICHIER_ILLISIBLE": "Fichier corrompu, incomplet ou protégé par mot de passe.",
+        "FICHIER_TROP_VOLUMINEUX": "Fichier de plus de 25 Mio.",
+        "INFECTE": "Menace détectée par l'antivirus ({detail}). Le fichier n'a pas été conservé.",
+        "ANTIVIRUS_INDISPONIBLE": "L'antivirus ne répond pas : le fichier n'a pas été accepté. Réessayez plus tard.",
+        "EN_DOUBLE": "Ce contenu est déjà une source de cette communication.",
+        "NOM_INVALIDE": "Nom de fichier vide ou trop long."
+      },
+      "itsm": {
+        "title": "Source ITSM",
+        "description": "Choisir un ticket dans l'outil ITSM : son texte, masqué, devient une source comme une autre.",
+        "action": "Parcourir les tickets"
+      }
+    },
+    "fiche": {
+      "title": "Fiche de faits",
+      "description": "Chaque fait est cité mot pour mot dans sa source. Confirmez ce qui est juste, retirez le reste, nommez les faits pour les rapprocher. Une valeur ne se corrige que par un amendement justifié.",
+      "progress": "{revus} sur {total} faits revus",
+      "frozen": {
+        "title": "Fiche figée",
+        "description": "La communication a dépassé l'étape de validation des faits."
+      },
+      "readOnly": "Lecture seule : votre rôle ne permet pas de modifier la fiche.",
+      "empty": {
+        "title": "Aucun fait relevé",
+        "description": "Les faits apparaissent ici dès qu'une source est déposée.",
+        "action": "Déposer une source"
+      },
+      "contradictions": {
+        "title": "{count, plural, one {Une contradiction entre sources bloque la suite} other {# contradictions entre sources bloquent la suite}}",
+        "description": "Deux sources donnent des valeurs différentes au même fait. Retirez le fait erroné, ou amendez sa valeur en justifiant le choix.",
+        "item": "« {enonce} » :",
+        "value": "{valeur} selon {source} ({reference})",
+        "badge": "Contradiction"
+      },
+      "fact": {
+        "value": "Valeur",
+        "type": "Type",
+        "source": "Source",
+        "citation": "Citation dans la source",
+        "line": "ligne {ligne}",
+        "confidence": "confiance {confiance}",
+        "confidentiality": "Confidentialité",
+        "amendments": "Amendements",
+        "amendment": "{ancienne} → {nouvelle}, par {auteur} le {date}",
+        "amendmentNoPrevious": "valeur fixée à {nouvelle}, par {auteur} le {date}",
+        "justification": "Justification : {texte}",
+        "invokedSource": "Source invoquée : {texte}",
+        "assumed": "Valeur déclarée sous la responsabilité de son auteur.",
+        "showInSource": "Voir dans la source"
+      },
+      "actions": {
+        "confirm": "Confirmer",
+        "remove": "Retirer",
+        "restore": "Rétablir",
+        "rename": "Renommer",
+        "renameTitle": "Renommer le fait",
+        "renameHint": "L'énoncé est le libellé du fait ; deux faits de même énoncé et de valeurs différentes se contredisent.",
+        "renameSubmit": "Enregistrer l'énoncé",
+        "amend": "Amender",
+        "amendTitle": "Amender la valeur",
+        "amendHint": "La citation reste celle de la source ; l'amendement est tracé et visible des approbateurs.",
+        "newValue": "Nouvelle valeur",
+        "justification": "Justification",
+        "justificationHint": "Pourquoi cette valeur ? Dix caractères au moins.",
+        "invokedSource": "Source invoquée",
+        "invokedSourceHint": "Document, message ou personne qui établit la valeur.",
+        "assume": "J'assume cette valeur sans source : le fait devient « déclaré » et impose une approbation.",
+        "amendSubmit": "Amender",
+        "confidentialitySubmit": "Appliquer",
+        "done": "Enregistré."
+      },
+      "add": {
+        "title": "Ajouter un fait",
+        "description": "Copiez la citation exacte depuis le texte de la source ; la valeur doit y figurer telle quelle.",
+        "source": "Source",
+        "citation": "Citation exacte",
+        "enonce": "Énoncé",
+        "typeValeur": "Type de valeur",
+        "valeur": "Valeur",
+        "valeurHint": "Recopiée de la citation, caractère pour caractère. Vide pour un énoncé sans valeur.",
+        "submit": "Ajouter le fait"
+      },
+      "sourcePanel": {
+        "title": "Texte des sources",
+        "description": "Les citations des faits vivants sont surlignées.",
+        "fingerprint": "Empreinte SHA-256",
+        "frozenOn": "Figée le {date}",
+        "language": "Langue détectée",
+        "file": "Fichier conservé",
+        "noText": "Aucun texte.",
+        "readBy": "Lue par",
+        "ticket": "Ticket d'origine",
+        "openTicket": "Ouvrir le ticket dans l'outil"
+      },
+      "next": {
+        "title": "Valider la fiche",
+        "description": "La fiche est validée quand chaque fait est revu et que les contradictions sont tranchées. Le choix des personas suit."
+      },
+      "ecarts": {
+        "title": "Le cadrage et la lecture de la source ne se rejoignent pas",
+        "description": "Le suggesteur propose, il ne décide pas : le cadrage reste celui que vous avez saisi.",
+        "champs": {
+          "nature": "Nature",
+          "criticite": "Criticité"
+        },
+        "item": "{champ} : cadrage « {cadrage} », lecture « {lecture} »",
+        "extrait": "Dans la source : « {extrait} »"
+      },
+      "tout": {
+        "action": "{count, plural, one {Confirmer le fait restant} other {Confirmer les # faits restants}}",
+        "aide": "Les faits pris dans une contradiction ne sont jamais confirmés en lot : ils restent à trancher un par un.",
+        "bilan": "{count, plural, =0 {Aucun fait confirmé} one {# fait confirmé} other {# faits confirmés}}",
+        "laisses": "{count, plural, one {# fait laissé : il est pris dans une contradiction} other {# faits laissés : ils sont pris dans une contradiction}}"
+      }
+    },
+    "motifs": {
+      "TRANSITION_INCONNUE": "Ce passage n'existe pas depuis l'état actuel.",
+      "AUCUNE_SOURCE_FIGEE": "Aucune source n'a été déposée.",
+      "AUCUN_FAIT_CONFIRME": "Aucun fait n'est confirmé.",
+      "FAIT_NON_REVU": "Des faits restent à revoir : confirmez-les ou retirez-les.",
+      "CONTRADICTION_NON_TRANCHEE": "Une contradiction entre sources n'est pas tranchée.",
+      "AUCUN_PERSONA": "Aucun destinataire n'est retenu : choisissez-les à l'étape « Destinataires ».",
+      "PERSONA_SANS_TEMPLATE": "Un persona n'a pas de template.",
+      "AUCUNE_VARIANTE": "Aucune variante n'a été générée.",
+      "CONTROLE_BLOQUANT_NON_RESOLU": "Un contrôle bloquant n'est pas résolu.",
+      "APPROBATIONS_INSUFFISANTES": "Les approbations requises ne sont pas réunies.",
+      "LISTE_DIFFUSION_NON_RESOLUE": "Une liste de diffusion n'est pas résolue.",
+      "LISTE_DIFFUSION_VIDE": "Une liste de diffusion est vide."
+    },
+    "erreurs": {
+      "titre": "L'opération n'a pas abouti",
+      "INTROUVABLE": "Cet élément n'existe pas ou n'appartient pas à votre organisation.",
+      "DONNEES_INVALIDES": "Certains champs sont à corriger.",
+      "ETAT_INCOMPATIBLE": "L'état actuel ne permet pas cette opération.",
+      "TRANSITION_REFUSEE": "Le passage est refusé :",
+      "TRANSITION_NON_MANUELLE": "Ce passage appartient à un autre parcours (génération, approbation, envoi).",
+      "CONFLIT": "La communication a été modifiée entre-temps. Rechargez la page.",
+      "MODE_NON_DISPONIBLE": "Ce mode d'entrée n'est pas encore disponible.",
+      "LANGUE_NON_AUTORISEE": "Cette langue n'est pas autorisée dans votre région.",
+      "CITATION_INVALIDE": "La citation ne figure pas telle quelle dans la source.",
+      "VALEUR_HORS_CITATION": "La valeur ne figure pas telle quelle dans la citation.",
+      "SOURCE_EN_DOUBLE": "Ce texte est déjà une source de cette communication.",
+      "TEXTE_ABSENT": "Aucun texte lisible.",
+      "FICHIER_REFUSE": "Fichier refusé.",
+      "NON_AUTORISE": "Votre rôle ne permet pas cette opération.",
+      "GENERATION_REFUSEE": "La génération s'est arrêtée avant la fin. Rien n'a été écrit.",
+      "NON_AUTHENTIFIE": "Votre session a expiré. Reconnectez-vous.",
+      "ORIGINE_REFUSEE": "La requête a été refusée : elle ne vient pas de cette application.",
+      "INCONNUE": "Une erreur imprévue s'est produite. Rien n'a été écrit."
+    },
+    "champs": {
+      "requis": "Champ obligatoire.",
+      "invalide": "Valeur non reconnue.",
+      "trop_court": "Trop court.",
+      "trop_long": "Trop long.",
+      "trop_nombreux": "Vingt fichiers au plus par dépôt.",
+      "trop_volumineux": "50 Mio au plus par dépôt.",
+      "heure_inexistante": "Cette heure n'existe pas (passage à l'heure d'été).",
+      "heure_ambigue": "Cette heure existe deux fois (retour à l'heure d'hiver) : choisissez-en une autre.",
+      "heure_invalide": "Date ou heure invalide.",
+      "langue_non_autorisee": "Langue non autorisée dans votre région.",
+      "mode_non_disponible": "Ce mode n'est pas encore disponible.",
+      "parent_introuvable": "Communication d'origine introuvable.",
+      "appui_requis": "Indiquez une source, ou assumez la valeur.",
+      "inchangee": "La valeur est identique à l'actuelle.",
+      "en_double": "Ce texte est déjà une source de cette communication.",
+      "absente_de_la_source": "Cette citation ne figure pas mot pour mot dans la source.",
+      "absente_de_la_citation": "Cette valeur ne figure pas caractère pour caractère dans la citation."
+    },
+    "navigation": {
+      "label": "Vues de la communication",
+      "apercu": "Aperçu",
+      "entree": "Entrée",
+      "faits": "Fiche de faits"
+    },
+    "modesLater": "Pas encore disponibles : {modes}."
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -106,48 +615,29 @@
     },
     "byState": "Répartition par état",
     "stateCount": "{count, plural, one {# communication} other {# communications}}",
-    "seeAll": "Toutes les communications"
-  },
-  "analytics": {
-    "title": "Analyses",
-    "description": "Envois, attentes, rejets et taux d'approbation, par persona et par format.",
-    "empty": {
-      "title": "Les indicateurs viendront des envois réels",
-      "description": "Ils apparaîtront ici dès que des communications auront été approuvées et envoyées : aucun chiffre n'est estimé."
+    "seeAll": "Toutes les communications",
+    "byOrigin": "Par origine",
+    "origins": {
+      "FICHIER": "Fichiers déposés",
+      "TEXTE_SAISI": "Texte saisi",
+      "CONNECTEUR": "Tickets ITSM"
+    },
+    "originCount": "{count, plural, one {# communication} other {# communications}}",
+    "tuiles": {
+      "total": "Mes communications",
+      "totalMeta": "Hors archives",
+      "totalCaption": "Dont vous êtes l'auteur",
+      "aValider": "Faits à valider",
+      "aValiderMeta": "Revue",
+      "aValiderCaption": "Fiches à revoir avant génération",
+      "enApprobation": "En approbation",
+      "enApprobationMeta": "Humain",
+      "enApprobationCaption": "Attendent une décision",
+      "bloquees": "Bloquées",
+      "bloqueesMeta": "Action",
+      "bloqueesCaption": "Une contradiction ou un refus à trancher",
+      "aucune": "Rien à trancher"
     }
-  },
-  "settings": {
-    "title": "Paramètres",
-    "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
-    "soon": "Bientôt",
-    "sections": {
-      "models": {
-        "title": "Modèles d'IA",
-        "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
-      },
-      "personas": {
-        "title": "Personas",
-        "description": "Ton, niveau de détail, angle et longueur de chaque audience."
-      },
-      "lists": {
-        "title": "Listes de diffusion",
-        "description": "Destinataires de chaque persona."
-      },
-      "templates": {
-        "title": "Gabarits",
-        "description": "Formats et variantes de mise en page."
-      }
-    }
-  },
-  "notFound": {
-    "title": "Page introuvable",
-    "description": "L'adresse demandée ne correspond à aucune page. Vérifiez le lien ou revenez au tableau de bord.",
-    "action": "Retour au tableau de bord"
-  },
-  "error": {
-    "title": "Une erreur s'est produite",
-    "description": "L'application n'a pas pu afficher cette page. Aucune donnée n'a été modifiée. Vous pouvez réessayer.",
-    "reference": "Référence de l'incident"
   },
   "design": {
     "title": "Système de design",
@@ -285,40 +775,329 @@
       "errorDescription": "Le service de données n'a pas répondu. Vos brouillons sont intacts."
     }
   },
-  "auth": {
-    "signedInAs": "Connecté en tant que",
-    "signOut": "Se déconnecter",
-    "signIn": {
-      "title": "Connexion",
-      "description": "Identifiez-vous pour accéder aux communications de votre organisation.",
-      "oidc": {
-        "title": "Compte d'entreprise",
-        "description": "Authentification par le fournisseur d'identité de votre organisation.",
-        "submit": "Continuer avec le SSO"
+  "destinataires": {
+    "title": "Destinataires",
+    "description": "Une audience retenue, une version à produire. Chacune sera vérifiée séparément.",
+    "legende": "Audiences à qui adresser cette communication",
+    "canal": "Canal : {canal}",
+    "sansGabarit": "Aucun gabarit ne sert le canal {canal} : cette audience ne peut pas être servie.",
+    "valider": "Enregistrer les destinataires",
+    "figee": "La génération a commencé : la liste des destinataires est figée.",
+    "vide": {
+      "title": "Aucune audience",
+      "description": "Aucun persona actif n'est défini pour votre organisation."
+    },
+    "suggere": "Suggéré par la source",
+    "suggereExtrait": "La source dit : « {extrait} »",
+    "sansPersona": {
+      "title": "La source nomme des audiences sans destinataire correspondant",
+      "description": "Aucun persona actif ne porte ce nom. Vous pouvez poursuivre sans eux, ou demander à un administrateur d'en créer un.",
+      "item": "{dimension} — « {extrait} »"
+    }
+  },
+  "engine": {
+    "label": "État du moteur",
+    "ready": "IA prête",
+    "demo": "Mode démonstration",
+    "readyHint": "Moteur configuré : la variable {reference} est renseignée.",
+    "demoHint": "Aucune clé de modèle : la variable {reference} est absente. La génération est simulée et étiquetée comme telle."
+  },
+  "error": {
+    "title": "Une erreur s'est produite",
+    "description": "L'application n'a pas pu afficher cette page. Aucune donnée n'a été modifiée. Vous pouvez réessayer.",
+    "reference": "Référence de l'incident"
+  },
+  "generation": {
+    "title": "Version générée",
+    "description": "Chaque phrase est rattachée aux faits qui l'appuient. Les valeurs viennent de la source, mot pour mot.",
+    "generer": "Générer cette version",
+    "regenerer": "Regénérer",
+    "attente": {
+      "title": "Rien n'est encore rédigé",
+      "description": "Lancez la génération pour chaque destinataire retenu."
+    },
+    "vide": {
+      "title": "Aucun destinataire",
+      "description": "Choisissez d'abord à qui cette communication s'adresse."
+    },
+    "score": "Phrases appuyées",
+    "scoreValeur": "{soutenues} sur {factuelles}",
+    "mots": "{mots} mots",
+    "agents": "Agents",
+    "agentSimule": "simulé",
+    "duree": "{ms} ms",
+    "blocages": {
+      "title": "Envoi bloqué",
+      "description": "Tant qu'un contrôle bloquant est ouvert — phrase non appuyée par un fait, garde-fou du persona — cette version ne peut pas être approuvée ni envoyée."
+    },
+    "conforme": {
+      "title": "Toutes les phrases sont appuyées",
+      "description": "Cette version peut passer en approbation."
+    },
+    "communication": "La communication",
+    "rapport": "Rapport de vérification",
+    "appuis": "Appuis : {references}",
+    "sansAppui": "Aucun appui",
+    "verdict": {
+      "SOUTENUE": "Appuyée",
+      "CONTREDITE": "Contredite",
+      "SANS_APPUI": "Sans appui",
+      "NON_FACTUELLE": "Non factuelle"
+    },
+    "roles": {
+      "EXTRACTEUR": "Extracteur",
+      "ANALYSTE_IMPACT": "Analyste d'impact",
+      "SUGGESTEUR": "Suggesteur",
+      "REDACTEUR": "Rédacteur",
+      "VERIFICATEUR": "Vérificateur",
+      "GARDIEN": "Gardien",
+      "CORRECTEUR": "Correcteur",
+      "ARBITRE": "Arbitre"
+    },
+    "chronologie": {
+      "title": "Agents au travail",
+      "simulation": "Mode démonstration : aucun modèle n'est appelé, les agents sont simulés.",
+      "reel": "Les agents interrogent le modèle configuré.",
+      "etats": {
+        "EN_ATTENTE": "En attente",
+        "EN_COURS": "En cours",
+        "TERMINEE": "Terminé",
+        "ECHOUEE": "Échec",
+        "ANNULEE": "Annulé"
       },
-      "simulator": {
-        "title": "Compte de démonstration",
-        "description": "Environnement de développement : choisissez un compte du jeu de démonstration. Aucun mot de passe. Ce mode est refusé en production.",
-        "descriptionDemo": "Démonstration publique : choisissez un compte fictif, sans mot de passe. Un compte « Rédacteur » peut créer une communication.",
-        "account": "Compte",
-        "hint": "Les rôles indiqués sont ceux enregistrés en base ; ils sont relus à chaque requête.",
-        "submit": "Ouvrir la session"
-      },
-      "none": {
-        "title": "Aucun moyen de connexion configuré",
-        "description": "Déclarez un fournisseur OIDC (AUTH_OIDC_ISSUER, AUTH_OIDC_CLIENT_ID, AUTH_OIDC_CLIENT_SECRET) ou, hors production, AUTH_SIMULATEUR=true."
-      },
-      "errors": {
-        "compte-inconnu": {
-          "title": "Compte inconnu",
-          "description": "Ce compte n'existe pas dans l'annuaire de l'application ou il est désactivé. Aucune session n'a été ouverte."
-        },
-        "generique": {
-          "title": "Connexion refusée",
-          "description": "Le fournisseur d'identité n'a pas confirmé votre identité, ou votre compte n'est pas connu de l'application."
-        }
+      "secondes": "{secondes} s",
+      "echec": "La génération s'est arrêtée"
+    },
+    "agentEchec": "échec"
+  },
+  "generator": {
+    "title": "Générateur",
+    "description": "Produire une communication par audience, à partir d’une source vérifiée.",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d’un document, d’un texte ou d’un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l’historique."
+    },
+    "wip": {
+      "title": "Assistant en cours de construction",
+      "description": "Les cinq étapes — départ, vérification des faits, destinataires, sortie, approbation — arrivent à l’étape 3 de la refonte. Les deux portes ci-dessus mènent aux écrans existants, qui fonctionnent déjà."
+    },
+    "hero": {
+      "eyebrow": "Parcours vérifié",
+      "title": "Chaque communication reste attachée à sa source.",
+      "description": "Les agents lisent, relèvent et proposent ; la valeur d'un nombre, d'une date ou d'une version est injectée par du code et revérifiée mot pour mot. Rien ne part sans une approbation humaine.",
+      "chips": {
+        "etapes": "Cinq étapes",
+        "approbation": "Approbation humaine",
+        "citations": "Citations vérifiées"
       }
     }
+  },
+  "home": {
+    "metaTitle": "Accueil",
+    "greeting": "Bonjour {prenom}",
+    "question": "Que voulez-vous faire ?",
+    "new": {
+      "title": "Nouvelle communication",
+      "description": "Partir d'un document, d'un texte ou d'un modèle."
+    },
+    "existing": {
+      "title": "Communication existante",
+      "description": "Reprendre, suivre ou dupliquer depuis l'historique."
+    },
+    "todo": {
+      "title": "À traiter",
+      "blocked": "{count, plural, =0 {Aucune bloquée} one {# bloquée} other {# bloquées}}",
+      "approval": "{count, plural, =0 {Rien à approuver} one {# à approuver} other {# à approuver}}",
+      "inProgress": "{count, plural, =0 {Aucune en cours} one {# en cours} other {# en cours}}"
+    }
+  },
+  "itsm": {
+    "title": "Source ITSM",
+    "settings": {
+      "title": "Connecteur ITSM",
+      "description": "L'adresse de l'instance, la méthode d'authentification et ce que le masquage retire avant qu'un agent ne lise un ticket.",
+      "back": "Retour aux paramètres",
+      "demo": {
+        "title": "Mode démonstration",
+        "description": "Les tickets proposés sont fictifs et engendrés localement : aucune instance n'est jointe, il n'y a rien à configurer."
+      },
+      "disabled": {
+        "title": "Connecteur désactivé",
+        "description": "La source ITSM est retirée de toute l'application par la configuration du déploiement."
+      },
+      "readOnly": "Seul un administrateur modifie le connecteur.",
+      "fields": {
+        "urlInstance": "Adresse de l'instance",
+        "urlInstanceHint": "Par exemple « https://acme.service-now.com ». Seuls les domaines autorisés par le déploiement sont acceptés.",
+        "methodeAuth": "Méthode d'authentification",
+        "identifiantPublic": "Identifiant client",
+        "identifiantPublicHintOauth": "L'identifiant client OAuth 2.0.",
+        "identifiantPublicHintBasic": "Le nom du compte de service, si la méthode est Basic.",
+        "refSecret": "Variable qui porte le secret",
+        "refSecretHint": "Le NOM d'une variable d'environnement commençant par « ITSM_ », jamais sa valeur : le secret reste côté serveur et n'est ni saisi ici, ni enregistré en base.",
+        "actif": "Connecteur actif",
+        "actifHint": "Décoché, la source ITSM disparaît des écrans d'entrée sans que la configuration soit perdue."
+      },
+      "methodes": {
+        "oauth2": "OAuth 2.0",
+        "basic": "Basic (repli)"
+      },
+      "masking": {
+        "title": "Masquage",
+        "description": "Appliqué au texte du ticket avant qu'il ne devienne une source : ce qui est masqué n'est lu par aucun agent et ne peut être cité.",
+        "courriel": "Masquer les adresses de courriel",
+        "telephone": "Masquer les numéros de téléphone",
+        "demandeur": "Retirer le demandeur",
+        "identifiants": "Identifiants internes",
+        "identifiantsHint": "Une règle par ligne, sous la forme « E:6-7 » : préfixe, puis le nombre de chiffres admis. Les préfixes de ticket (INC, CHG…) ne se masquent jamais.",
+        "termes": "Termes à masquer",
+        "termesHint": "Un terme par ligne (un nom, un projet). La casse est ignorée."
+      },
+      "test": "Tester la connexion",
+      "save": "Tester et enregistrer",
+      "result": {
+        "ok": "Connexion établie.",
+        "failed": "Connexion refusée ; rien n'a été enregistré."
+      },
+      "saved": "Configuration enregistrée après un test réussi.",
+      "state": {
+        "title": "État",
+        "configured": "Configuré",
+        "notConfigured": "Non configuré",
+        "secretPresent": "Secret présent dans l'environnement",
+        "secretMissing": "Secret absent de l'environnement : la variable {reference} n'est pas renseignée.",
+        "testedOn": "Dernier test réussi le {date}",
+        "neverTested": "Jamais testé"
+      }
+    },
+    "picker": {
+      "title": "Choisir un ticket",
+      "description": "Le ticket choisi devient une source : son texte est figé, masqué, puis lu par les agents comme n'importe quelle autre source.",
+      "unavailable": {
+        "title": "Aucun connecteur ITSM",
+        "description": "Le connecteur n'est pas configuré pour cette organisation, ou il est désactivé."
+      },
+      "back": "Retour à l'entrée des sources",
+      "filters": {
+        "title": "Filtrer",
+        "statut": "Statut",
+        "priorite": "Priorité",
+        "groupe": "Groupe",
+        "du": "Ouvert à partir du",
+        "au": "Ouvert jusqu'au",
+        "submit": "Filtrer",
+        "reset": "Tout afficher"
+      },
+      "columns": {
+        "numero": "Numéro",
+        "titre": "Titre",
+        "statut": "Statut",
+        "priorite": "Priorité",
+        "groupe": "Groupe",
+        "misAJour": "Mis à jour"
+      },
+      "legend": "Tickets de l'outil ITSM",
+      "empty": {
+        "title": "Aucun ticket",
+        "description": "Aucun ticket ne correspond à ces filtres."
+      },
+      "count": "{count, plural, =0 {Aucun ticket} one {# ticket} other {# tickets}}",
+      "pageOf": "Page {page}",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "select": "Aperçu"
+    },
+    "preview": {
+      "title": "Ce que les agents liront",
+      "description": "Le texte ci-dessous est exactement celui qui deviendra la source, masquage compris.",
+      "openTicket": "Ouvrir le ticket dans l'outil",
+      "withNotes": "Inclure les notes de travail",
+      "withoutNotes": "Retirer les notes de travail",
+      "notesHint": "Les notes de travail sont internes : elles n'entrent que si vous le demandez.",
+      "masked": "Masqué : {details}",
+      "maskedNone": "Rien n'a été masqué dans ce ticket.",
+      "counts": {
+        "courriel": "{count, plural, one {# courriel} other {# courriels}}",
+        "telephone": "{count, plural, one {# téléphone} other {# téléphones}}",
+        "identifiant": "{count, plural, one {# identifiant} other {# identifiants}}",
+        "terme": "{count, plural, one {# terme} other {# termes}}"
+      },
+      "fingerprint": "Empreinte",
+      "notesIncluded": "Notes de travail incluses"
+    },
+    "statuts": {
+      "NOUVEAU": "Nouveau",
+      "EN_COURS": "En cours",
+      "EN_ATTENTE": "En attente",
+      "RESOLU": "Résolu",
+      "CLOS": "Clos",
+      "ANNULE": "Annulé",
+      "AUTRE": "Autre"
+    },
+    "priorites": {
+      "1": "1 — Critique",
+      "2": "2 — Élevée",
+      "3": "3 — Modérée",
+      "4": "4 — Faible",
+      "5": "5 — Planification"
+    },
+    "erreurs": {
+      "titre": "Opération refusée",
+      "CONFIG": "La configuration du connecteur est refusée.",
+      "AUTH_REFUSEE": "L'instance refuse ces identifiants.",
+      "AUTH_EXPIREE": "La session avec l'instance a expiré.",
+      "DELAI_DEPASSE": "L'instance n'a pas répondu à temps.",
+      "QUOTA": "L'instance limite le nombre d'appels ; réessayez plus tard.",
+      "INDISPONIBLE": "L'instance est indisponible.",
+      "INTROUVABLE": "Ce ticket est introuvable.",
+      "REPONSE_INVALIDE": "La réponse de l'instance n'est pas exploitable.",
+      "MODE_NON_DISPONIBLE": "Aucun connecteur ITSM n'est disponible.",
+      "SOURCE_EN_DOUBLE": "Ce ticket est déjà une source de cette communication.",
+      "ETAT_INCOMPATIBLE": "Les sources de cette communication sont figées.",
+      "DONNEES_INVALIDES": "La demande est refusée.",
+      "NON_AUTORISE": "Votre rôle ne permet pas cette opération."
+    },
+    "champs": {
+      "invalide": "Valeur refusée.",
+      "absent": "Cette variable n'est pas renseignée côté serveur.",
+      "avant_debut": "La fin de période précède son début."
+    },
+    "import": {
+      "title": "Utiliser ce ticket",
+      "description": "Le texte masqué ci-dessus devient une source figée, et les agents y relèvent des faits.",
+      "submit": "Utiliser comme source"
+    }
+  },
+  "locale": {
+    "label": "Langue",
+    "fr": "Français",
+    "en": "English"
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "generator": "Générateur",
+    "approvals": "Approbations",
+    "templates": "Gabarits",
+    "templateBuilder": "Constructeur",
+    "analytics": "Analyses",
+    "settings": "Paramètres",
+    "design": "Système de design",
+    "groupes": {
+      "workspace": "Espace de travail",
+      "intelligence": "Intelligence",
+      "operations": "Opérations"
+    },
+    "workspace": "Espace de travail",
+    "breadcrumb": "Fil d'Ariane"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "L'adresse demandée ne correspond à aucune page. Vérifiez le lien ou revenez au tableau de bord.",
+    "action": "Retour au tableau de bord"
   },
   "roles": {
     "REDACTEUR": "Rédacteur",
@@ -327,386 +1106,330 @@
     "ADMINISTRATEUR": "Administrateur",
     "AUDITEUR": "Auditeur"
   },
-  "communications": {
-    "list": {
-      "title": "Historique",
-      "description": "Toutes les communications de votre organisation, de la plus récente à la plus ancienne.",
-      "empty": {
-        "title": "Aucune communication",
-        "description": "Rien n'a encore été cadré dans votre organisation."
+  "settings": {
+    "title": "Paramètres",
+    "description": "Modèles d'IA, personas, listes de diffusion et gabarits.",
+    "soon": "Bientôt",
+    "sections": {
+      "itsm": {
+        "title": "Connecteur ITSM",
+        "description": "Instance ServiceNow, authentification et masquage des tickets."
       },
-      "caption": "Communications de l'organisation",
-      "columns": {
-        "reference": "Référence",
-        "titre": "Titre",
-        "nature": "Nature",
-        "criticite": "Criticité",
-        "etat": "État",
-        "auteur": "Auteur",
-        "modifieLe": "Modifiée le"
+      "agentsCard": {
+        "title": "Agents",
+        "description": "Le parcours des agents et la consigne de chacun."
+      },
+      "models": {
+        "title": "Modèles d'IA",
+        "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
+      },
+      "personas": {
+        "title": "Personas",
+        "description": "Ton, niveau de détail, angle et longueur de chaque audience."
+      },
+      "lists": {
+        "title": "Listes de diffusion",
+        "description": "Destinataires de chaque persona."
+      },
+      "templates": {
+        "title": "Gabarits",
+        "description": "Formats et variantes de mise en page."
       }
     },
-    "natures": {
-      "SPEC_UPDATE": "Évolution de spécification",
-      "CHANGE": "Changement",
-      "INCIDENT": "Incident",
-      "RELEASE": "Livraison",
-      "ORG": "Organisation",
-      "REGULATORY": "Réglementaire"
-    },
-    "criticites": {
-      "COURANTE": "Courante",
-      "IMPORTANTE": "Importante",
-      "CRITIQUE": "Critique"
-    },
-    "criticitesDescriptions": {
-      "COURANTE": "Information de routine.",
-      "IMPORTANTE": "Impact notable pour les destinataires.",
-      "CRITIQUE": "Impact majeur ; double approbation et fenêtre d'annulation."
-    },
-    "portees": {
-      "INTERNE": "Interne",
-      "INTER_ORG": "Inter-organisations",
-      "EXTERNE": "Externe"
-    },
-    "langues": {
-      "fr": "Français",
-      "en": "Anglais"
-    },
-    "modes": {
-      "FICHIER": "Dépôt de fichiers",
-      "TEXTE_SAISI": "Rédaction directe",
-      "CONNECTEUR": "Connecteur",
-      "COURRIEL": "Courriel transféré",
-      "DICTEE": "Dictée",
-      "API": "API",
-      "FORMULAIRE": "Formulaire"
-    },
-    "modesDescriptions": {
-      "FICHIER": "Documents Word, PDF, Excel, CSV, Markdown ou texte, déposés et lus côté serveur.",
-      "TEXTE_SAISI": "Vous écrivez le message ; il devient la source.",
-      "CONNECTEUR": "Récupération d'un ticket ou d'une note de version par sa référence.",
-      "COURRIEL": "Un courriel transféré à une adresse de dépôt.",
-      "DICTEE": "Un enregistrement transcrit, relu puis validé.",
-      "API": "Un brouillon créé par un outil tiers.",
-      "FORMULAIRE": "Un questionnaire propre à la nature de la communication."
-    },
-    "intentions": {
-      "MISE_A_JOUR": "Mise à jour",
-      "CORRECTIF": "Correctif — annule et remplace",
-      "RAPPEL": "Rappel"
-    },
-    "niveaux": {
-      "PUBLIC": "Public",
-      "INTERNE": "Interne",
-      "RESTREINT": "Restreint",
-      "SECRET": "Secret"
-    },
-    "typesValeur": {
-      "DATE": "Date ou heure",
-      "NOMBRE": "Nombre",
-      "VERSION": "Version",
-      "IDENTIFIANT": "Identifiant",
-      "NOM": "Nom propre",
-      "TEXTE": "Énoncé sans valeur"
-    },
-    "typesSource": {
-      "FICHIER": "Fichier",
-      "TEXTE_SAISI": "Texte saisi",
-      "CONNECTEUR": "Connecteur",
-      "COURRIEL": "Courriel",
-      "DICTEE": "Dictée",
-      "API": "API",
-      "FORMULAIRE": "Formulaire"
-    },
-    "statutsFait": {
-      "PROPOSE": "À revoir",
-      "CONFIRME": "Confirmé",
-      "RETIRE": "Retiré",
-      "PERIME": "Périmé",
-      "DECLARE": "Déclaré"
-    },
-    "cadrage": {
-      "title": "Nouvelle communication",
-      "description": "Le cadrage fixe ce que l'on communique, à qui et avec quelle exigence de contrôle. Il ne se devine pas : chaque champ est déclaré.",
-      "sections": {
-        "sujet": "Sujet",
-        "exigence": "Exigence",
-        "calendrier": "Calendrier",
-        "rattachement": "Rattachement",
-        "entree": "Mode d'entrée"
-      },
+    "open": "Ouvrir",
+    "personas": {
+      "title": "Personas",
+      "description": "Garde-fous, lexique interdit et approbateurs de chaque audience. Le GARDIEN les applique par du code à chaque génération.",
+      "back": "Retour aux paramètres",
+      "save": "Enregistrer le persona",
+      "saved": "Persona enregistré.",
       "fields": {
-        "titre": {
-          "label": "Titre",
-          "hint": "Le sujet en une ligne, tel qu'il apparaîtra dans les listes."
+        "nom": "Nom",
+        "actif": "Persona actif",
+        "canal": "Canal par défaut",
+        "interditsFr": "Termes interdits (français)",
+        "interditsEn": "Termes interdits (anglais)",
+        "sujets": "Sujets interdits",
+        "listHint": "Un par ligne. Mot entier, sans tenir compte de la casse ni des accents.",
+        "sujetsHint": "Un par ligne. Détectés tels qu'écrits : une paraphrase n'est pas reconnue.",
+        "max": "Confidentialité maximale",
+        "maxHint": "Un fait plus confidentiel ne peut pas figurer dans le texte de ce persona.",
+        "approbateurs": "Approbateurs désignés",
+        "approbateursHint": "Aucun coché : tous les approbateurs de l'organisation, hors auteur."
+      },
+      "illisible": "Les garde-fous enregistrés pour ce persona sont illisibles : tant qu'ils ne sont pas corrigés ici, toute génération sera bloquée.",
+      "empty": "Aucun persona dans cette organisation.",
+      "voix": {
+        "title": "Style d'écriture",
+        "description": "Transmis au rédacteur comme consigne de forme. L'agent simulé recopie la source sans reformuler : il n'en tient pas compte, et le dit.",
+        "registre": "Registre",
+        "ton": "Ton",
+        "tonHint": "Une phrase : « précis, opérationnel, horaires explicites ».",
+        "personne": "Personne",
+        "structure": "Méthode (plan)",
+        "structureHint": "Les étapes du plan, une par ligne, dans l'ordre : « enjeu », « prochaine étape ». Dix au plus.",
+        "longueur": "Longueur cible",
+        "longueurHint": "En mots, entre 30 et 1200. Vide : pas de cible, donc pas de contrôle de longueur. Un écart de plus de 40 % devient un avertissement, jamais un blocage.",
+        "jargonFr": "Jargon admis (français)",
+        "jargonEn": "Jargon admis (anglais)",
+        "jargonHint": "Les mots de cette audience, un par ligne. À privilégier, jamais imposés.",
+        "illisible": "Les réglages d'écriture de ce persona sont illisibles : toute génération pour cette audience sera refusée tant qu'ils ne sont pas corrigés ici."
+      },
+      "registres": {
+        "soutenu": "Soutenu",
+        "professionnel": "Professionnel",
+        "direct": "Direct",
+        "familier": "Familier"
+      },
+      "personnes": {
+        "nous": "Nous",
+        "vous": "Vous",
+        "impersonnel": "Impersonnel"
+      }
+    },
+    "listes": {
+      "title": "Listes de diffusion",
+      "description": "Les destinataires de chaque audience. Un envoi est refusé tant qu'une liste n'est pas résolue ou si elle est vide.",
+      "destinataires": "Destinataires",
+      "destinatairesHint": "Une adresse par ligne, éventuellement « Nom, adresse ».",
+      "save": "Enregistrer la liste",
+      "effectif": "{count, plural, one {# destinataire} other {# destinataires}}",
+      "nonResolue": "Non résolue",
+      "readOnly": "Ce type de liste ne se modifie pas ici.",
+      "persona": "Persona : {nom}",
+      "noPersona": "Sans persona",
+      "empty": "Aucune liste de diffusion.",
+      "types": {
+        "STATIQUE": "Statique",
+        "GROUPE_ANNUAIRE": "Groupe d'annuaire",
+        "REGLE": "Règle",
+        "IMPORT": "Import"
+      }
+    },
+    "modeles": {
+      "title": "Modèles d'IA",
+      "description": "Le moteur de génération et ses agents. Les clés restent dans l'environnement du serveur : rien ne se saisit ici.",
+      "engine": "Moteur",
+      "reference": "Variable de la clé",
+      "state": {
+        "pret": "Clé présente : moteur prêt.",
+        "demonstration": "Clé absente : génération simulée et étiquetée comme telle."
+      },
+      "agents": "Agents",
+      "mode": {
+        "simulation": "Simulé",
+        "reel": "Réel"
+      },
+      "readOnly": "Lecture seule : le fournisseur et le modèle se règlent dans l'environnement du déploiement, jamais depuis l'interface."
+    },
+    "restricted": {
+      "title": "Réservé aux administrateurs",
+      "description": "Seul un administrateur règle ces paramètres. Vous pouvez en lire l'effet sur les écrans de génération et d'approbation."
+    },
+    "agents": {
+      "title": "Agents",
+      "description": "Le parcours des agents, étape par étape : qui lit, qui rédige, qui vérifie, et la consigne que chacun recevra.",
+      "legend": "Parcours des agents",
+      "etapes": {
+        "entree": "À l'entrée des sources",
+        "generation": "À la génération",
+        "controle": "Aux contrôles"
+      },
+      "etats": {
+        "simule": "Simulé",
+        "code": "Code déterministe",
+        "absent": "Pas encore livré"
+      },
+      "etatsDetail": {
+        "simule": "Cet agent tourne réellement dans le parcours, mais sans modèle : sa sortie est fabriquée par la simulation, et chaque trace le dit.",
+        "code": "Ce rôle n'appelle aucun modèle : il est appliqué par du code déterministe, qui se lit et se teste. Il n'a donc pas de consigne.",
+        "absent": "Ce rôle est prévu par la spécification mais aucun agent ne le joue aujourd'hui. Rien ne se règle tant qu'il n'existe pas."
+      },
+      "roles": {
+        "EXTRACTEUR": {
+          "nom": "Extracteur",
+          "quoi": "Relève dans la source les faits candidats et leur citation exacte.",
+          "entree": "Texte figé de la source",
+          "sortie": "Faits cités mot pour mot"
         },
-        "nature": {
-          "label": "Nature"
+        "ANALYSTE_IMPACT": {
+          "nom": "Analyste d'impact",
+          "quoi": "Désigne les audiences que la source nomme, avec la phrase qui les désigne.",
+          "entree": "Texte figé de la source",
+          "sortie": "Audiences suggérées"
         },
-        "criticite": {
-          "label": "Criticité"
+        "SUGGESTEUR": {
+          "nom": "Suggesteur",
+          "quoi": "Propose un cadrage lu dans la source ; il ne l'applique jamais.",
+          "entree": "Texte figé de la source",
+          "sortie": "Nature, criticité, titre suggérés"
         },
-        "portee": {
-          "label": "Portée"
+        "REDACTEUR": {
+          "nom": "Rédacteur",
+          "quoi": "Compose le texte en segments et en références de faits : il n'écrit aucune valeur.",
+          "entree": "Faits retenus, voix du persona",
+          "sortie": "Paragraphes et références"
         },
-        "langue": {
-          "label": "Langue de rédaction",
-          "hint": "Langues autorisées dans votre région."
+        "VERIFICATEUR": {
+          "nom": "Vérificateur",
+          "quoi": "Rattache chaque phrase à ses faits d'appui, ou la signale sans appui.",
+          "entree": "Texte produit, faits retenus",
+          "sortie": "Verdict par affirmation"
         },
-        "dateEffet": {
-          "label": "Date d'effet",
-          "hint": "Heure locale ({fuseau})."
+        "GARDIEN": {
+          "nom": "Gardien",
+          "quoi": "Applique les garde-fous du persona : lexique interdit, sujets interdits, plafond de confidentialité.",
+          "entree": "Texte produit, persona",
+          "sortie": "Contrôles bloquants"
         },
-        "echeance": {
-          "label": "Échéance",
-          "hint": "Heure locale ({fuseau})."
+        "CORRECTEUR": {
+          "nom": "Correcteur",
+          "quoi": "Corrigera les segments signalés, jamais le document entier.",
+          "entree": "Segments signalés",
+          "sortie": "Segments corrigés"
         },
-        "parentId": {
-          "label": "Communication d'origine",
-          "hint": "Pour une mise à jour, un correctif ou un rappel. L'originale reste inchangée."
-        },
-        "intentionReprise": {
-          "label": "Nature de la reprise"
-        },
-        "modeEntree": {
-          "label": "Comment la source arrive-t-elle ?"
+        "ARBITRE": {
+          "nom": "Arbitre",
+          "quoi": "Tranchera les désaccords entre agents.",
+          "entree": "Constats divergents",
+          "sortie": "Décision tracée"
         }
       },
-      "noParent": "Aucune — nouvelle communication",
-      "choose": "Choisir…",
-      "submit": "Créer et passer à l'entrée"
+      "inspecteur": {
+        "title": "Agent",
+        "quoi": "Ce qu'il fait",
+        "entree": "Reçoit",
+        "sortie": "Rend",
+        "choisir": "Choisissez un agent dans le parcours pour voir sa fiche et sa consigne."
+      },
+      "consigne": {
+        "title": "Consigne",
+        "hint": "Le texte envoyé au modèle. Entre 20 et 4000 caractères.",
+        "effet": "La consigne est enregistrée et versionnée dès maintenant. Elle ne part vers aucun modèle tant qu'aucun agent réel n'existe : les agents simulés n'en lisent pas, et leur trace dit « simulation », jamais votre version.",
+        "save": "Enregistrer la consigne",
+        "saved": "Consigne enregistrée en version {version}.",
+        "version": "Version {version}",
+        "aucune": "Aucune consigne enregistrée.",
+        "modifiePar": "Modifiée par {nom} le {date}",
+        "refus": "Consigne refusée : elle demande ce que l'application interdit.",
+        "motifs": {
+          "VALEUR_ECRITE": "Elle demande au modèle d'écrire une valeur (nombre, date, version, identifiant). Les valeurs sont injectées par du code, jamais écrites par un modèle.",
+          "INVENTION": "Elle demande de deviner, d'estimer ou de combler ce que la source ne dit pas.",
+          "SOURCE_IGNOREE": "Elle demande de passer outre la source ou les faits.",
+          "TEXTE_LIBRE": "Elle demande une sortie en texte libre : la sortie d'un agent est une structure validée."
+        }
+      }
+    }
+  },
+  "states": {
+    "BROUILLON": "Brouillon",
+    "FAITS_A_VALIDER": "Faits à valider",
+    "PRETE_A_GENERER": "Prête à générer",
+    "EN_GENERATION": "En génération",
+    "EN_CONTROLE": "En contrôle",
+    "A_CORRIGER": "À corriger",
+    "EN_RELECTURE": "En relecture",
+    "EN_APPROBATION": "En approbation",
+    "APPROUVEE": "Approuvée",
+    "ENVOI_PLANIFIE": "Envoi planifié",
+    "ENVOYEE": "Envoyée",
+    "REJETEE": "Rejetée",
+    "ARCHIVEE": "Archivée"
+  },
+  "templateBuilder": {
+    "title": "Constructeur de gabarits",
+    "description": "Composer un gabarit à partir de blocs.",
+    "empty": {
+      "title": "Le constructeur arrive à l’étape 5",
+      "description": "Bibliothèque de blocs, zone de travail, variables et sections conditionnelles. Rien n’en existe encore : livrer une zone de travail inerte ferait perdre du temps à qui essaierait d’y glisser un bloc."
+    }
+  },
+  "templates": {
+    "title": "Gabarits",
+    "description": "Les mises en page dont une communication hérite. Un canal sans gabarit actif refuse la génération.",
+    "canaux": {
+      "title": "Canaux servis",
+      "description": "Le gabarit retenu pour chaque canal, dans l'ordre de préférence du domaine.",
+      "aucun": "Aucun gabarit actif",
+      "sert": "Sert : {canaux}"
     },
-    "detail": {
-      "facts": "Faits",
-      "sources": "Sources",
-      "toReview": "À revoir",
-      "metadata": "Cadrage",
-      "author": "Auteur",
-      "createdOn": "Créée le",
-      "updatedOn": "Modifiée le",
-      "effectiveDate": "Date d'effet",
-      "deadline": "Échéance",
-      "language": "Langue",
-      "scope": "Portée",
-      "mode": "Mode d'entrée",
-      "parent": "Reprise de",
-      "notSet": "Non renseignée",
-      "steps": {
-        "title": "Étapes",
-        "entree": "Entrée des sources",
-        "entreeDescription": "Déposer des fichiers ou saisir le texte source.",
-        "fiche": "Fiche de faits",
-        "ficheDescription": "Revoir chaque fait, citation en regard, et trancher les contradictions.",
-        "closed": "Fermée à ce stade"
+    "bibliotheque": {
+      "title": "Vos gabarits",
+      "empty": "Aucun gabarit pour l'instant. Installez un exemple ci-dessous.",
+      "version": "Version {version}",
+      "inactif": "Inactif",
+      "variantes": "{count, plural, =0 {Aucune variante} one {# variante} other {# variantes}}",
+      "emplacements": "{count, plural, one {# emplacement} other {# emplacements}}",
+      "activer": "Activer",
+      "desactiver": "Désactiver",
+      "apercu": "Corps du gabarit",
+      "region": "Région : {nom}"
+    },
+    "constats": {
+      "title": "Ce gabarit ne se tient pas",
+      "EMPLACEMENT_ABSENT": "L'emplacement obligatoire « {cle} » n'est appelé nulle part : il ne sera jamais rempli.",
+      "APPEL_INCONNU": "Le corps appelle « {cle} », qui n'est pas déclaré : il partirait tel quel.",
+      "CLE_INVALIDE": "La clé « {cle} » n'a pas une forme admise (lettres et chiffres, 40 signes au plus).",
+      "CORPS_VIDE": "Le corps est vide."
+    },
+    "modeles": {
+      "title": "Exemples prêts à l'emploi",
+      "description": "Des départs, pas une norme : installez-en un, puis modifiez-le. Aucun ne porte de marque ni de couleur.",
+      "installe": "Déjà installé",
+      "installer": "Installer",
+      "intitule": "Nom du gabarit",
+      "region": "Région",
+      "formats": {
+        "MAIL_HTML": "Courriel HTML",
+        "MAIL_TEXTE": "Courriel texte",
+        "PDF": "Note PDF",
+        "NEWSLETTER": "Newsletter",
+        "MESSAGE_INSTANTANE": "Message instantané",
+        "ARTICLE": "Article de portail",
+        "UNE_PAGE": "Une page"
       },
-      "transitions": {
-        "title": "Faire avancer",
-        "description": "Chaque passage est vérifié côté serveur ; un refus dit tout ce qui manque.",
-        "refused": "Pas encore possible",
-        "none": "Aucune transition manuelle depuis cet état."
+      "langues": {
+        "fr": "Français",
+        "en": "Anglais"
       },
-      "toState": {
-        "BROUILLON": "Revenir au brouillon",
-        "FAITS_A_VALIDER": "Passer à la validation des faits",
-        "PRETE_A_GENERER": "Déclarer la fiche validée",
-        "ARCHIVEE": "Archiver"
+      "noms": {
+        "courriel-html-fr": "Courriel HTML",
+        "courriel-texte-fr": "Courriel texte",
+        "newsletter-fr": "Newsletter mensuelle",
+        "note-interne-fr": "Note interne",
+        "message-instantane-fr": "Message instantané",
+        "article-portail-fr": "Article de portail",
+        "courriel-html-en": "HTML email",
+        "note-interne-en": "Internal note"
+      },
+      "quoi": {
+        "courriel-html-fr": "Objet, émetteur, corps, signature et mention de désinscription. Le courriel de tous les jours.",
+        "courriel-texte-fr": "La même chose en texte brut, pour les messageries qui n'affichent pas le HTML.",
+        "newsletter-fr": "Période, chapeau, articles et encadré « à retenir » : une édition récurrente.",
+        "note-interne-fr": "Référence, émetteur, destinataires et date d'effet en tête : la note qui fait foi.",
+        "message-instantane-fr": "Trois phrases au plus, pour Teams ou équivalent.",
+        "article-portail-fr": "Rubrique, chapeau et corps : l'article publié sur l'intranet.",
+        "courriel-html-en": "The everyday email, in English.",
+        "note-interne-en": "The internal note that stands as record, in English."
       }
     },
-    "entree": {
-      "title": "Entrée des sources",
-      "description": "Chaque source est figée à l'entrée : texte lu côté serveur, empreinte, langue détectée. Les faits qu'on y relève restent à revoir.",
-      "closed": {
-        "title": "Les sources sont figées",
-        "description": "La communication a dépassé l'étape d'entrée ; une nouvelle source passe par une reprise."
-      },
-      "files": {
-        "title": "Déposer des fichiers",
-        "description": "Jusqu'à 20 fichiers, 25 Mio chacun, 50 Mio au total. Formats lus : .docx, .pdf (avec texte), .xlsx, .csv, .md, .txt.",
-        "label": "Fichiers",
-        "hint": "Les .pptx, .eml, .msg et les images (OCR) ne sont pas encore lus : ils sont refusés et signalés.",
-        "submit": "Déposer et analyser",
-        "drop": "Choisissez des fichiers ou glissez-les ici",
-        "none": "Aucun fichier choisi.",
-        "selected": "{count, plural, one {# fichier choisi} other {# fichiers choisis}}"
-      },
-      "text": {
-        "title": "Saisir le texte",
-        "description": "Le texte saisi devient une source, au mot près. Les variantes ne pourront rien y ajouter.",
-        "titre": "Intitulé de la source",
-        "titreHint": "Par exemple « Déclaration de l'astreinte ».",
-        "texte": "Texte",
-        "submit": "Enregistrer la source"
-      },
-      "confidentiality": {
-        "label": "Confidentialité des sources",
-        "hint": "Héritée par les faits relevés ; modifiable fait par fait."
-      },
-      "result": {
-        "title": "Résultat du dépôt",
-        "deposited": "{count, plural, one {# fait relevé} other {# faits relevés}}",
-        "refused": "Refusé",
-        "accepted": "Déposé",
-        "languageDetected": "langue détectée : {langue}",
-        "languageUnknown": "langue non détectée",
-        "toFacts": "Revoir la fiche de faits"
-      },
-      "antivirusOff": {
-        "title": "Aucune analyse antivirale",
-        "description": "Cet environnement est configuré sans antivirus (ANTIVIRUS_MODE=aucun). Les fichiers ont été lus sans être analysés."
-      },
-      "motifs": {
-        "FORMAT_INCONNU": "Format non reconnu.",
-        "FORMAT_INCOHERENT": "Le contenu ne correspond pas à l'extension du fichier.",
-        "FORMAT_NON_PRIS_EN_CHARGE": "Ce format n'est pas encore lu (présentations, courriels, images).",
-        "TEXTE_ABSENT": "Aucun texte lisible : un PDF numérisé demande une reconnaissance de caractères, pas encore disponible.",
-        "FICHIER_ILLISIBLE": "Fichier corrompu, incomplet ou protégé par mot de passe.",
-        "FICHIER_TROP_VOLUMINEUX": "Fichier de plus de 25 Mio.",
-        "INFECTE": "Menace détectée par l'antivirus ({detail}). Le fichier n'a pas été conservé.",
-        "ANTIVIRUS_INDISPONIBLE": "L'antivirus ne répond pas : le fichier n'a pas été accepté. Réessayez plus tard.",
-        "EN_DOUBLE": "Ce contenu est déjà une source de cette communication.",
-        "NOM_INVALIDE": "Nom de fichier vide ou trop long."
-      }
-    },
-    "fiche": {
-      "title": "Fiche de faits",
-      "description": "Chaque fait est cité mot pour mot dans sa source. Confirmez ce qui est juste, retirez le reste, nommez les faits pour les rapprocher. Une valeur ne se corrige que par un amendement justifié.",
-      "progress": "{revus} sur {total} faits revus",
-      "frozen": {
-        "title": "Fiche figée",
-        "description": "La communication a dépassé l'étape de validation des faits."
-      },
-      "readOnly": "Lecture seule : votre rôle ne permet pas de modifier la fiche.",
-      "empty": {
-        "title": "Aucun fait relevé",
-        "description": "Les faits apparaissent ici dès qu'une source est déposée.",
-        "action": "Déposer une source"
-      },
-      "contradictions": {
-        "title": "{count, plural, one {Une contradiction entre sources bloque la suite} other {# contradictions entre sources bloquent la suite}}",
-        "description": "Deux sources donnent des valeurs différentes au même fait. Retirez le fait erroné, ou amendez sa valeur en justifiant le choix.",
-        "item": "« {enonce} » :",
-        "value": "{valeur} selon {source} ({reference})",
-        "badge": "Contradiction"
-      },
-      "fact": {
-        "value": "Valeur",
-        "type": "Type",
-        "source": "Source",
-        "citation": "Citation dans la source",
-        "line": "ligne {ligne}",
-        "confidence": "confiance {confiance}",
-        "confidentiality": "Confidentialité",
-        "amendments": "Amendements",
-        "amendment": "{ancienne} → {nouvelle}, par {auteur} le {date}",
-        "amendmentNoPrevious": "valeur fixée à {nouvelle}, par {auteur} le {date}",
-        "justification": "Justification : {texte}",
-        "invokedSource": "Source invoquée : {texte}",
-        "assumed": "Valeur déclarée sous la responsabilité de son auteur.",
-        "showInSource": "Voir dans la source"
-      },
-      "actions": {
-        "confirm": "Confirmer",
-        "remove": "Retirer",
-        "restore": "Rétablir",
-        "rename": "Renommer",
-        "renameTitle": "Renommer le fait",
-        "renameHint": "L'énoncé est le libellé du fait ; deux faits de même énoncé et de valeurs différentes se contredisent.",
-        "renameSubmit": "Enregistrer l'énoncé",
-        "amend": "Amender",
-        "amendTitle": "Amender la valeur",
-        "amendHint": "La citation reste celle de la source ; l'amendement est tracé et visible des approbateurs.",
-        "newValue": "Nouvelle valeur",
-        "justification": "Justification",
-        "justificationHint": "Pourquoi cette valeur ? Dix caractères au moins.",
-        "invokedSource": "Source invoquée",
-        "invokedSourceHint": "Document, message ou personne qui établit la valeur.",
-        "assume": "J'assume cette valeur sans source : le fait devient « déclaré » et impose une approbation.",
-        "amendSubmit": "Amender",
-        "confidentialitySubmit": "Appliquer",
-        "done": "Enregistré."
-      },
-      "add": {
-        "title": "Ajouter un fait",
-        "description": "Copiez la citation exacte depuis le texte de la source ; la valeur doit y figurer telle quelle.",
-        "source": "Source",
-        "citation": "Citation exacte",
-        "enonce": "Énoncé",
-        "typeValeur": "Type de valeur",
-        "valeur": "Valeur",
-        "valeurHint": "Recopiée de la citation, caractère pour caractère. Vide pour un énoncé sans valeur.",
-        "submit": "Ajouter le fait"
-      },
-      "sourcePanel": {
-        "title": "Texte des sources",
-        "description": "Les citations des faits vivants sont surlignées.",
-        "fingerprint": "Empreinte SHA-256",
-        "frozenOn": "Figée le {date}",
-        "language": "Langue détectée",
-        "file": "Fichier conservé",
-        "noText": "Aucun texte."
-      },
-      "next": {
-        "title": "Valider la fiche",
-        "description": "La fiche est validée quand chaque fait est revu et que les contradictions sont tranchées. Le choix des personas suit."
-      }
-    },
-    "motifs": {
-      "TRANSITION_INCONNUE": "Ce passage n'existe pas depuis l'état actuel.",
-      "AUCUNE_SOURCE_FIGEE": "Aucune source n'a été déposée.",
-      "AUCUN_FAIT_CONFIRME": "Aucun fait n'est confirmé.",
-      "FAIT_NON_REVU": "Des faits restent à revoir : confirmez-les ou retirez-les.",
-      "CONTRADICTION_NON_TRANCHEE": "Une contradiction entre sources n'est pas tranchée.",
-      "AUCUN_PERSONA": "Aucun persona n'est choisi : le choix des personas n'est pas encore disponible dans cette version.",
-      "PERSONA_SANS_TEMPLATE": "Un persona n'a pas de template.",
-      "AUCUNE_VARIANTE": "Aucune variante n'a été générée.",
-      "CONTROLE_BLOQUANT_NON_RESOLU": "Un contrôle bloquant n'est pas résolu.",
-      "APPROBATIONS_INSUFFISANTES": "Les approbations requises ne sont pas réunies.",
-      "LISTE_DIFFUSION_NON_RESOLUE": "Une liste de diffusion n'est pas résolue.",
-      "LISTE_DIFFUSION_VIDE": "Une liste de diffusion est vide."
-    },
-    "erreurs": {
-      "titre": "L'opération n'a pas abouti",
-      "INTROUVABLE": "Cet élément n'existe pas ou n'appartient pas à votre organisation.",
-      "DONNEES_INVALIDES": "Certains champs sont à corriger.",
-      "ETAT_INCOMPATIBLE": "L'état actuel ne permet pas cette opération.",
-      "TRANSITION_REFUSEE": "Le passage est refusé :",
-      "TRANSITION_NON_MANUELLE": "Ce passage appartient à un autre parcours (génération, approbation, envoi).",
-      "CONFLIT": "La communication a été modifiée entre-temps. Rechargez la page.",
-      "MODE_NON_DISPONIBLE": "Ce mode d'entrée n'est pas encore disponible.",
-      "LANGUE_NON_AUTORISEE": "Cette langue n'est pas autorisée dans votre région.",
-      "CITATION_INVALIDE": "La citation ne figure pas telle quelle dans la source.",
-      "VALEUR_HORS_CITATION": "La valeur ne figure pas telle quelle dans la citation.",
-      "SOURCE_EN_DOUBLE": "Ce texte est déjà une source de cette communication.",
-      "TEXTE_ABSENT": "Aucun texte lisible.",
-      "FICHIER_REFUSE": "Fichier refusé.",
-      "NON_AUTORISE": "Votre rôle ne permet pas cette opération."
-    },
-    "champs": {
-      "requis": "Champ obligatoire.",
-      "invalide": "Valeur non reconnue.",
-      "trop_court": "Trop court.",
-      "trop_long": "Trop long.",
-      "trop_nombreux": "Vingt fichiers au plus par dépôt.",
-      "trop_volumineux": "50 Mio au plus par dépôt.",
-      "heure_inexistante": "Cette heure n'existe pas (passage à l'heure d'été).",
-      "heure_ambigue": "Cette heure existe deux fois (retour à l'heure d'hiver) : choisissez-en une autre.",
-      "heure_invalide": "Date ou heure invalide.",
-      "langue_non_autorisee": "Langue non autorisée dans votre région.",
-      "mode_non_disponible": "Ce mode n'est pas encore disponible.",
-      "parent_introuvable": "Communication d'origine introuvable.",
-      "appui_requis": "Indiquez une source, ou assumez la valeur.",
-      "inchangee": "La valeur est identique à l'actuelle.",
-      "en_double": "Ce texte est déjà une source de cette communication.",
-      "absente_de_la_source": "Cette citation ne figure pas mot pour mot dans la source.",
-      "absente_de_la_citation": "Cette valeur ne figure pas caractère pour caractère dans la citation."
-    },
-    "navigation": {
-      "label": "Vues de la communication",
-      "apercu": "Aperçu",
-      "entree": "Entrée",
-      "faits": "Fiche de faits"
-    },
-    "modesLater": "Pas encore disponibles : {modes}."
+    "rendu": "Le gabarit est rattaché à chaque version produite ; son rendu final (HTML, PDF) arrive avec l'envoi. Ici, le corps est montré tel qu'il est enregistré."
+  },
+  "theme": {
+    "label": "Thème",
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
+  "envoi": {
+    "title": "Envoi",
+    "simulation": "Envoi simulé : aucun canal n'est connecté. Rien ne quitte l'application, et l'état « remis » reste faux.",
+    "approved": "La communication est approuvée. Planifier l'envoi vérifie les listes de diffusion ; vous pourrez encore l'annuler.",
+    "planned": "Envoi planifié. Confirmez pour l'enregistrer, ou annulez : la communication reste approuvée.",
+    "sent": "Envoi enregistré le {date}.",
+    "plan": "Planifier l'envoi",
+    "confirm": "Confirmer l'envoi",
+    "cancel": "Annuler l'envoi",
+    "item": "{canal} · {effectif, plural, one {# destinataire} other {# destinataires}} · {listes}"
   }
 }

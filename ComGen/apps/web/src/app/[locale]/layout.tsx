@@ -1,4 +1,5 @@
-import '@fontsource-variable/instrument-sans/wght.css'
+import '@fontsource-variable/dm-sans/wght.css'
+import '@fontsource-variable/manrope/wght.css'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/500.css'
 import '@/styles/index.css'

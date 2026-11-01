@@ -1,7 +1,8 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { type Page, expect, test } from '@playwright/test'
 
-import { PAGES, SANS_SESSION, attendreRendu, estTelephone } from './outils'
+import { COMPTES } from './environnement'
+import { PAGES, PAGES_ADMIN, SANS_SESSION, attendreRendu, estTelephone } from './outils'
 
 /*
  * Audit axe-core (WCAG 2.2 AA). Le critère d'acceptation est « zéro
@@ -32,6 +33,17 @@ for (const { nom, chemin } of PAGES) {
   })
 }
 
+test.describe('administratrice', () => {
+  test.use({ storageState: COMPTES.administratrice.etat })
+  for (const { nom, chemin } of PAGES_ADMIN) {
+    test(`axe — ${nom} (fr)`, async ({ page }) => {
+      await page.goto(chemin)
+      await attendreRendu(page)
+      await auditer(page)
+    })
+  }
+})
+
 test.describe('sans session', () => {
   test.use({ storageState: SANS_SESSION })
 
@@ -54,6 +66,16 @@ test('axe — fiche de faits, volet d’amendement ouvert', async ({ page }) => 
   await bouton.click()
   await expect(bouton).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('region', { name: 'Amender la valeur' })).toBeVisible()
+  /*
+   * Le clic a fait défiler la page pour amener le bouton dans le champ de
+   * vision. On remonte avant d'auditer : `target-size` juge ce qui est
+   * visible, et sous la barre collante tout contenu est « recouvert » —
+   * ce que l'audit signalerait comme un défaut alors que c'est la position
+   * de défilement du moment. On audite une page, pas un défilement.
+   */
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   await auditer(page)
 })
 

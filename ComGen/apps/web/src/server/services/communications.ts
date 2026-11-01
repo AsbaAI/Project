@@ -14,11 +14,13 @@ import {
   evaluerTransition,
   heureLocaleVersUtc,
 } from '@comgen/core'
+import type { Prisma } from '@comgen/db'
 import { z } from 'zod'
 
 import { exigerDroit, verifierDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
+import { lireOrigineExterne } from './itsm'
 import {
   type TransitionEvaluee,
   construireContexteTransition,
@@ -32,7 +34,7 @@ import {
  */
 
 /** Modes d'entrée livrés à ce jour ; les autres sont refusés explicitement. */
-export const MODES_DISPONIBLES: readonly ModeEntree[] = ['FICHIER', 'TEXTE_SAISI']
+export const MODES_DISPONIBLES: readonly ModeEntree[] = ['FICHIER', 'TEXTE_SAISI', 'CONNECTEUR']
 
 /** Langues de rédaction prises en charge (l'interface et les contrôles). */
 export const LANGUES_COMMUNICATION = ['fr', 'en'] as const
@@ -190,6 +192,12 @@ export interface ResumeCommunication {
   modeEntree: ModeEntree
   modifieLe: Date
   auteurNom: string
+  /**
+   * Le ticket d'où vient la première source, quand il y en a un : ce qui
+   * permet de retrouver l'origine depuis l'historique et les métriques.
+   * Jamais le contenu du ticket.
+   */
+  ticket: { systeme: string; numero: string } | null
 }
 
 const SELECTION_RESUME = {
@@ -204,7 +212,22 @@ const SELECTION_RESUME = {
   modeEntree: true,
   modifieLe: true,
   auteur: { select: { nom: true } },
+  sources: {
+    select: { origineExterne: true },
+    where: { type: 'CONNECTEUR' as const },
+    orderBy: { figeeLe: 'asc' as const },
+    take: 1,
+  },
 } as const
+
+/** La référence du ticket d'où vient la première source, s'il y en a une. */
+function ticketDe(sources: readonly { origineExterne: Prisma.JsonValue }[]): {
+  systeme: string
+  numero: string
+} | null {
+  const origine = lireOrigineExterne(sources[0]?.origineExterne)
+  return origine === null ? null : { systeme: origine.systeme, numero: origine.numero }
+}
 
 function versResume(ligne: {
   id: string
@@ -218,6 +241,7 @@ function versResume(ligne: {
   modeEntree: ModeEntree
   modifieLe: Date
   auteur: { nom: string }
+  sources: readonly { origineExterne: Prisma.JsonValue }[]
 }): ResumeCommunication {
   return {
     id: ligne.id,
@@ -231,16 +255,42 @@ function versResume(ligne: {
     modeEntree: ligne.modeEntree,
     modifieLe: ligne.modifieLe,
     auteurNom: ligne.auteur.nom,
+    ticket: ticketDe(ligne.sources),
   }
 }
 
-export async function listerCommunications(acteur: Acteur): Promise<ResumeCommunication[]> {
+/** Page d'historique : ce qu'on montre, et combien il y en a en tout. */
+export interface PageCommunications {
+  lignes: ResumeCommunication[]
+  /** Effectif total dans l'organisation, pas le nombre de lignes rendues. */
+  total: number
+  limite: number
+}
+
+export const LIMITE_HISTORIQUE = 25
+
+/**
+ * L'historique est borné. Avec six mois de données, tout rendre d'un coup
+ * donne une page qu'on ne lit pas et qu'on ne capture pas. Le total
+ * accompagne donc toujours les lignes : un extrait qui ne dit pas qu'il est
+ * un extrait est un résultat partiel présenté comme complet.
+ *
+ * Le filtrage et la pagination arrivent avec l'onglet Analyses.
+ */
+export async function listerCommunications(
+  acteur: Acteur,
+  limite: number = LIMITE_HISTORIQUE,
+): Promise<PageCommunications> {
   exigerDroit(acteur.utilisateur, 'CONSULTER')
-  const lignes = await acteur.contexte.communication.findMany({
-    select: SELECTION_RESUME,
-    orderBy: [{ modifieLe: 'desc' }, { reference: 'desc' }],
-  })
-  return lignes.map(versResume)
+  const [lignes, total] = await Promise.all([
+    acteur.contexte.communication.findMany({
+      select: SELECTION_RESUME,
+      orderBy: [{ modifieLe: 'desc' }, { reference: 'desc' }],
+      take: limite,
+    }),
+    acteur.contexte.communication.count(),
+  ])
+  return { lignes: lignes.map(versResume), total, limite }
 }
 
 /** Candidats au rattachement (reprise) : communications non archivées de l'organisation. */
@@ -374,6 +424,8 @@ export interface CommunicationBloquee {
 export interface TableauDeBord {
   mesCommunications: ResumeCommunication[]
   parEtat: Partial<Record<EtatCommunication, number>>
+  /** Combien de mes communications viennent de quel mode d'entrée (§18). */
+  parOrigine: Partial<Record<ModeEntree, number>>
   aApprouver: ResumeCommunication[]
   bloquees: CommunicationBloquee[]
 }
@@ -401,7 +453,11 @@ export async function chargerTableauDeBord(acteur: Acteur): Promise<TableauDeBor
   ])
 
   const parEtat: Partial<Record<EtatCommunication, number>> = {}
-  for (const ligne of mes) parEtat[ligne.etat] = (parEtat[ligne.etat] ?? 0) + 1
+  const parOrigine: Partial<Record<ModeEntree, number>> = {}
+  for (const ligne of mes) {
+    parEtat[ligne.etat] = (parEtat[ligne.etat] ?? 0) + 1
+    parOrigine[ligne.modeEntree] = (parOrigine[ligne.modeEntree] ?? 0) + 1
+  }
 
   const aApprouver = [
     ...new Map(
@@ -430,5 +486,5 @@ export async function chargerTableauDeBord(acteur: Acteur): Promise<TableauDeBor
     }
   }
 
-  return { mesCommunications: mes.map(versResume), parEtat, aApprouver, bloquees }
+  return { mesCommunications: mes.map(versResume), parEtat, parOrigine, aApprouver, bloquees }
 }

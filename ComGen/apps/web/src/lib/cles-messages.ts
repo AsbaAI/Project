@@ -12,4 +12,15 @@ export type CodeErreurAffiche = keyof Communications['erreurs']
 export type MotifAffiche = keyof Communications['motifs']
 export type CodeChamp = keyof Communications['champs']
 export type LangueAffichee = keyof Communications['langues']
+export type CanalAffiche = keyof Communications['canaux']
+export type NatureAffichee = keyof Communications['natures']
+export type CriticiteAffichee = keyof Communications['criticites']
 export type MotifDepot = keyof Communications['entree']['motifs']
+
+type Dashboard = Messages['dashboard']
+
+export type OrigineAffichee = keyof Dashboard['origins']
+
+type Generation = Messages['generation']
+
+export type RoleAgentAffiche = keyof Generation['roles']

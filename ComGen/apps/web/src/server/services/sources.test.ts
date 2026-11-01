@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 
+import { ErreurAgent, creerAnalysteSimule, creerExtracteurSimule } from '@comgen/agents'
 import { verifierCitation } from '@comgen/core'
 import { type Connexion, ouvrirConnexion } from '@comgen/db'
 import { URL_BASE_DE_TEST, clientDeTest } from '@comgen/db/test'
@@ -299,5 +300,200 @@ describe('texte saisi (§10, mode TEXTE_SAISI)', () => {
     } catch (erreur) {
       expect((erreur as ErreurMetier).details.champs).toEqual({ titre: 'requis', texte: 'requis' })
     }
+  })
+})
+
+describe('lecture des sources par les agents', () => {
+  const TEXTE = [
+    'Objet : migration du portail vers la version 4.2',
+    'La migration aura lieu le 12 mars 2026.',
+    'Les clients doivent renouveler leur clé avant la fin de la fenêtre de maintenance.',
+    'Le service sera indisponible pendant 45 minutes.',
+  ].join('\n')
+
+  const saisie = { titre: 'Note', texte: TEXTE, confidentialite: 'INTERNE' } as const
+
+  it('trace chaque agent qui a lu la source, en disant qu’il est simulé', async () => {
+    const id = await nouvelleCommunication()
+    await saisirTexte(org.redacteur, id, saisie)
+
+    const executions = await clientDeTest(connexion).execution.findMany({
+      where: { communicationId: id },
+    })
+    expect(executions.map((e) => e.agent).toSorted()).toEqual([
+      'ANALYSTE_IMPACT',
+      'EXTRACTEUR',
+      'SUGGESTEUR',
+    ])
+    for (const execution of executions) {
+      expect(execution.varianteId).toBeNull()
+      expect(execution.modele).toBe('simulation')
+      expect(execution.succes).toBe(true)
+      expect(execution.parametres).toMatchObject({ simule: true })
+    }
+  })
+
+  it('range les audiences nommées par la source, chacune avec la phrase qui les nomme', async () => {
+    const id = await nouvelleCommunication()
+    await saisirTexte(org.redacteur, id, saisie)
+
+    const suggestions = await clientDeTest(connexion).suggestionAudience.findMany({
+      where: { communicationId: id },
+    })
+    const clients = suggestions.find((s) => s.dimension === 'Clients')
+    expect(clients).toMatchObject({
+      origine: 'MOT_CLE',
+      decision: 'EN_ATTENTE',
+      extrait: 'Les clients doivent renouveler leur clé avant la fin de la fenêtre de maintenance.',
+    })
+    // Une suggestion est une phrase de la source, pas une invention.
+    for (const suggestion of suggestions) expect(TEXTE).toContain(suggestion.extrait)
+  })
+
+  it('garde la lecture du cadrage avec la source, sans jamais l’appliquer', async () => {
+    // Le cadrage reste ce que le rédacteur a saisi : l'agent propose, il ne décide pas.
+    const { id } = await creerCommunication(org.redacteur, {
+      titre: 'Livraison du portail',
+      nature: 'RELEASE',
+      criticite: 'COURANTE',
+      portee: 'INTERNE',
+      langue: 'fr',
+      modeEntree: 'TEXTE_SAISI',
+    })
+    const { sourceId } = await saisirTexte(org.redacteur, id, saisie)
+
+    const source = await clientDeTest(connexion).source.findUniqueOrThrow({
+      where: { id: sourceId },
+    })
+    expect(source.cadrageSuggere).toMatchObject({
+      titre: { valeur: 'migration du portail vers la version 4.2' },
+      nature: { valeur: 'CHANGE' },
+      criticite: { valeur: 'IMPORTANTE' },
+    })
+    const communication = await clientDeTest(connexion).communication.findUniqueOrThrow({
+      where: { id },
+    })
+    expect(communication.nature).toBe('RELEASE')
+    expect(communication.criticite).toBe('COURANTE')
+    expect(communication.titre).toBe('Livraison du portail')
+  })
+
+  it('accepte un texte sans aucune valeur : zéro fait, et l’échec de l’extracteur est tracé', async () => {
+    // Pas de repli « générique mais crédible » : l'extracteur échoue, et le
+    // dépôt continue sans fait — au rédacteur d'en ajouter à la main.
+    const id = await nouvelleCommunication()
+    const resultat = await saisirTexte(org.redacteur, id, {
+      titre: 'Note sans chiffre',
+      texte: 'Le portail évolue pour mieux servir les clients.',
+      confidentialite: 'INTERNE',
+    })
+    expect(resultat.faitsProposes).toBe(0)
+
+    const executions = await clientDeTest(connexion).execution.findMany({
+      where: { communicationId: id },
+    })
+    const extracteur = executions.find((e) => e.agent === 'EXTRACTEUR')
+    expect(extracteur?.succes).toBe(false)
+    expect(extracteur?.erreur).toBeTruthy()
+    // Les autres agents ont tout de même lu la source.
+    expect(executions.find((e) => e.agent === 'ANALYSTE_IMPACT')?.succes).toBe(true)
+    const suggestions = await clientDeTest(connexion).suggestionAudience.findMany({
+      where: { communicationId: id },
+    })
+    expect(suggestions.map((s) => s.dimension)).toEqual(['Clients'])
+  })
+
+  it('une citation inventée par l’extracteur annule tout le dépôt', async () => {
+    // La sortie de l'agent est une proposition : sa citation est revérifiée
+    // contre le texte exact de la source avant d'être écrite.
+    const id = await nouvelleCommunication()
+    const menteur = {
+      ...creerExtracteurSimule(),
+      executer: () =>
+        Promise.resolve({
+          sortie: {
+            faits: [
+              {
+                enonce: 'Le service sera interrompu',
+                valeur: '99',
+                typeValeur: 'NOMBRE' as const,
+                citation: 'Une phrase que la source ne contient pas, 99 minutes.',
+                localisation: { offsetDebut: 0, offsetFin: 10, ligne: 1 },
+                confiance: 0.9,
+              },
+            ],
+          },
+          trace: {
+            role: 'EXTRACTEUR' as const,
+            prompt: 'test/extracteur@1',
+            modele: null,
+            jetonsEntree: 0,
+            jetonsSortie: 0,
+            dureeMs: 0,
+            simule: true,
+          },
+        }),
+    }
+
+    await expect(
+      saisirTexte(org.redacteur, id, saisie, { agents: { extracteur: menteur } }),
+    ).rejects.toThrow(/citation/i)
+
+    const db = clientDeTest(connexion)
+    expect(await db.source.count({ where: { communicationId: id } })).toBe(0)
+    expect(await db.fait.count({ where: { communicationId: id } })).toBe(0)
+    expect(await db.execution.count({ where: { communicationId: id } })).toBe(0)
+  })
+
+  it('une valeur que sa citation ne contient pas annule tout le dépôt', async () => {
+    // La citation est réelle, mais la valeur annoncée n'y est pas : c'est
+    // exactement l'écart qu'une fonction pure ne pouvait pas avoir et qu'un
+    // agent peut.
+    const id = await nouvelleCommunication()
+    const reel = creerExtracteurSimule()
+    const altere = {
+      ...reel,
+      async executer(entree: { texte: string }, contexte: Parameters<typeof reel.executer>[1]) {
+        const resultat = await reel.executer(entree, contexte)
+        return {
+          ...resultat,
+          sortie: {
+            faits: resultat.sortie.faits.map((fait, rang) =>
+              rang === 0 ? Object.assign({}, fait, { valeur: '99999' }) : fait,
+            ),
+          },
+        }
+      },
+    }
+
+    await expect(
+      saisirTexte(org.redacteur, id, saisie, { agents: { extracteur: altere } }),
+    ).rejects.toThrow(/valeur/i)
+
+    const db = clientDeTest(connexion)
+    expect(await db.source.count({ where: { communicationId: id } })).toBe(0)
+    expect(await db.fait.count({ where: { communicationId: id } })).toBe(0)
+  })
+
+  it('un analyste en panne ne bloque pas le dépôt : ses suggestions sont facultatives', async () => {
+    const id = await nouvelleCommunication()
+    const resultat = await saisirTexte(org.redacteur, id, saisie, {
+      agents: {
+        analyste: {
+          ...creerAnalysteSimule(),
+          executer: () =>
+            Promise.reject(new ErreurAgent('SORTIE_INVALIDE', 'ANALYSTE_IMPACT', 'Panne simulée')),
+        },
+      },
+    })
+    expect(resultat.faitsProposes).toBeGreaterThan(0)
+
+    const db = clientDeTest(connexion)
+    expect(await db.suggestionAudience.count({ where: { communicationId: id } })).toBe(0)
+    const analyste = await db.execution.findFirst({
+      where: { communicationId: id, agent: 'ANALYSTE_IMPACT' },
+    })
+    expect(analyste).toMatchObject({ succes: false })
+    expect(analyste?.erreur).toContain('Panne simulée')
   })
 })

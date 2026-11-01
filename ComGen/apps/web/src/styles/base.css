@@ -34,28 +34,34 @@
 
   /* ---------------------------------------------------------------
    * Titres
-   * L'échelle descend vite : dans une application, un `<h3>` n'est pas
-   * un titre de magazine, c'est une étiquette de section.
+   *
+   * Manrope, en graisse LÉGÈRE et interlettrage resserré : la hiérarchie
+   * se fait par la taille et l'air autour, pas par le gras. Un titre de
+   * page est une ligne éditoriale ; un `<h3>` reste une étiquette de
+   * section, l'échelle descend donc vite.
    * --------------------------------------------------------------- */
   h1 {
-    font-size: var(--text-2xl);
-    line-height: var(--text-2xl-lh);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-tight);
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    line-height: var(--text-display-lh);
+    font-weight: var(--weight-regular);
+    letter-spacing: var(--tracking-display);
   }
 
   h2 {
+    font-family: var(--font-display);
     font-size: var(--text-xl);
     line-height: var(--text-xl-lh);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-snug);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tight);
   }
 
   h3 {
+    font-family: var(--font-display);
     font-size: var(--text-lg);
     line-height: var(--text-lg-lh);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-snug);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tight);
   }
 
   h4 {

@@ -3,10 +3,12 @@ import {
   type EtatCommunication,
   NIVEAUX,
   type Niveau,
+  type RoleAgent,
   type StatutFait,
   TYPES_VALEUR,
   type TypeSource,
   type TypeValeur,
+  detecterContradictions,
   formaterReferenceFait,
   localiserCitation,
   verifierCitation,
@@ -17,7 +19,14 @@ import { z } from 'zod'
 import { exigerDroit, verifierDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
-import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelles } from './etat'
+import { type OrigineExterne, lireOrigineExterne } from './itsm'
+import {
+  ETATS_FICHE_OUVERTE,
+  type TransitionEvaluee,
+  chargerFaitsComparables,
+  evaluerTransitionsManuelles,
+} from './etat'
+import { lireParametre } from './executions'
 
 /**
  * Fiche de faits (spécification §11, §15) : revue fait par fait, citation en
@@ -35,6 +44,33 @@ import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelle
 // Lecture
 // ---------------------------------------------------------------------------
 
+/** Un agent qui a lu la source, tel que son exécution l'a laissé. */
+export interface AgentDeLecture {
+  agent: RoleAgent
+  dureeMs: number
+  simule: boolean
+  succes: boolean
+  /** Pourquoi il a échoué ; `null` s'il a réussi. */
+  raison: string | null
+}
+
+/**
+ * Un point où la lecture du suggesteur ne rejoint pas le cadrage saisi,
+ * avec la phrase de la source qui la motive. Un écart informe : il n'est
+ * jamais appliqué, le cadrage reste ce que le rédacteur a décidé.
+ */
+export interface EcartDeCadrage {
+  champ: 'nature' | 'criticite'
+  cadrage: string
+  lecture: string
+  extrait: string
+}
+
+export interface LectureDeSource {
+  agents: AgentDeLecture[]
+  ecarts: EcartDeCadrage[]
+}
+
 export interface SourceDeFiche {
   id: string
   type: TypeSource
@@ -45,6 +81,9 @@ export interface SourceDeFiche {
   figeeLe: Date
   contenuTexte: string
   fichierConserve: boolean
+  /** Le ticket d'où vient la source, quand elle vient d'un connecteur. */
+  origine: OrigineExterne | null
+  lecture: LectureDeSource
 }
 
 export interface AmendementDeFiche {
@@ -90,6 +129,38 @@ export interface Fiche {
   modifiable: boolean
 }
 
+const schemaProposition = z.object({ valeur: z.string(), extrait: z.string() }).nullable()
+const schemaCadrageSuggere = z.object({
+  nature: schemaProposition,
+  criticite: schemaProposition,
+})
+
+/**
+ * Les points où la lecture du suggesteur diffère du cadrage. Une proposition
+ * absente n'est pas un désaccord : « pas d'avis » ne contredit rien. Un
+ * contenu illisible ne dit rien non plus, plutôt que de faire dire à
+ * l'agent ce qu'il n'a pas dit.
+ */
+function ecartsDeCadrage(
+  brut: unknown,
+  communication: { nature: string; criticite: string },
+): EcartDeCadrage[] {
+  const lu = schemaCadrageSuggere.safeParse(brut)
+  if (!lu.success) return []
+  return (['nature', 'criticite'] as const).flatMap((champ) => {
+    const proposition = lu.data[champ]
+    if (proposition === null || proposition.valeur === communication[champ]) return []
+    return [
+      {
+        champ,
+        cadrage: communication[champ],
+        lecture: proposition.valeur,
+        extrait: proposition.extrait,
+      },
+    ]
+  })
+}
+
 function lireLocalisation(brute: unknown): FaitDeFiche['localisation'] {
   const objet = (typeof brute === 'object' && brute !== null ? brute : {}) as Record<
     string,
@@ -113,11 +184,19 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
   exigerDroit(utilisateur, 'CONSULTER')
   const communication = await contexte.communication.findUnique({
     where: { id: communicationId },
-    select: { id: true, reference: true, titre: true, etat: true, langue: true, criticite: true },
+    select: {
+      id: true,
+      reference: true,
+      titre: true,
+      etat: true,
+      langue: true,
+      nature: true,
+      criticite: true,
+    },
   })
   if (!communication) throw introuvable('Communication', communicationId)
 
-  const [sources, faits, { transitions, contradictions }] = await Promise.all([
+  const [sources, faits, { transitions, contradictions }, executions] = await Promise.all([
     contexte.source.findMany({
       where: { communicationId },
       orderBy: [{ figeeLe: 'asc' }, { nom: 'asc' }],
@@ -133,6 +212,12 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
       },
     }),
     evaluerTransitionsManuelles(contexte, communication),
+    // Les exécutions qui ont lu une source n'appartiennent à aucune variante.
+    contexte.execution.findMany({
+      where: { communicationId, varianteId: null },
+      select: { agent: true, dureeMs: true, parametres: true, succes: true, erreur: true },
+      orderBy: { creeLe: 'asc' },
+    }),
   ])
 
   const indiceContradiction = new Map<string, number>()
@@ -158,6 +243,20 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
       figeeLe: s.figeeLe,
       contenuTexte: s.contenuTexte ?? '',
       fichierConserve: s.cheminStockage !== null,
+      // D'où vient la source quand ce n'est pas un dépôt : le ticket.
+      origine: lireOrigineExterne(s.origineExterne),
+      lecture: {
+        agents: executions
+          .filter((e) => lireParametre(e.parametres, 'sourceId') === s.id)
+          .map((e) => ({
+            agent: e.agent,
+            dureeMs: e.dureeMs,
+            simule: lireParametre(e.parametres, 'simule') === true,
+            succes: e.succes,
+            raison: e.erreur,
+          })),
+        ecarts: ecartsDeCadrage(s.cadrageSuggere, communication),
+      },
     })),
     faits: faits.map((f) => ({
       id: f.id,
@@ -245,6 +344,56 @@ export async function confirmerFait(acteur: Acteur, faitId: string): Promise<voi
   await modifierFait(acteur, faitId, async (tx, fait) => {
     exigerStatut(fait, ['PROPOSE'], 'Confirmation')
     await tx.fait.update({ where: { id: fait.id }, data: { statut: 'CONFIRME' } })
+  })
+}
+
+/**
+ * Confirme d'un coup tous les faits encore proposés.
+ *
+ * La revue reste une décision humaine : ce bouton ne saute aucun contrôle,
+ * il évite seulement de répéter le même geste vingt fois quand la relecture
+ * est faite. Deux garanties, les mêmes que fait par fait :
+ *
+ *  - un fait pris dans une CONTRADICTION non tranchée n'est jamais confirmé
+ *    en lot — deux valeurs incompatibles confirmées ensemble, c'est
+ *    exactement ce que la contrainte cardinale interdit ; il faut trancher ;
+ *  - ce qui est déjà confirmé, retiré ou déclaré n'est pas touché.
+ *
+ * Renvoie ce qui a été fait et ce qui a été laissé, pour que l'écran le
+ * dise au lieu de laisser croire que tout est revu.
+ */
+export async function confirmerTousLesFaits(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<{ confirmes: number; laisses: number }> {
+  exigerDroit(acteur.utilisateur, 'EDITER')
+  return acteur.contexte.$transaction(async (tx) => {
+    const communication = await tx.communication.findUnique({
+      where: { id: communicationId },
+      select: { id: true, etat: true },
+    })
+    if (!communication) throw introuvable('Communication', communicationId)
+    exigerFicheOuverte(communication.etat, communicationId)
+
+    const faits = await chargerFaitsComparables(tx, communicationId)
+    const enContradiction = new Set(
+      detecterContradictions(faits).flatMap((c) => c.faits.map((f) => f.id)),
+    )
+    const aConfirmer = faits
+      .filter((fait) => fait.statut === 'PROPOSE' && !enContradiction.has(fait.id))
+      .map((fait) => fait.id)
+    const laisses = faits.filter(
+      (fait) => fait.statut === 'PROPOSE' && enContradiction.has(fait.id),
+    ).length
+
+    if (aConfirmer.length === 0) return { confirmes: 0, laisses }
+
+    const { count } = await tx.fait.updateMany({
+      where: { id: { in: aConfirmer }, statut: 'PROPOSE' },
+      data: { statut: 'CONFIRME' },
+    })
+    await rouvrirSiPrete(tx, communicationId)
+    return { confirmes: count, laisses }
   })
 }
 

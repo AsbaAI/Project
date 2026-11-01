@@ -427,3 +427,650 @@ simple. Procédure dans `docs/DEPLOIEMENT.md`.
 - **Limites acceptées, écrites dans la procédure** : 4,5 Mo par dépôt
   (plafond des fonctions Vercel), fichiers déposés éphémères (`/tmp` ; le
   texte de la source est en base), pas d'antivirus, pas de modèle.
+
+## 2026-10-01 — Un seul `.env`, chargé explicitement
+
+Le démarrage décrit par le README ne fonctionnait pas sur une installation
+neuve : Prisma 7 ne charge plus `.env` de lui-même, et Next ne lit que les
+`.env` de `apps/web`. `pnpm db:migrate` échouait donc sur
+« datasource.url property is required ».
+
+Le dépôt garde **un seul `.env`, à la racine de l'espace de travail** —
+l'application et les outils de base partagent la même configuration. Il est
+chargé explicitement par `process.loadEnvFile` dans `prisma.config.ts` et
+`next.config.ts`, et par `--env-file-if-exists` pour le seed, qui est un
+processus distinct. Les trois sont natifs à Node 22 : aucune dépendance
+ajoutée.
+
+`loadEnvFile` **n'écrase jamais** une variable déjà posée : les variables de
+Vercel, celles du shell et celles que Playwright injecte gardent la main sur
+le fichier. Un `.env` absent est toléré sans erreur (c'est le cas en
+production).
+
+## 2026-10-01 — Refonte, étape 2 : la fondation de démonstration
+
+### Un seul contrat d'agent, et la trace dit toujours qui a répondu
+
+Agents réels et simulés portent la même interface `Agent<E, S>`. Rien
+au-dessus ne sait lequel a travaillé — sauf la trace, qui porte `simule` et
+ne le cache jamais. La sortie est validée par son schéma Zod **à la
+frontière de l'orchestrateur**, quoi qu'en dise l'agent : c'est là qu'une
+structure proposée devient une donnée de confiance.
+
+La fabrique nomme la raison du mode (`AUCUN_FOURNISSEUR` quand aucune clé
+n'est configurée, `AGENT_REEL_ABSENT` tant que l'agent réel n'est pas
+écrit). Une clé posée ne fera donc pas croire qu'un modèle a parlé.
+
+### L'orchestrateur n'a pas de demi-résultat
+
+Une étape qui échoue arrête la chaîne ; les suivantes sont marquées
+`ANNULEE`, pas « en attente ». L'échec lève `ErreurOrchestration`, qui
+**porte** l'état partiel pour l'afficher : il faut l'ouvrir pour y accéder,
+on ne tombe pas dessus par mégarde. Chaque événement porte l'état de
+toutes les étapes, pour que l'interface dessine la chronologie entière dès
+le premier et n'ait aucun delta à recoller.
+
+Horloge et attente sont injectées : la simulation échelonne ses paliers
+(1 à 3 s, déterministes — une démonstration doit se dérouler deux fois de la
+même façon), les tests ne patientent pas.
+
+### Les agents simulés dérivent de la source, jamais d'un canevas
+
+Arbitrage retenu : **données de démonstration dérivées du fichier
+réellement déposé**. L'extracteur simulé appelle `proposerFaitsCandidats`,
+la fonction pure du domaine ; l'analyste ne propose une audience que si la
+source la nomme, et porte la phrase qui le dit ; le suggesteur préremplit
+titre, nature et criticité, chacun adossé à un extrait, et chaque
+proposition peut être nulle.
+
+Une source sans aucun fait relevable **échoue** (`SOURCE_INEXPLOITABLE`).
+C'est le garde-fou « pas de sortie générique mais crédible » écrit en code :
+un spectateur qui dépose sa propre note ne doit pas lire des valeurs venues
+de nulle part.
+
+### L'historique engendré dit la vérité sur lui-même
+
+Six mois, 150 communications, numéros 7 à 156. Le texte de la source est
+composé d'abord ; les faits en sont ensuite **relevés**, jamais recopiés :
+une citation ne peut pas diverger de sa source puisqu'elle en est extraite.
+
+Une communication marquée `ENVOYEE` porte sa variante, ses affirmations
+appuyées, son approbation et son envoi. L'alternative — poser l'état seul —
+aurait mis en base une affirmation fausse, que le tableau de bord aurait
+comptée comme vraie. Le seed refuse une affirmation `SOUTENUE` sans fait
+d'appui, et un envoi sans approbation accordée.
+
+Rien n'est tiré au hasard : tout dérive de l'indice, et deux exécutions du
+seed produisent le même historique — une capture d'écran reste valable.
+
+### L'historique affiché est borné, et le dit
+
+`listerCommunications` rend les 25 plus récentes avec le **total**. La page
+affiche « 25 communications sur 105 » : un extrait qui ne dit pas qu'il est
+un extrait est un résultat partiel présenté comme complet. Le filtrage et
+la pagination arrivent avec l'onglet Analyses.
+
+## Étape 3 — le générateur : un assistant en cinq étapes
+
+### L'assistant remplace la navigation par onglets
+
+`server/services/assistant.ts` lit l'avancement **en base** — nombre de
+sources, de faits restant à revoir, de destinataires retenus, de variantes
+— et en déduit l'étape courante : la première qui n'est pas faite. Rien
+n'est stocké : un avancement mémorisé pourrait mentir sur l'état réel.
+
+Une étape non atteignable n'est pas un lien. Tant qu'un fait reste à
+revoir, « Destinataires » est un libellé inerte : la revue de la fiche de
+faits (§10) n'est pas sautable, et l'écran le montre au lieu de refuser
+après coup.
+
+### Le rédacteur ne peut pas écrire une valeur
+
+Il ne rend pas du texte mais des **segments** : du texte sans valeur, et
+des références de faits. `domaine/injection.ts` recompose la phrase et
+refuse tout segment libre où `proposerFaitsCandidats` trouve une valeur
+(`VALEUR_DANS_TEXTE_LIBRE`). La contrainte cardinale est donc structurelle,
+pas surveillée : il n'existe pas de chemin par lequel un modèle écrirait un
+nombre, une date, une version.
+
+Conséquence tenue pendant cette étape : une phrase qui porte **deux**
+valeurs les référence **toutes les deux**. N'en référencer qu'une laissait
+l'autre au fil du texte — et `injecter` refusait, à juste titre. Le test de
+bout en bout `parcours.spec.ts` lit les trois valeurs de la source dans le
+rapport de vérification, pas dans `main` : le titre de la communication
+porte lui aussi le numéro de version, et l'assertion aurait passé sans
+texte généré.
+
+### Le texte bloqué est montré, pas caché
+
+Une variante dont une phrase n'est pas appuyée s'affiche avec son rapport
+et ses blocages. La masquer empêcherait de corriger ; la laisser partir
+violerait la contrainte cardinale. L'approbation, elle, reste fermée tant
+qu'un `Controle` bloquant subsiste — et c'est la base qui le garantit, pas
+l'écran.
+
+### Ce que les captures ont corrigé
+
+Trois défauts invisibles aux tests de rôle, trouvés en relisant les
+captures : les appuis répétés (« F-02, F-03, F-02, F-03 » — une citation
+était listée une fois par fait au lieu d'une fois tout court), un titre
+« Agents » sans contenu sur une variante sans trace d'exécution, et les
+canaux affichés en constantes (`MESSAGERIE_INSTANTANEE`). Les trois sont
+corrigés à la source : dédoublonnage dans le seed **et** aux deux
+frontières de `generation.ts`, section masquée quand elle est vide,
+libellés de canal passés par `next-intl`.
+
+### La communication se lit, le rapport vient après
+
+L'écran de génération montrait le rapport de vérification, le score et les
+agents — mais jamais la communication produite. On générait sans voir ce
+qu'on avait généré. Le texte est désormais rendu en premier, comme on le
+recevrait, et le rapport passe après : on juge un texte en le lisant, pas
+en lisant son verdict.
+
+Pour cela, le rôle de chaque paragraphe (ouverture, corps, clôture) est
+**écrit dans le document** au lieu d'être jeté à l'écriture
+(`paragraphesDuDocument`). Un document ancien n'en porte pas : ses
+paragraphes sont rendus en corps, ce qui reste juste, seulement moins
+précis.
+
+Pas d'objet répété au-dessus de la lettre : le titre de la communication
+est déjà l'en-tête de la page, et la source porte le sien quand elle en a
+un. Un essai qui l'affichait a été retiré après lecture des captures.
+
+### L'audit d'accessibilité porte sur une page, pas sur un défilement
+
+Le test du volet d'amendement est devenu rouge sans qu'une ligne de
+l'écran change : la machine fournit désormais un Chromium plus récent, et
+`target-size` y signale comme « recouvert » tout élément passé sous la
+barre supérieure collante. Mesure faite, le lien incriminé faisait bien
+24 × 568 px ; il était simplement sous l'en-tête parce que le clic sur
+« Amender » avait fait défiler la page.
+
+Le test remonte donc en haut avant d'auditer. Ce n'est pas un contrôle
+affaibli : un contenu sous une barre collante n'est pas un défaut, c'est
+une position de défilement. Au passage, les liens de contradiction ont
+gagné leur cible de 24 px (`min-h-6`), qu'ils n'avaient pas.
+
+Le chemin du navigateur est devenu réglable (`PLAYWRIGHT_CHROMIUM_PATH`) :
+la machine en fournit un hors de l'arbre de Playwright, et on ne télécharge
+rien — il n'y a pas de réseau pour ça.
+
+## Les agents sont branchés : la génération passe par l'orchestrateur
+
+### Le rédacteur et le vérificateur ne sont plus enchaînés à la main
+
+`genererVariante` appelait ses deux agents l'un après l'autre et fabriquait
+elle-même la liste des étapes ; l'orchestrateur, écrit à l'étape 2, n'était
+appelé que par ses tests. Elle passe maintenant par `fabriqueAgents()` (la
+seule décision entre réel et simulé, qui nomme sa raison) et par
+`orchestrer()`.
+
+L'injection des valeurs fait partie de l'étape du rédacteur : un rédacteur
+dont la sortie est refusée a échoué, et la chronologie le dit sur son nom
+plutôt que sur une étape fantôme.
+
+### La chronologie est dite, pas devinée
+
+La route `POST /api/variantes/[varianteId]/generation` raconte le travail
+en lignes JSON : qui répond (annoncé avant le premier agent), l'état de
+chaque agent, la fin ou l'échec. Chaque message d'état porte l'état de
+**toutes** les étapes : l'écran n'a aucun écart à recoller.
+
+Un agent en échec est dit avec sa raison, et ceux qui le suivaient sont
+« annulés », pas « en attente » : ils ne reprendront pas seuls. Fermer la
+page coupe la connexion ; le serveur le voit et s'arrête avant le prochain
+agent.
+
+### Une route API n'a pas la garde des actions serveur
+
+Les actions serveur vérifient l'origine d'elles-mêmes ; une route API, non,
+et celle-ci écrit sur un cookie de session. Contrôle d'origine
+(`requeteDeMemeOrigine`) en seconde barrière, derrière `SameSite=Lax`, pour
+ne pas dépendre d'un réglage de cookie qu'on pourrait assouplir. Sans
+`Origin`, un client hors navigateur passe (il n'a aucun cookie à détourner),
+sauf si le navigateur dit lui-même venir d'un autre site.
+
+Une variante d'une autre organisation répond exactement comme une variante
+qui n'existe pas (`INTROUVABLE`) : refuser pour l'état dirait à
+l'utilisateur qu'elle existe ailleurs.
+
+### Ce qui sort du serveur, et ce qui n'en sort pas
+
+Le message d'une exception qui n'est pas la nôtre n'a pas été écrit pour
+être lu : il peut citer une adresse, un hôte, un fragment de requête.
+L'orchestrateur le remplace par une phrase générique et garde la cause pour
+le journal du serveur ; ni la chronologie, ni la trace, ni la base ne le
+reçoivent. De même, le motif technique d'un refus de droit ne sort pas : un
+code, que l'interface traduit.
+
+Au passage, `GENERATION_REFUSEE` n'avait aucune traduction : un refus de
+génération s'affichait « Certains champs sont à corriger ».
+
+### Un échec laisse une trace, jamais un texte
+
+Une génération qui échoue écrit ses exécutions dans `Execution`
+(`succes: false`, avec la raison) : elles ont coûté du travail, l'historique
+doit le dire. Elle n'écrit ni texte ni affirmation, et la communication ne
+bouge pas. L'écran, lui, ne montre comme agents que ceux de la dernière
+génération **réussie** (regroupés par série) : afficher « Rédacteur » à côté
+d'une variante dont le texte n'existe pas laisserait croire qu'il en a
+produit un.
+
+### Un défaut d'infrastructure, révélé par la première route API
+
+`CLIENT_BRUT`, la clé du client Prisma nu, était un `Symbol` local alors que
+la connexion est partagée entre paquets par `globalThis`. Dès que le
+bundler embarque `@comgen/db` en deux copies — ce que fait une route API —,
+la connexion ouverte par l'une est illisible pour l'autre et la route
+répond 500. Les pages n'en souffraient pas : elles partagent une copie.
+La clé passe par le registre global (`Symbol.for`). Ce n'est pas une
+frontière de sécurité — le code du même processus peut lister les symboles
+d'un objet — mais une barrière contre l'usage par mégarde, que le typage
+continue d'assurer.
+
+### Les trois autres agents lisent la source au dépôt
+
+EXTRACTEUR, ANALYSTE_IMPACT et SUGGESTEUR passent par la fabrique et
+l'orchestrateur à chaque source déposée, avant la transaction (on ne tient
+pas une transaction ouverte pendant qu'on attend un agent).
+
+**Chacun tourne seul, pas en chaîne.** Ils lisent la même source sans rien
+se transmettre ; en chaîne, l'échec de l'un annulerait les autres. Or une
+source sans aucune valeur fait légitimement échouer l'extracteur
+(`SOURCE_INEXPLOITABLE`) et l'analyste a encore quelque chose à en dire.
+
+**Seule l'extraction est indispensable.** Un extracteur en panne fait
+échouer le dépôt. Une source dont rien ne se laisse relever n'est pas une
+panne : elle se dépose sans fait, l'échec est tracé, et le rédacteur en
+ajoute à la main. L'analyste et le suggesteur ne font que proposer : leur
+échec est tracé, il ne bloque rien.
+
+**La sortie d'un agent est une proposition, pas une donnée de confiance.**
+Les faits venaient d'une fonction pure dont la valeur est dans sa citation
+par construction ; avec un agent au milieu, plus rien ne le garantit. La
+citation est donc relue dans le texte exact de la source (comme avant) et,
+nouveau, la valeur dans sa citation. Une citation inventée ou une valeur
+absente de sa citation annule tout le dépôt — source, faits, traces. Les
+deux gardes ont un test, et le second a été vérifié en le retirant.
+
+### L'agent suggère, l'humain décide — à trois endroits
+
+- **Audiences.** Chaque persona que la source désigne porte « Suggéré par
+  la source » et la phrase qui le désigne. Aucun n'est coché. Le
+  rapprochement est strict : la dimension doit correspondre au _début_ du
+  nom du persona (« Clients » désigne « Clients grands comptes », pas
+  « Support client », qui s'adresse à ceux qui soutiennent les clients).
+  Mieux vaut une suggestion qui n'allume rien qu'une fausse piste.
+  « Fournisseurs » et « Partenaires » sont deux audiences, pas une.
+- **Audiences sans persona.** Quand la source nomme quelqu'un pour qui
+  aucun destinataire n'existe, l'écran le dit au lieu de le taire.
+  Enregistrer la liste fixe la décision de chaque suggestion qui désigne un
+  persona (acceptée si retenu, refusée sinon) ; celle qui n'en désigne
+  aucun reste en attente, rien ne permet de dire qu'on l'a écartée.
+- **Cadrage.** La lecture du suggesteur est gardée avec la source qu'elle
+  a lue (`Source.cadrageSuggere`, colonne ajoutée par migration). Elle n'est
+  **jamais appliquée** : le cadrage reste ce que le rédacteur a saisi. La
+  fiche signale seulement un écart de nature ou de criticité, avec la
+  phrase qui le motive. « Pas d'avis » n'est pas un désaccord.
+
+### La durée d'une trace est mesurée
+
+Un agent simulé annonce la durée qu'il joue — la somme de ses paliers. À la
+saisie, où rien n'attend, « Extracteur 1 300 ms » était une fiction. La
+durée d'une trace est maintenant celle que l'orchestrateur mesure, pour un
+agent réel comme simulé : l'orchestrateur est l'autorité sur le temps
+écoulé. La fiche affiche « 1 ms · simulé », ce qui est vrai.
+
+### Ce qui reste hors de portée
+
+- **Pas de chronologie en direct à la saisie.** Elle suppose de passer la
+  saisie (téléversement de fichiers, résultat par fichier) en flux, ou
+  d'ajouter une étape d'analyse lancée à la main ; le dépôt reste donc
+  instantané, et ses agents ne se voient qu'après coup, sur la fiche.
+- **Les noms de dimension sont français.** Un persona anglais (« Customers »)
+  n'est jamais désigné ; l'audience tombe alors dans « sans destinataire
+  correspondant ».
+- Le seed des 156 communications ne passe pas par les agents : ses
+  sources n'ont ni trace de lecture ni suggestion.
+
+## 2026-11-01 — Source ITSM : le ticket devient une source, masqué
+
+Une communication peut désormais partir d'un ticket (ServiceNow ; un autre
+outil s'ajoute par un adaptateur). Les choix qui ne découlaient pas de la
+spécification sont ici.
+
+### Le secret n'est pas saisi, il est désigné
+
+Le propriétaire demandait un écran de paramétrage ; la décision D2 et §19
+interdisent toute clé en base ou dans le code. Les deux tiennent ensemble
+parce que l'écran n'enregistre **que le nom** d'une variable
+d'environnement (`ITSM_SERVICENOW_SECRET`), jamais sa valeur. Le serveur la
+résout au moment de l'appel.
+
+Le nom est contraint **en base** (`refSecret ~ '^ITSM_[A-Z0-9_]{1,60}$'`),
+pas seulement dans le formulaire : sans cela, un administrateur aurait pu
+désigner `AUTH_SECRET` ou `DATABASE_URL` et lire le secret par le détour
+d'une erreur de connexion. L'état du connecteur ne dit qu'une chose de la
+variable : si elle est renseignée.
+
+La configuration n'est écrite qu'après un test de connexion réussi. Un test
+qui échoue ne remplace pas la configuration précédente : on ne perd pas un
+accès qui marche en en essayant un autre.
+
+### L'adresse de l'instance est bornée
+
+C'est la configuration qui décide vers quel serveur partent les
+identifiants : elle est donc une surface d'attaque (SSRF). `verifierUrlInstance`
+n'accepte que https, sans identifiants dans l'URL, sans port, sans adresse IP
+ni nom local, et sur un hôte de la liste autorisée (`.service-now.com`, plus
+ce que l'environnement ajoute). Les redirections sont refusées
+(`redirect: 'error'`), la réponse est bornée en taille, et aucun message
+d'erreur ne reprend l'adresse saisie ni le corps de la réponse.
+
+Limite assumée : on juge le **nom**, pas l'adresse qu'il résout. Un nom
+autorisé pointant vers une adresse interne n'est pas détecté ; la liste
+autorisée est la défense.
+
+### Le masquage précède l'écriture, pas l'affichage
+
+Masquer à l'affichage aurait laissé les courriels et les téléphones en base,
+et surtout aurait permis à un agent de citer ce que l'écran cachait. Le
+texte du ticket est donc composé, **masqué**, puis figé comme source : ce
+qui est masqué n'existe nulle part dans l'application. La contrainte
+cardinale reste vraie mot pour mot, la source de référence étant le texte
+masqué.
+
+Une seule fonction (`preparerSourceItsm`) sert l'aperçu et l'import : ce que
+l'écran montre est, à la virgule et à l'empreinte près, ce qui sera
+enregistré. Une configuration de masquage illisible arrête l'opération
+(`ErreurItsm('CONFIG')`) au lieu de retomber sur un masquage plus faible.
+
+Le masquage est une fonction pure de `core`, en une passe : le motif qui
+commence le premier gagne, le plus long en cas d'égalité, et rien n'est
+masqué deux fois. Les motifs sont bornés et les termes configurés sont
+échappés — une configuration ne peut pas ralentir le serveur.
+
+Les préfixes de ticket (INC, CHG, RITM…) ne se masquent jamais : un numéro
+de ticket est une valeur que la communication cite.
+
+### Les notes de travail n'entrent que sur demande
+
+Elles sont internes et souvent plus crues que la description. Elles ne sont
+donc ni lues ni enregistrées tant que l'utilisateur ne les demande pas, et
+le même ticket avec ses notes est une autre source (texte différent,
+empreinte différente) : le refus de doublon ne s'y oppose pas.
+
+### Le texte composé suit la langue de la communication
+
+Les libellés et les dates du texte de source sont écrits dans la langue de
+la communication, aux formats que l'extraction sait relire (« 12 octobre
+2026 », « October 12, 2026 »). Le contenu du ticket, lui, reste dans la
+langue de l'outil : c'est de la donnée, elle n'est jamais traduite.
+
+### Ce qui reste hors de portée
+
+- L'adaptateur ServiceNow n'a pas été essayé contre une vraie instance :
+  il est testé contre un serveur HTTP local, cas d'erreur compris.
+- Le masquage ne détecte pas les noms propres en texte libre ; seuls les
+  termes listés le sont.
+- Les bornes de date d'un filtre sont interprétées en UTC.
+- La démonstration (`ITSM_MODE=mock`) n'engendre que des tickets français.
+
+## 2026-11-01 — Direction « Atelier » : la refonte visuelle V5
+
+Le propriétaire a fourni un jeu de références (V5 clair, V5 sombre, modèle 3)
+et demandé de l'implémenter dans les composants réels. Ce qui a été décidé,
+et ce qui ne l'a pas été.
+
+### La palette change d'ancre, pas de structure
+
+R1 posait une palette inspirée de TotalEnergies (bleu, orange). La référence
+V5 pose un atelier éditorial : canevas ivoire froid, surfaces blanches,
+encre graphite, lavande maîtrisée. Les deux niveaux de jetons (palette brute
+`--p-*`, sémantique `--color-*`) n'ont pas bougé : seules les ANCRES des
+rampes ont été remplacées, converties en OKLCH depuis les valeurs de la
+référence. Aucun composant n'a eu à changer de classe pour suivre.
+
+Deux ajustements ne viennent pas de la référence mais de l'accessibilité,
+vérifiée par `pnpm check:contrast` (250 couples, deux thèmes) :
+
+- **l'aplat de l'action principale est le graphite**, pas la lavande : un
+  bouton lavande plein sous un libellé blanc ne tient pas 4,5:1. La lavande
+  reste au texte, aux liens, à l'entrée de navigation retenue et aux
+  pastilles d'agent ;
+- les paliers qui portent du texte (encre tertiaire, encres d'état, encre
+  d'agent) sont descendus en luminosité jusqu'à tenir l'AA sur leur fond.
+
+### La barre de navigation devient une colonne
+
+Six onglets, la marque, l'état du moteur, la langue, le thème et le compte
+se disputaient une seule ligne ; le test « la barre ne se chevauche jamais »
+existait pour cette raison. La colonne libère la barre, qui ne porte plus
+que le contexte et les actions. Les entrées restent une liste unique
+(`lib/navigation.ts`), désormais réparties en trois familles, et le tiroir
+du téléphone en vit toujours.
+
+Conséquence assumée : colonne et barre SUIVENT le thème, alors que l'ancienne
+barre marine était sombre dans les deux. Une colonne de travail n'est pas
+une bannière de marque.
+
+### Le modèle 3 est reconnaissable là où il a un sens
+
+Colonne → barre contextuelle → titre → quatre tuiles de mesure → les cinq
+étapes en cartes → deux colonnes de travail en bas. Les tuiles sont au
+tableau de bord, où les nombres existent et sont comptés en base ; les cinq
+cartes d'étapes sont sur chaque écran d'une communication (l'assistant les
+portait déjà) ; la colonne de droite existe déjà sur la fiche de faits
+(texte des sources) et sur le détail (faire avancer).
+
+Ce qui n'a PAS été repris de la référence, et pourquoi :
+
+- les agents nommés (« Alexandre », « Hélène »), les scores, les durées en
+  secondes, les numéros de conformité : ce sont des données de démonstration.
+  Les cartes d'étapes n'affichent que ce que la base sait réellement ;
+- le bandeau d'accueil ne porte aucun chiffre : il dit ce que l'application
+  garantit, jamais ce qu'elle est en train de faire ;
+- aucun écran nouveau n'a été inventé pour coller à la référence : rien
+  n'est offert qui ne mène quelque part.
+
+### Typographie et signature
+
+DM Sans pour le corps, Manrope pour les titres et les grands nombres, en
+graisse 400 et interlettrage resserré. Les deux sont auto-hébergées
+(Fontsource) : aucun appel réseau sortant, conformément à la contrainte de
+cette machine. Le monogramme et la constellation sont des tracés SVG
+originaux, en `currentColor`, servis en ligne — aucune image externe.
+
+### Limites connues
+
+- Le modèle 3 pose un « graphe d'agents » à cinq étapes ; nos cinq étapes
+  sont celles du parcours (cadrage → génération), pas cinq agents. La
+  chronologie des agents, elle, reste le composant en direct de l'écran de
+  génération.
+- La page `/design` documente les composants, pas encore les nouvelles
+  ancres de palette.
+
+## 2026-11-01 — Approbations : soumission et décision humaine
+
+- **Désignation à la soumission.** Les approbateurs sont ceux du persona de
+  chaque variante, sinon tous les approbateurs de l'organisation, jamais
+  l'auteur. S'il n'y en a pas assez pour le quota de la criticité, la
+  soumission est REFUSÉE (`APPROBATIONS_INSUFFISANTES`) plutôt que de
+  laisser une communication bloquée en silence. Être désigné = avoir une
+  approbation en attente : il n'existe pas d'autre porte pour décider.
+- **Relecture.** Pas d'écran propre : la soumission valide les deux
+  transitions de la table (EN_CONTROLE → EN_RELECTURE → EN_APPROBATION) et
+  écrit l'état final.
+- **Un rejet suffit et se motive.** Il rejette la communication, annule les
+  autres décisions en attente. Une approbation n'aboutit à APPROUVEE que si
+  la garde du domaine l'autorise une fois la décision écrite.
+- **Hors périmètre.** Envoi et notifications ; pas de parcours e2e du flux
+  complet (il faudrait un compte approbateur dans les fixtures) — la
+  logique et le déclencheur d'annulation sur écriture de contenu sont
+  couverts par les tests de service.
+
+## 2026-11-01 — GARDIEN, envoi, analyses, paramétrage
+
+- **GARDIEN est du code, pas un modèle.** `core/domaine/gardien.ts` applique
+  les garde-fous du persona : terme du lexique interdit (mot entier, sans
+  casse ni accents), sujet interdit (littéral — une paraphrase n'est pas
+  reconnue, limite assumée), fait cité plus confidentiel que le plafond du
+  persona. Tout est bloquant. Une clé absente = pas de règle ; une clé
+  présente et mal formée = configuration illisible, qui BLOQUE.
+- **L'envoi est une simulation étiquetée.** Aucun connecteur de canal n'est
+  branché : `Envoi.etatRemise = {mode:'SIMULATION', remis:false}`, affiché
+  comme tel, compté à part dans les analyses. Ce qui est réel : la garde
+  (liste de diffusion résolue et non vide), le droit ENVOYER, l'annulation
+  dans la fenêtre. La base garde l'effectif et le nom des listes, pas les
+  adresses. Seule une liste STATIQUE se résout.
+- **Analyses** : comptées en base à chaque lecture ; sans donnée, « pas de
+  mesure », jamais zéro.
+- **Paramétrage** : personas (garde-fous, approbateurs) et listes statiques
+  s'éditent (PARAMETRER) ; les modèles sont en lecture seule — les clés
+  restent dans l'environnement (D2). Le service fusionne : voix, exemples et
+  préférences de lexique ne sont pas à l'écran et ne disparaissent pas.
+- **Hors périmètre** : constructeur de gabarits (demandé), connecteur de
+  canal réel, listes non statiques.
+
+## 2026-11-01 — La voix d'un persona : style, méthode, jargon
+
+Le propriétaire a demandé d'ouvrir le style d'écriture au paramétrage. Ce
+qui est réglable, et ce que chaque réglage FAIT réellement :
+
+- `registre` et `personne` sont des CODES (traduits à l'affichage) ; `ton`
+  est une phrase libre ; `structure` est le plan, une liste d'étapes nommées
+  librement (le seed écrit « prochaine étape », pas un code) ; le jargon est
+  `lexique.<langue>.preferes`.
+- Tous sont transmis au rédacteur comme consigne de forme. L'agent SIMULÉ
+  recopie les citations de la source et ne reformule pas : il n'en tient
+  donc pas compte, et l'écran le dit plutôt que de laisser croire à un effet.
+- `longueurCible` est le seul réglage appliqué par du code aujourd'hui :
+  après génération, un écart de plus de 40 % devient un contrôle LONGUEUR
+  **non bloquant** (gravité AVERTISSEMENT). Le texte reste vrai, il est
+  seulement trop long ou trop court — ce n'est pas un motif de blocage.
+  Sans cible, pas de contrôle : `ecartDeLongueur` rend `null`, jamais zéro,
+  qui se lirait comme « conforme ».
+- Comme pour les garde-fous : clé absente = pas de règle ; clé présente et
+  mal formée = illisible, et la génération REFUSE pour ce persona.
+
+Le seed écrivait `registre: 'professional'` et `personne: 'you'` sur les
+personas anglophones. Ces clés étant devenues des codes, le seed est aligné
+sur l'énumération ; le ton et le plan restent dans la langue de l'audience.
+
+## 2026-11-01 — Écran des agents : le parcours, et leurs consignes
+
+Le propriétaire a demandé un parcours d'agents visuel et cliquable, et le
+réglage de leurs prompts.
+
+- **Le graphe dit la vérité, pas une ambition.** Chaque rôle porte son état
+  réel : `simule` (il tourne, sans modèle), `code` (le GARDIEN, du code
+  déterministe, donc sans consigne), `absent` (déclaré par la spécification,
+  joué par personne). La table est écrite à la main dans
+  `services/agents.ts` et non déduite : un test vérifie qu'aucun rôle du
+  domaine n'y manque, et le jour où un agent réel arrivera, la table et la
+  fabrique devront bouger ensemble.
+- **La sélection vit dans l'adresse** (`?agent=`), pas dans un état de
+  composant : l'écran se partage, se recharge et marche sans script.
+- **La consigne est réelle, son effet est daté.** Elle est enregistrée,
+  versionnée (`ConsigneAgent`, version incrémentée par un déclencheur SQL
+  dès que le texte change) et attribuée. Elle ne part vers aucun modèle tant
+  qu'aucun agent réel n'existe, et l'écran l'écrit : les agents simulés n'en
+  lisent pas, et leur trace dit `simulation/…`, jamais la version de
+  l'organisation. Un champ qui ne ferait rien serait un faux bouton ; un
+  champ qui enregistre vraiment et dit quand il agira, non.
+- **Une consigne peut être refusée.** `verifierConsigne` (core, code pur)
+  cherche quatre demandes interdites : écrire une valeur, inventer, ignorer
+  la source, répondre en texte libre. Un seul constat suffit à refuser
+  l'enregistrement, avec la phrase fautive. Le programme ne peut pas
+  empêcher un modèle d'obéir à une telle consigne ; il peut refuser de la
+  garder.
+- **Limite assumée** : la détection est lexicale, en français. Une consigne
+  qui demande la même chose avec d'autres mots passera.
+
+## 2026-11-01 — Gabarits : une bibliothèque, et des exemples à installer
+
+- **L'écran commence par les canaux servis.** Un gabarit n'est pas
+  décoratif : sans gabarit actif pour son canal, un persona fait refuser la
+  génération (`PERSONA_SANS_TEMPLATE`). La première ligne de l'écran dit
+  donc, pour chacun des quatre canaux, quel gabarit le sert — ou qu'aucun ne
+  le sert.
+- **Huit exemples prêts à l'emploi** (`core/domaine/gabarits.ts`) : courriel
+  HTML, courriel texte, newsletter, note PDF, message instantané, article de
+  portail, et deux équivalents anglais. Ce sont des DÉPARTS : aucun ne porte
+  de marque, de couleur ni de nom d'entreprise — une mise en page marquée
+  serait à refaire avant le premier envoi. Installer en COPIE le corps et
+  les emplacements : le catalogue n'est pas une dépendance vivante.
+- **Un gabarit se vérifie.** `verifierGabarit` constate les désaccords entre
+  le corps et ses emplacements : un emplacement obligatoire jamais appelé ne
+  sera jamais rempli, un `{{trou}}` non déclaré partirait tel quel dans un
+  message. Un test vérifie que chaque exemple du catalogue se tient.
+- **Le corps est montré, jamais rendu.** Afficher le HTML d'un gabarit comme
+  une page donnerait à croire que c'est le résultat final ; celui-ci
+  appartient à l'envoi. L'écran le dit.
+- **Hors périmètre** : l'édition du corps depuis l'interface (le
+  constructeur, demandé à part) et le rendu final HTML/PDF.
+
+## 2026-11-01 — Balayage de bout en bout : un refus est une réponse
+
+- **Un droit manquant ne casse plus l'écran.** `/communications/nouvelle`
+  appelait `exigerDroit('CREER')` en tête : une administratrice, qui ne
+  rédige pas, obtenait un 500 — une panne là où il n'y avait qu'un refus.
+  L'écran répond désormais par `EcranRestreint` : le titre de la page reste,
+  et un encart dit ce qui manque et qui peut le faire. Même composant pour
+  les quatre écrans de paramétrage, qui rendaient un encart SANS titre :
+  une page sans `<h1>` n'a ni repère de lecture, ni entrée dans le plan du
+  document.
+- **Une communication d'une autre organisation vaut 404, toujours.** Les
+  pages enveloppaient `chargerCommunication` dans `ou404`, mais lançaient à
+  côté, dans le même `Promise.all`, `chargerAvancement` — non enveloppé. Le
+  rejet qui gagnait la course décidait du code renvoyé : tantôt 404, tantôt
+  500, pour la même adresse. C'est désormais le `Promise.all` entier qui est
+  enveloppé, sur les six pages : la règle ne dépend plus d'un ordre
+  d'exécution.
+- **Un favicon manquant est une erreur visible.** Aucune icône n'était
+  servie : chaque page demandait `/favicon.ico` et récoltait un 404 dans la
+  console. `app/icon.svg` reprend le monogramme de la marque.
+- **Le balayage devient un test** (`e2e/balayage.spec.ts`) : pour chacun des
+  trois comptes et des quatre gabarits, chaque route répond 200, porte
+  exactement un `<h1>`, et n'émet ni erreur de console ni requête en échec.
+  Les identifiants de communication diffèrent par compte — une ressource
+  d'une autre organisation vaut 404, ce qui n'apprendrait rien de l'écran.
+
+## 2026-11-01 — L1 : sondes de vivacité et de disponibilité
+
+- **Deux routes, deux questions.** `/api/sante` dit que le processus
+  répond, sans sonder aucune dépendance : une base lente ne doit pas faire
+  redémarrer une instance saine. `/api/pret` dit si l'instance peut servir :
+  base (`SELECT 1` par `Connexion.verifier`) et stockage (lecture d'une clé
+  absente : rien n'est écrit, la réponse « absent » prouve que le dépôt
+  répond). 200 ou 503.
+- **Le verdict, jamais la cause.** La réponse nomme la dépendance en échec
+  et rien d'autre : le message d'une exception de pilote peut porter une
+  chaîne de connexion ou un hôte. Chaque sonde est bornée à 2 s ; une sonde
+  qui ne répond pas compte comme un échec.
+- **Sans session.** Les routes `/api/*` échappent au proxy d'authentification ;
+  ces deux-là n'exposent aucune donnée d'organisation.
+- Redis n'est pas sondé : il n'est pas encore utilisé. Il rejoindra
+  `/api/pret` avec les workers (L7).
+
+## 2026-11-01 — L2 : nouvelles tentatives dans l'orchestrateur
+
+- **Où.** Dans `orchestrer()`, pas dans l'adaptateur (`maxRetries: 0`
+  reste) : retenter est une décision d'orchestration, visible dans l'état
+  de l'étape (`tentatives`), pas un comportement caché du SDK.
+- **Quoi.** Au plus 3 appels par étape. Délai de 500 ms qui double, plus
+  une gigue de 25 % au plus. L'attente passe par `contexte.attendre`,
+  injecté au bord du serveur ; une annulation pendant l'attente arrête tout.
+- **Seule une panne passagère se retente** (`estPassagere`) : délai, réseau,
+  quota, réponse 5xx. Jamais une clé refusée, une configuration absente,
+  une requête 4xx, une sortie non structurée ou hors schéma : elles
+  échoueraient pareil au coup suivant, et §19 interdit de « réparer » une
+  sortie.
+- **Un échec du fournisseur dit son nom** : `FOURNISSEUR_EN_ECHEC`, avec
+  notre code et le nombre de tentatives. Avant, il devenait
+  `SORTIE_INVALIDE`, ce qui désignait le mauvais coupable. Le message du
+  SDK reste en `cause`, pour le journal du serveur.
+- **Écart avec le plan.** Le plan prévoyait une ligne `Execution` par
+  tentative ; seul le compte est tenu, dans l'état de l'étape. La trace
+  détaillée par tentative viendra avec le journal structuré (L6).
