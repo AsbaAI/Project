@@ -12,6 +12,7 @@ import {
   changerConfidentialiteFait,
   chargerFiche,
   confirmerFait,
+  confirmerTousLesFaits,
   modifierEnonce,
   retablirFait,
   retirerFait,
@@ -386,5 +387,98 @@ describe('chargerFiche — lecture des sources par les agents', () => {
       'La version 4.2 est disponible depuis le 12 mars 2026.',
     )
     expect(source?.lecture.ecarts).toEqual([])
+  })
+})
+
+describe('confirmerTousLesFaits', () => {
+  it('est réservé à qui peut éditer', async () => {
+    const { id } = await incident()
+    await expect(confirmerTousLesFaits(org.approbateur, id)).rejects.toBeInstanceOf(
+      ErreurAutorisation,
+    )
+  })
+
+  it('confirme d’un coup tous les faits proposés, et dit combien', async () => {
+    const { id } = await incident()
+    const resultat = await confirmerTousLesFaits(org.redacteur, id)
+
+    const fiche = await chargerFiche(org.redacteur, id)
+    expect(resultat).toEqual({ confirmes: fiche.faits.length, laisses: 0 })
+    expect(fiche.faits.every((f) => f.statut === 'CONFIRME')).toBe(true)
+  })
+
+  it('ne touche ni à ce qui est déjà confirmé, ni à ce qui a été retiré', async () => {
+    const { id, heureDeclaree, heureJournal } = await incident()
+    await confirmerFait(org.redacteur, heureDeclaree.id)
+    await retirerFait(org.redacteur, heureJournal.id)
+
+    const resultat = await confirmerTousLesFaits(org.redacteur, id)
+    expect(resultat.confirmes).toBe(0)
+
+    const fiche = await chargerFiche(org.redacteur, id)
+    expect(fiche.faits.find((f) => f.id === heureDeclaree.id)?.statut).toBe('CONFIRME')
+    expect(fiche.faits.find((f) => f.id === heureJournal.id)?.statut).toBe('RETIRE')
+  })
+
+  it('laisse en l’état les faits pris dans une contradiction, et le dit', async () => {
+    const { id, heureDeclaree, heureJournal } = await incident()
+    // Deux faits nommés pareil avec des valeurs différentes : la
+    // contradiction doit être tranchée à la main, pas noyée dans un lot.
+    const enonce = 'Heure de rétablissement du service'
+    await modifierEnonce(org.redacteur, heureDeclaree.id, enonce)
+    await modifierEnonce(org.redacteur, heureJournal.id, enonce)
+
+    const resultat = await confirmerTousLesFaits(org.redacteur, id)
+    expect(resultat.laisses).toBe(2)
+
+    const fiche = await chargerFiche(org.redacteur, id)
+    expect(fiche.faits.find((f) => f.id === heureDeclaree.id)?.statut).toBe('PROPOSE')
+    expect(fiche.faits.find((f) => f.id === heureJournal.id)?.statut).toBe('PROPOSE')
+    expect(fiche.contradictions).toHaveLength(1)
+  })
+
+  it('refuse quand la fiche est figée', async () => {
+    const { id } = await incident()
+    await clientDeTest(connexion).communication.update({
+      where: { id },
+      data: { etat: 'EN_CONTROLE' },
+    })
+    const erreur = await erreurMetier(confirmerTousLesFaits(org.redacteur, id))
+    expect(erreur.code).toBe('ETAT_INCOMPATIBLE')
+  })
+
+  it('ne voit pas la communication d’une autre organisation', async () => {
+    const { id } = await incident(autre)
+    const erreur = await erreurMetier(confirmerTousLesFaits(org.redacteur, id))
+    expect(erreur.code).toBe('INTROUVABLE')
+  })
+
+  it('une fiche déjà prête redevient à valider dès qu’un fait change', async () => {
+    const { id } = await incident()
+    // La fiche est posée « prête » à la main : on vérifie que la
+    // confirmation en lot la rouvre, comme le fait la confirmation unitaire.
+    await clientDeTest(connexion).communication.update({
+      where: { id },
+      data: { etat: 'PRETE_A_GENERER' },
+    })
+
+    const resultat = await confirmerTousLesFaits(org.redacteur, id)
+    expect(resultat.confirmes).toBeGreaterThan(0)
+    const detail = await chargerCommunication(org.redacteur, id)
+    expect(detail.communication.etat).toBe('FAITS_A_VALIDER')
+  })
+
+  it('ne rouvre rien quand il n’y avait rien à confirmer', async () => {
+    const { id, heureDeclaree, heureJournal } = await incident()
+    await confirmerFait(org.redacteur, heureDeclaree.id)
+    await confirmerFait(org.redacteur, heureJournal.id)
+    await clientDeTest(connexion).communication.update({
+      where: { id },
+      data: { etat: 'PRETE_A_GENERER' },
+    })
+
+    expect(await confirmerTousLesFaits(org.redacteur, id)).toEqual({ confirmes: 0, laisses: 0 })
+    const detail = await chargerCommunication(org.redacteur, id)
+    expect(detail.communication.etat).toBe('PRETE_A_GENERER')
   })
 })

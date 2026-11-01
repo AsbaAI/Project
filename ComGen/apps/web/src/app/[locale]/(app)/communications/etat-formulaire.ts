@@ -9,6 +9,8 @@ export type EtatFormulaire =
   | { statut: 'repos' }
   | { statut: 'ok'; jeton: number }
   | { statut: 'depot'; depot: ResultatDepot; jeton: number }
+  /** Bilan d'une opération en lot : ce qui a été fait, ce qui a été laissé. */
+  | { statut: 'bilan'; confirmes: number; laisses: number; jeton: number }
   /** Test de connexion d'un connecteur : son issue n'est pas une erreur de formulaire. */
   | {
       statut: 'testItsm'

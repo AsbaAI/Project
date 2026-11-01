@@ -467,6 +467,12 @@
         },
         "item": "{champ} : cadrage « {cadrage} », lecture « {lecture} »",
         "extrait": "Dans la source : « {extrait} »"
+      },
+      "tout": {
+        "action": "{count, plural, one {Confirmer le fait restant} other {Confirmer les # faits restants}}",
+        "aide": "Les faits pris dans une contradiction ne sont jamais confirmés en lot : ils restent à trancher un par un.",
+        "bilan": "{count, plural, =0 {Aucun fait confirmé} one {# fait confirmé} other {# faits confirmés}}",
+        "laisses": "{count, plural, one {# fait laissé : il est pris dans une contradiction} other {# faits laissés : ils sont pris dans une contradiction}}"
       }
     },
     "motifs": {

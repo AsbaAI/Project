@@ -3,6 +3,7 @@ import { FileSearch, OctagonX } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { BoutonConfirmerTout } from '@/components/communications/bouton-confirmer-tout'
 import { BoutonTransition } from '@/components/communications/bouton-transition'
 import { CarteFait } from '@/components/communications/carte-fait'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
@@ -53,6 +54,15 @@ export default async function FichePage({ params }: PageProps) {
   const { communication: c, faits, sources, contradictions, transitions, modifiable } = fiche
   const nomSource = new Map(sources.map((s) => [s.id, s.nom]))
   const revus = faits.filter((f) => f.statut !== 'PROPOSE').length
+  /*
+   * Ce qu'une confirmation en lot confirmerait : les faits encore proposés
+   * qui ne sont pris dans aucune contradiction. Le compte est calculé ici
+   * pour que le bouton dise un nombre vrai ; c'est le service qui décide
+   * à nouveau, au moment d'écrire.
+   */
+  const confirmables = faits.filter(
+    (f) => f.statut === 'PROPOSE' && f.contradiction === null,
+  ).length
   const validation = transitions.find((tr) => tr.vers === 'PRETE_A_GENERER')
   const peutEditer = verifierDroit(acteur.utilisateur, 'EDITER').autorise
 
@@ -184,6 +194,11 @@ export default async function FichePage({ params }: PageProps) {
                 tone={revus === faits.length ? 'success' : 'accent'}
                 className="mb-1"
               />
+              {/* Rendu dès qu'il y a des faits : le bilan d'une confirmation
+                  en lot doit rester lisible une fois le lot confirmé. */}
+              {modifiable && faits.length > 0 ? (
+                <BoutonConfirmerTout communicationId={c.id} confirmables={confirmables} />
+              ) : null}
               {faits.map((fait) => (
                 <CarteFait
                   key={fait.id}

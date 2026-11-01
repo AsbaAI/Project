@@ -92,8 +92,35 @@ test('texte saisi : la source est figée, ses faits sont à revoir avant de pour
   await expect(page.getByText('3.9.2', { exact: false }).first()).toBeVisible()
 
   // Confirmer un fait le sort de la liste à revoir.
-  await page.getByRole('button', { name: 'Confirmer' }).first().click()
+  await page.getByRole('button', { name: 'Confirmer', exact: true }).first().click()
   await expect(aRevoir).toHaveCount(avant - 1)
+})
+
+test('les faits restants se confirment d’un seul geste, sans toucher aux contradictions', async ({
+  page,
+}) => {
+  await cadrer(page, 'Track & Trace 3.9.2 — revue en lot', 'Rédaction directe')
+  await page
+    .getByRole('textbox', { name: 'Intitulé de la source obligatoire' })
+    .fill('Annonce de maintenance')
+  await page.getByRole('textbox', { name: 'Texte obligatoire' }).fill(TEXTE_SOURCE)
+  await page.getByRole('button', { name: 'Enregistrer la source' }).click()
+  await expect(page).toHaveURL(/\/faits$/)
+  await attendreRendu(page)
+
+  const aRevoir = page.getByText('À revoir', { exact: true })
+  const avant = await aRevoir.count()
+  expect(avant).toBeGreaterThan(1)
+
+  // Le bouton annonce le nombre exact de faits qu'il confirmera.
+  const bouton = page.getByRole('button', { name: new RegExp(`Confirmer les ${String(avant)} `) })
+  await expect(bouton).toBeVisible()
+  await bouton.click()
+
+  await expect(page.getByText(`${String(avant)} faits confirmés`)).toBeVisible()
+  await expect(aRevoir).toHaveCount(0)
+  // Le bouton disparaît : il n'y a plus rien à confirmer.
+  await expect(page.getByRole('button', { name: /^Confirmer les? /u })).toHaveCount(0)
 })
 
 test('dépôt de fichier : le résultat est rendu fichier par fichier', async ({ page }) => {
@@ -155,7 +182,7 @@ test('de la source au texte généré : chaque valeur vient de la source, mot po
   const assistant = page.getByRole('navigation', { name: 'Étapes de la génération' })
   await expect(assistant.getByRole('link', { name: /Destinataires/ })).toHaveCount(0)
 
-  const confirmer = page.getByRole('button', { name: 'Confirmer' })
+  const confirmer = page.getByRole('button', { name: 'Confirmer', exact: true })
   let restants = await confirmer.count()
   while (restants > 0) {
     await confirmer.first().click()

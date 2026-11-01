@@ -467,6 +467,12 @@
         },
         "item": "{champ}: framing “{cadrage}”, reading “{lecture}”",
         "extrait": "In the source: “{extrait}”"
+      },
+      "tout": {
+        "action": "{count, plural, one {Confirm the remaining fact} other {Confirm the # remaining facts}}",
+        "aide": "Facts caught in a contradiction are never confirmed in bulk: they stay to be settled one by one.",
+        "bilan": "{count, plural, =0 {No fact confirmed} one {# fact confirmed} other {# facts confirmed}}",
+        "laisses": "{count, plural, one {# fact left: it is caught in a contradiction} other {# facts left: they are caught in a contradiction}}"
       }
     },
     "motifs": {

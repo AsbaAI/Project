@@ -10,6 +10,7 @@ import { changerEtat, creerCommunication } from '@/server/services/communication
 import { dependancesEntree } from '@/server/services/dependances'
 import {
   ajouterFait,
+  confirmerTousLesFaits,
   amenderValeur,
   changerConfidentialiteFait,
   confirmerFait,
@@ -209,6 +210,22 @@ export async function actionChoisirDestinataires(
  * indisponible, jeton expiré) n'est pas une erreur de saisie : son code
  * part tel quel et l'écran le traduit.
  */
+/*
+ * Confirmation en lot. Le service décide seul de ce qu'il confirme et de
+ * ce qu'il laisse ; l'action ne fait que rapporter son bilan, pour que
+ * l'écran ne laisse jamais croire que tout a été revu.
+ */
+export async function actionConfirmerTousLesFaits(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  return executer(formulaire, async (acteur) => {
+    const bilan = await confirmerTousLesFaits(acteur, id)
+    return { statut: 'bilan', ...bilan, jeton: prochainJeton() }
+  })
+}
+
 export async function actionImporterTicket(
   _precedent: EtatFormulaire,
   formulaire: FormData,

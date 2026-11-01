@@ -8,6 +8,7 @@ import {
   TYPES_VALEUR,
   type TypeSource,
   type TypeValeur,
+  detecterContradictions,
   formaterReferenceFait,
   localiserCitation,
   verifierCitation,
@@ -19,7 +20,12 @@ import { exigerDroit, verifierDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
 import { type OrigineExterne, lireOrigineExterne } from './itsm'
-import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelles } from './etat'
+import {
+  ETATS_FICHE_OUVERTE,
+  type TransitionEvaluee,
+  chargerFaitsComparables,
+  evaluerTransitionsManuelles,
+} from './etat'
 import { lireParametre } from './executions'
 
 /**
@@ -338,6 +344,56 @@ export async function confirmerFait(acteur: Acteur, faitId: string): Promise<voi
   await modifierFait(acteur, faitId, async (tx, fait) => {
     exigerStatut(fait, ['PROPOSE'], 'Confirmation')
     await tx.fait.update({ where: { id: fait.id }, data: { statut: 'CONFIRME' } })
+  })
+}
+
+/**
+ * Confirme d'un coup tous les faits encore proposés.
+ *
+ * La revue reste une décision humaine : ce bouton ne saute aucun contrôle,
+ * il évite seulement de répéter le même geste vingt fois quand la relecture
+ * est faite. Deux garanties, les mêmes que fait par fait :
+ *
+ *  - un fait pris dans une CONTRADICTION non tranchée n'est jamais confirmé
+ *    en lot — deux valeurs incompatibles confirmées ensemble, c'est
+ *    exactement ce que la contrainte cardinale interdit ; il faut trancher ;
+ *  - ce qui est déjà confirmé, retiré ou déclaré n'est pas touché.
+ *
+ * Renvoie ce qui a été fait et ce qui a été laissé, pour que l'écran le
+ * dise au lieu de laisser croire que tout est revu.
+ */
+export async function confirmerTousLesFaits(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<{ confirmes: number; laisses: number }> {
+  exigerDroit(acteur.utilisateur, 'EDITER')
+  return acteur.contexte.$transaction(async (tx) => {
+    const communication = await tx.communication.findUnique({
+      where: { id: communicationId },
+      select: { id: true, etat: true },
+    })
+    if (!communication) throw introuvable('Communication', communicationId)
+    exigerFicheOuverte(communication.etat, communicationId)
+
+    const faits = await chargerFaitsComparables(tx, communicationId)
+    const enContradiction = new Set(
+      detecterContradictions(faits).flatMap((c) => c.faits.map((f) => f.id)),
+    )
+    const aConfirmer = faits
+      .filter((fait) => fait.statut === 'PROPOSE' && !enContradiction.has(fait.id))
+      .map((fait) => fait.id)
+    const laisses = faits.filter(
+      (fait) => fait.statut === 'PROPOSE' && enContradiction.has(fait.id),
+    ).length
+
+    if (aConfirmer.length === 0) return { confirmes: 0, laisses }
+
+    const { count } = await tx.fait.updateMany({
+      where: { id: { in: aConfirmer }, statut: 'PROPOSE' },
+      data: { statut: 'CONFIRME' },
+    })
+    await rouvrirSiPrete(tx, communicationId)
+    return { confirmes: count, laisses }
   })
 }
 
