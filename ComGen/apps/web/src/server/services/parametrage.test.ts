@@ -36,6 +36,13 @@ const SAISIE = {
   nom: 'Direction générale',
   actif: true,
   canalDefaut: 'COURRIEL',
+  registre: 'soutenu',
+  ton: 'synthétique, orienté décision',
+  personne: 'nous',
+  structure: ['enjeu', 'décision ou changement'],
+  longueurCible: '150',
+  jargonFr: ['enjeu', 'impact métier'],
+  jargonEn: ['business impact'],
   interditsFr: ['bug', 'rollback'],
   interditsEn: ['crash'],
   sujetsInterdits: ['rémunérations'],
@@ -64,10 +71,16 @@ describe('personas', () => {
 
     const ligne = await db.persona.findUniqueOrThrow({ where: { id: org.personaId } })
     expect(ligne.lexique).toEqual({
-      fr: { preferes: ['enjeu'], interdits: ['bug', 'rollback'] },
-      en: { preferes: ['decision'], interdits: ['crash'] },
+      fr: { preferes: ['enjeu', 'impact métier'], interdits: ['bug', 'rollback'] },
+      en: { preferes: ['business impact'], interdits: ['crash'] },
     })
-    expect(ligne.voix).toEqual({ registre: 'soutenu' })
+    expect(ligne.voix).toMatchObject({
+      registre: 'soutenu',
+      ton: 'synthétique, orienté décision',
+      personne: 'nous',
+      structure: ['enjeu', 'décision ou changement'],
+      longueurCible: 150,
+    })
     expect(ligne.gardeFous).toMatchObject({
       confidentialiteMax: 'RESTREINT',
       sujetsInterdits: ['rémunérations'],
@@ -79,6 +92,12 @@ describe('personas', () => {
       interditsFr: ['bug', 'rollback'],
       confidentialiteMax: 'RESTREINT',
       gardeFousLisibles: true,
+      registre: 'soutenu',
+      personne: 'nous',
+      structure: ['enjeu', 'décision ou changement'],
+      longueurCible: 150,
+      jargonFr: ['enjeu', 'impact métier'],
+      voixLisible: true,
     })
     expect(ecran.approbateurs.map((a) => a.id)).toContain(org.approbateurId)
   })
@@ -96,6 +115,37 @@ describe('personas', () => {
       modifierPersona(admin, org.personaId, { ...SAISIE, approbateurIds: [org.redacteurId] }),
     )
     expect(intrus.details.champs).toMatchObject({ approbateurIds: 'invalide' })
+  })
+
+  it('refuse un style d’écriture inventé, et une longueur hors bornes', async () => {
+    for (const [champ, saisie] of [
+      ['registre', { ...SAISIE, registre: 'poétique' }],
+      ['personne', { ...SAISIE, personne: 'il' }],
+      ['structure', { ...SAISIE, structure: ['x'] }],
+      ['longueurCible', { ...SAISIE, longueurCible: '12' }],
+      ['longueurCible', { ...SAISIE, longueurCible: '5000' }],
+    ] as const) {
+      // eslint-disable-next-line no-await-in-loop -- un cas après l'autre
+      const erreur = await erreurMetier(modifierPersona(admin, org.personaId, saisie))
+      expect(erreur.details.champs).toMatchObject({ [champ]: 'invalide' })
+    }
+  })
+
+  it('une longueur cible vide est une absence de cible, pas un zéro', async () => {
+    await modifierPersona(admin, org.personaId, { ...SAISIE, longueurCible: '' })
+    const ecran = await chargerPersonas(admin)
+    expect(ecran.personas.find((p) => p.id === org.personaId)?.longueurCible).toBeNull()
+  })
+
+  it('dit quand la voix enregistrée est illisible', async () => {
+    const autre = await organisation(connexion)
+    const autreAdmin = await utilisateurAvecRoles(connexion, autre, ['ADMINISTRATEUR'])
+    await clientDeTest(connexion).persona.update({
+      where: { id: autre.personaId },
+      data: { voix: { registre: 'poétique' } },
+    })
+    const ecran = await chargerPersonas(autreAdmin)
+    expect(ecran.personas.find((p) => p.id === autre.personaId)?.voixLisible).toBe(false)
   })
 
   it('ne touche pas au persona d’une autre organisation', async () => {

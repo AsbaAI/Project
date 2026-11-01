@@ -932,3 +932,28 @@ originaux, en `currentColor`, servis en ligne — aucune image externe.
   préférences de lexique ne sont pas à l'écran et ne disparaissent pas.
 - **Hors périmètre** : constructeur de gabarits (demandé), connecteur de
   canal réel, listes non statiques.
+
+## 2026-11-01 — La voix d'un persona : style, méthode, jargon
+
+Le propriétaire a demandé d'ouvrir le style d'écriture au paramétrage. Ce
+qui est réglable, et ce que chaque réglage FAIT réellement :
+
+- `registre` et `personne` sont des CODES (traduits à l'affichage) ; `ton`
+  est une phrase libre ; `structure` est le plan, une liste d'étapes nommées
+  librement (le seed écrit « prochaine étape », pas un code) ; le jargon est
+  `lexique.<langue>.preferes`.
+- Tous sont transmis au rédacteur comme consigne de forme. L'agent SIMULÉ
+  recopie les citations de la source et ne reformule pas : il n'en tient
+  donc pas compte, et l'écran le dit plutôt que de laisser croire à un effet.
+- `longueurCible` est le seul réglage appliqué par du code aujourd'hui :
+  après génération, un écart de plus de 40 % devient un contrôle LONGUEUR
+  **non bloquant** (gravité AVERTISSEMENT). Le texte reste vrai, il est
+  seulement trop long ou trop court — ce n'est pas un motif de blocage.
+  Sans cible, pas de contrôle : `ecartDeLongueur` rend `null`, jamais zéro,
+  qui se lirait comme « conforme ».
+- Comme pour les garde-fous : clé absente = pas de règle ; clé présente et
+  mal formée = illisible, et la génération REFUSE pour ce persona.
+
+Le seed écrivait `registre: 'professional'` et `personne: 'you'` sur les
+personas anglophones. Ces clés étant devenues des codes, le seed est aligné
+sur l'énumération ; le ton et le plan restent dans la langue de l'audience.

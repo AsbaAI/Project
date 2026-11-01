@@ -142,6 +142,47 @@ describe('choisirDestinataires', () => {
 })
 
 describe('genererVariante', () => {
+  it('avertit quand le texte s’écarte de la longueur cible, sans bloquer', async () => {
+    const { varianteId } = await communicationPrete()
+    const db = clientDeTest(connexion)
+    const variante = await db.variante.findUniqueOrThrow({ where: { id: varianteId } })
+    const original = await db.persona.findUniqueOrThrow({ where: { id: variante.personaId } })
+    await db.persona.update({
+      where: { id: original.id },
+      data: { voix: { ...(original.voix as object), longueurCible: 1000 } },
+    })
+    try {
+      await genererVariante(org.redacteur, { varianteId })
+      const controles = await db.controle.findMany({ where: { varianteId, type: 'LONGUEUR' } })
+      expect(controles).toHaveLength(1)
+      expect(controles[0]).toMatchObject({ bloquant: false, gravite: 'AVERTISSEMENT' })
+      expect(controles[0]?.message).toContain('1000')
+      // Un écart de forme ne bloque pas : la variante reste conforme.
+      expect((await db.variante.findUniqueOrThrow({ where: { id: varianteId } })).etat).toBe(
+        'CONFORME',
+      )
+    } finally {
+      await db.persona.update({ where: { id: original.id }, data: { voix: original.voix ?? {} } })
+    }
+  })
+
+  it('refuse de générer quand la voix du persona est illisible', async () => {
+    const { varianteId } = await communicationPrete()
+    const db = clientDeTest(connexion)
+    const variante = await db.variante.findUniqueOrThrow({ where: { id: varianteId } })
+    const original = await db.persona.findUniqueOrThrow({ where: { id: variante.personaId } })
+    await db.persona.update({
+      where: { id: original.id },
+      data: { voix: { registre: 'poétique' } },
+    })
+    try {
+      const erreur = await erreurMetier(genererVariante(org.redacteur, { varianteId }))
+      expect(erreur.code).toBe('GENERATION_REFUSEE')
+    } finally {
+      await db.persona.update({ where: { id: original.id }, data: { voix: original.voix ?? {} } })
+    }
+  })
+
   it('GARDIEN : un persona plafonné sous la confidentialité des faits bloque la variante', async () => {
     const { varianteId, communicationId } = await communicationPrete()
     const db = clientDeTest(connexion)

@@ -1,4 +1,19 @@
-import { CANAUX, NIVEAUX, type Niveau, lireGardeFous } from '@comgen/core'
+import {
+  CANAUX,
+  ETAPES_MAX,
+  ETAPE_LONGUEUR_MAX,
+  LONGUEUR_MAX,
+  LONGUEUR_MIN,
+  NIVEAUX,
+  type Niveau,
+  PERSONNES,
+  type Personne,
+  REGISTRES,
+  type Registre,
+  lireGardeFous,
+  lireJargon,
+  lireVoix,
+} from '@comgen/core'
 import type { Prisma } from '@comgen/db'
 import { z } from 'zod'
 
@@ -8,8 +23,8 @@ import { type Acteur, ErreurMetier, introuvable } from './erreurs'
 import { resoudreListes } from './etat'
 
 /**
- * Paramétrage de l'organisation : personas (garde-fous, approbateurs) et
- * listes de diffusion. Réservé à qui peut PARAMETRER.
+ * Paramétrage de l'organisation : personas (voix, jargon, garde-fous,
+ * approbateurs) et listes de diffusion. Réservé à qui peut PARAMETRER.
  *
  * Ce que ces réglages gouvernent est du contrôle, pas du confort : le
  * GARDIEN lit les garde-fous, la soumission lit les approbateurs, l'envoi
@@ -24,6 +39,15 @@ const SchemaPersona = z.object({
   nom: z.string().trim().min(2).max(100),
   actif: z.boolean(),
   canalDefaut: z.enum(CANAUX),
+  registre: z.enum(REGISTRES),
+  ton: z.string().trim().max(300),
+  personne: z.enum(PERSONNES),
+  structure: z.array(z.string().trim().min(2).max(ETAPE_LONGUEUR_MAX)).max(ETAPES_MAX),
+  longueurCible: z
+    .union([z.literal(''), z.coerce.number().int().min(LONGUEUR_MIN).max(LONGUEUR_MAX)])
+    .transform((v) => (v === '' ? null : v)),
+  jargonFr: LISTE_MOTS,
+  jargonEn: LISTE_MOTS,
   interditsFr: LISTE_MOTS,
   interditsEn: LISTE_MOTS,
   sujetsInterdits: LISTE_MOTS,
@@ -38,6 +62,13 @@ export interface PersonaParametre {
   nom: string
   actif: boolean
   canalDefaut: string
+  registre: Registre
+  ton: string
+  personne: Personne
+  structure: readonly string[]
+  longueurCible: number | null
+  jargonFr: readonly string[]
+  jargonEn: readonly string[]
   interditsFr: readonly string[]
   interditsEn: readonly string[]
   sujetsInterdits: readonly string[]
@@ -45,6 +76,8 @@ export interface PersonaParametre {
   approbateurIds: string[]
   /** Faux si les garde-fous enregistrés sont illisibles : le contrôle bloque. */
   gardeFousLisibles: boolean
+  /** Faux si la voix ou le jargon sont illisibles : la génération refuse. */
+  voixLisible: boolean
 }
 
 export interface Approbateur {
@@ -72,17 +105,28 @@ export async function chargerPersonas(acteur: Acteur): Promise<EcranPersonas> {
     personas: lignes.map((p) => {
       const fr = lireGardeFous(p.lexique, p.gardeFous, 'fr')
       const en = lireGardeFous(p.lexique, p.gardeFous, 'en')
+      const voix = lireVoix(p.voix)
+      const jargonFr = lireJargon(p.lexique, 'fr')
+      const jargonEn = lireJargon(p.lexique, 'en')
       return {
         id: p.id,
         nom: p.nom,
         actif: p.actif,
         canalDefaut: p.canalDefaut,
+        registre: voix?.registre ?? 'professionnel',
+        ton: voix?.ton ?? '',
+        personne: voix?.personne ?? 'nous',
+        structure: voix?.structure ?? [],
+        longueurCible: voix?.longueurCible ?? null,
+        jargonFr: jargonFr ?? [],
+        jargonEn: jargonEn ?? [],
         interditsFr: fr?.interdits ?? [],
         interditsEn: en?.interdits ?? [],
         sujetsInterdits: fr?.sujetsInterdits ?? [],
         confidentialiteMax: fr?.confidentialiteMax ?? 'SECRET',
         approbateurIds: p.approbateurIds,
         gardeFousLisibles: fr !== null && en !== null,
+        voixLisible: voix !== null && jargonFr !== null && jargonEn !== null,
       }
     }),
   }
@@ -129,8 +173,16 @@ export async function modifierPersona(
     const lexique = objet(persona.lexique)
     const lexiqueFinal = {
       ...lexique,
-      fr: { ...objet(lexique['fr']), interdits: saisi.interditsFr },
-      en: { ...objet(lexique['en']), interdits: saisi.interditsEn },
+      fr: { ...objet(lexique['fr']), interdits: saisi.interditsFr, preferes: saisi.jargonFr },
+      en: { ...objet(lexique['en']), interdits: saisi.interditsEn, preferes: saisi.jargonEn },
+    } satisfies Prisma.InputJsonObject
+    const voixFinale = {
+      ...objet(persona.voix),
+      registre: saisi.registre,
+      ton: saisi.ton,
+      personne: saisi.personne,
+      structure: saisi.structure,
+      longueurCible: saisi.longueurCible,
     } satisfies Prisma.InputJsonObject
     const gardeFous = {
       ...objet(persona.gardeFous),
@@ -145,6 +197,7 @@ export async function modifierPersona(
         actif: saisi.actif,
         canalDefaut: saisi.canalDefaut,
         lexique: lexiqueFinal as Prisma.InputJsonObject,
+        voix: voixFinale as Prisma.InputJsonObject,
         gardeFous: gardeFous as Prisma.InputJsonObject,
         approbateurIds: [...new Set(saisi.approbateurIds)],
       },

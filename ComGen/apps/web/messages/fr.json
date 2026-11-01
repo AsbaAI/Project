@@ -1150,7 +1150,34 @@
         "approbateursHint": "Aucun coché : tous les approbateurs de l'organisation, hors auteur."
       },
       "illisible": "Les garde-fous enregistrés pour ce persona sont illisibles : tant qu'ils ne sont pas corrigés ici, toute génération sera bloquée.",
-      "empty": "Aucun persona dans cette organisation."
+      "empty": "Aucun persona dans cette organisation.",
+      "voix": {
+        "title": "Style d'écriture",
+        "description": "Transmis au rédacteur comme consigne de forme. L'agent simulé recopie la source sans reformuler : il n'en tient pas compte, et le dit.",
+        "registre": "Registre",
+        "ton": "Ton",
+        "tonHint": "Une phrase : « précis, opérationnel, horaires explicites ».",
+        "personne": "Personne",
+        "structure": "Méthode (plan)",
+        "structureHint": "Les étapes du plan, une par ligne, dans l'ordre : « enjeu », « prochaine étape ». Dix au plus.",
+        "longueur": "Longueur cible",
+        "longueurHint": "En mots, entre 30 et 1200. Vide : pas de cible, donc pas de contrôle de longueur. Un écart de plus de 40 % devient un avertissement, jamais un blocage.",
+        "jargonFr": "Jargon admis (français)",
+        "jargonEn": "Jargon admis (anglais)",
+        "jargonHint": "Les mots de cette audience, un par ligne. À privilégier, jamais imposés.",
+        "illisible": "Les réglages d'écriture de ce persona sont illisibles : toute génération pour cette audience sera refusée tant qu'ils ne sont pas corrigés ici."
+      },
+      "registres": {
+        "soutenu": "Soutenu",
+        "professionnel": "Professionnel",
+        "direct": "Direct",
+        "familier": "Familier"
+      },
+      "personnes": {
+        "nous": "Nous",
+        "vous": "Vous",
+        "impersonnel": "Impersonnel"
+      }
     },
     "listes": {
       "title": "Listes de diffusion",

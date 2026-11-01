@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Notice } from '@/components/ui/notice'
 import { Panel } from '@/components/ui/panel'
-import { CANAUX, NIVEAUX } from '@comgen/core'
+import { CANAUX, NIVEAUX, PERSONNES, REGISTRES } from '@comgen/core'
 import type { CanalAffiche } from '@/lib/cles-messages'
 import type { Approbateur, PersonaParametre } from '@/server/services/parametrage'
 
@@ -63,6 +63,91 @@ export function FormulairePersona({
             </Select>
           </Field>
         </div>
+
+        {/* Style d'écriture : consigne de forme, transmise au rédacteur. */}
+        <fieldset className="flex flex-col gap-4 rounded-md border-w border-line-subtle p-4">
+          <legend className="px-1 text-sm font-medium text-ink-primary">{t('voix.title')}</legend>
+          <p className="-mt-2 text-xs text-ink-secondary">{t('voix.description')}</p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t('voix.registre')} error={erreur('registre')}>
+              <Select name="registre" defaultValue={repris('registre', persona.registre)}>
+                {REGISTRES.map((registre) => (
+                  <option key={registre} value={registre}>
+                    {t(`registres.${registre}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label={t('voix.personne')} error={erreur('personne')}>
+              <Select name="personne" defaultValue={repris('personne', persona.personne)}>
+                {PERSONNES.map((personne) => (
+                  <option key={personne} value={personne}>
+                    {t(`personnes.${personne}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </div>
+
+          <Field label={t('voix.ton')} hint={t('voix.tonHint')} error={erreur('ton')}>
+            <Input name="ton" maxLength={300} defaultValue={repris('ton', persona.ton)} />
+          </Field>
+
+          <Field
+            label={t('voix.structure')}
+            hint={t('voix.structureHint')}
+            error={erreur('structure')}
+          >
+            <Textarea
+              name="structure"
+              rows={3}
+              defaultValue={repris('structure', persona.structure.join('\n'))}
+            />
+          </Field>
+
+          <Field
+            label={t('voix.longueur')}
+            hint={t('voix.longueurHint')}
+            error={erreur('longueurCible')}
+            className="sm:max-w-xs"
+          >
+            <Input
+              name="longueurCible"
+              inputMode="numeric"
+              maxLength={4}
+              defaultValue={repris(
+                'longueurCible',
+                persona.longueurCible === null ? '' : String(persona.longueurCible),
+              )}
+            />
+          </Field>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t('voix.jargonFr')}
+              hint={t('voix.jargonHint')}
+              error={erreur('jargonFr')}
+            >
+              <Textarea
+                name="jargonFr"
+                rows={3}
+                defaultValue={repris('jargonFr', persona.jargonFr.join('\n'))}
+              />
+            </Field>
+            <Field
+              label={t('voix.jargonEn')}
+              hint={t('voix.jargonHint')}
+              error={erreur('jargonEn')}
+            >
+              <Textarea
+                name="jargonEn"
+                rows={3}
+                defaultValue={repris('jargonEn', persona.jargonEn.join('\n'))}
+              />
+            </Field>
+          </div>
+        </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field

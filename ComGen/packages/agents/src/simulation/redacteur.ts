@@ -18,7 +18,7 @@
  * démonstration qui invente.
  */
 
-import type { SegmentRedige } from '@comgen/core'
+import type { SegmentRedige, Voix } from '@comgen/core'
 import { z } from 'zod'
 
 import type { Agent } from '../agents/types.ts'
@@ -52,6 +52,15 @@ export interface EntreeRedacteur {
   langue: 'fr' | 'en'
   /** Nom du persona, pour l'ouverture. Jamais une valeur factuelle. */
   persona: string
+  /**
+   * Consigne de forme : registre, ton, personne, plan, longueur visée.
+   * Un rédacteur RÉEL s'en sert pour reformuler ; l'agent simulé, lui,
+   * recopie les citations de la source et n'en tient pas compte — il ne
+   * sait pas paraphraser sans modèle, et ne prétend pas le faire.
+   */
+  voix?: Voix
+  /** Mots de l'audience à privilégier (`lexique.<langue>.preferes`). */
+  jargon?: readonly string[]
 }
 
 const OUVERTURE = {

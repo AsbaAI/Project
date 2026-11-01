@@ -1150,7 +1150,34 @@
         "approbateursHint": "None ticked: every approver of the organisation, except the author."
       },
       "illisible": "The guardrails saved for this persona are unreadable: until they are fixed here, every generation will be blocked.",
-      "empty": "No persona in this organisation."
+      "empty": "No persona in this organisation.",
+      "voix": {
+        "title": "Writing style",
+        "description": "Passed to the writer as a form instruction. The simulated agent copies the source without rephrasing: it ignores them, and says so.",
+        "registre": "Register",
+        "ton": "Tone",
+        "tonHint": "One sentence: “precise, operational, explicit times”.",
+        "personne": "Person",
+        "structure": "Method (outline)",
+        "structureHint": "The outline steps, one per line, in order: “stake”, “next step”. Ten at most.",
+        "longueur": "Target length",
+        "longueurHint": "In words, between 30 and 1200. Empty: no target, so no length check. A gap over 40% becomes a warning, never a block.",
+        "jargonFr": "Accepted jargon (French)",
+        "jargonEn": "Accepted jargon (English)",
+        "jargonHint": "This audience's words, one per line. Preferred, never imposed.",
+        "illisible": "This persona's writing settings are unreadable: every generation for this audience will be refused until they are fixed here."
+      },
+      "registres": {
+        "soutenu": "Formal",
+        "professionnel": "Professional",
+        "direct": "Direct",
+        "familier": "Casual"
+      },
+      "personnes": {
+        "nous": "We",
+        "vous": "You",
+        "impersonnel": "Impersonal"
+      }
     },
     "listes": {
       "title": "Distribution lists",

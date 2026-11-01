@@ -29,8 +29,14 @@ import {
   personasCorrespondants,
   texteDuDocument,
   verifierValeursInjectees,
+  ECART_LONGUEUR_TOLERE,
+  type Voix,
+  compterMotsDocument,
+  ecartDeLongueur,
   gardien,
   lireGardeFous,
+  lireJargon,
+  lireVoix,
 } from '@comgen/core'
 import { z } from 'zod'
 
@@ -350,6 +356,8 @@ interface DossierGeneration {
   injectables: readonly FaitInjectable[]
   langue: LangueDetectable
   persona: string
+  voix: Voix
+  jargon: readonly string[]
   /** Vide jusqu'à ce que le rédacteur ait rendu sa sortie et que le code l'ait injectée. */
   paragraphes: readonly ParagrapheRendu[]
   verifie: SortieVerificateur | null
@@ -467,7 +475,7 @@ export async function genererVariante(
     select: {
       id: true,
       communicationId: true,
-      persona: { select: { nom: true, lexique: true, gardeFous: true } },
+      persona: { select: { nom: true, voix: true, lexique: true, gardeFous: true } },
       communication: { select: { id: true, etat: true, langue: true, criticite: true } },
     },
   })
@@ -509,6 +517,20 @@ export async function genererVariante(
   const serie = randomUUID()
   const contexteAgent: ContexteAgent = { attendre: options.attendre, signal: options.signal }
 
+  /*
+   * La voix du persona et ses mots : des consignes de forme, pas des
+   * valeurs. Illisibles, on refuse de générer — on ne devine pas comment
+   * cette audience veut être adressée.
+   */
+  const voix = lireVoix(variante.persona.voix)
+  const jargon = lireJargon(variante.persona.lexique, langue)
+  if (voix === null || jargon === null) {
+    throw new ErreurMetier(
+      'GENERATION_REFUSEE',
+      `Les réglages d’écriture du persona ${variante.persona.nom} sont illisibles`,
+    )
+  }
+
   let resultat
   try {
     resultat = await orchestrer<DossierGeneration>({
@@ -516,6 +538,8 @@ export async function genererVariante(
         injectables,
         langue,
         persona: variante.persona.nom,
+        voix,
+        jargon,
         paragraphes: [],
         verifie: null,
       },
@@ -532,6 +556,8 @@ export async function genererVariante(
             })),
             langue: dossier.langue,
             persona: dossier.persona,
+            voix: dossier.voix,
+            jargon: dossier.jargon,
           }),
           (dossier, sortie) => ({
             ...dossier,
@@ -651,6 +677,26 @@ export async function genererVariante(
       })
       constatsGardien = gardien(texteDuDocument(documentTipTap(paragraphes)), garde, niveaux)
     }
+    /*
+     * Longueur : un écart à la cible du persona est un avertissement de
+     * forme, pas un blocage — le texte reste vrai, il est seulement trop
+     * long ou trop court. Sans cible, pas de contrôle.
+     */
+    const mots = compterMotsDocument(documentTipTap(paragraphes))
+    const ecart = ecartDeLongueur(mots, voix.longueurCible)
+    if (ecart !== null && ecart > ECART_LONGUEUR_TOLERE && voix.longueurCible !== null) {
+      await tx.controle.create({
+        data: {
+          organisationId: acteur.utilisateur.organisationId,
+          varianteId: variante.id,
+          type: 'LONGUEUR',
+          bloquant: false,
+          gravite: 'AVERTISSEMENT',
+          message: `${String(mots)} mots pour une cible de ${String(voix.longueurCible)}.`,
+        },
+      })
+    }
+
     if (constatsGardien.length > 0) {
       await tx.controle.createMany({
         data: constatsGardien.map((constat) => ({
