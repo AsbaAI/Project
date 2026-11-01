@@ -54,6 +54,16 @@ test('axe — fiche de faits, volet d’amendement ouvert', async ({ page }) => 
   await bouton.click()
   await expect(bouton).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('region', { name: 'Amender la valeur' })).toBeVisible()
+  /*
+   * Le clic a fait défiler la page pour amener le bouton dans le champ de
+   * vision. On remonte avant d'auditer : `target-size` juge ce qui est
+   * visible, et sous la barre collante tout contenu est « recouvert » —
+   * ce que l'audit signalerait comme un défaut alors que c'est la position
+   * de défilement du moment. On audite une page, pas un défilement.
+   */
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   await auditer(page)
 })
 

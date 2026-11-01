@@ -702,6 +702,7 @@
       "title": "Every sentence is supported",
       "description": "This version can move to approval."
     },
+    "communication": "The communication",
     "rapport": "Verification report",
     "appuis": "Support: {references}",
     "sansAppui": "No support",

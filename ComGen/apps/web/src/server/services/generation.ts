@@ -4,10 +4,12 @@ import {
   type FaitInjectable,
   type LangueDetectable,
   type RoleAgent,
+  type RoleParagraphe,
   type SegmentRedige,
   type Verdict,
   choisirGabarit,
   injecter,
+  paragraphesDuDocument,
   texteDuDocument,
   verifierValeursInjectees,
 } from '@comgen/core'
@@ -207,15 +209,22 @@ export interface RapportGeneration {
 
 /** Paragraphe rendu : le texte après injection, avec ce qui l'a produit. */
 interface ParagrapheRendu {
+  role: RoleParagraphe
   texte: string
   references: readonly string[]
 }
 
+/*
+ * Le rôle du paragraphe est écrit dans le document, pas jeté à la porte :
+ * sans lui, l'écran ne peut plus distinguer une ouverture d'un fait, et
+ * rend la communication comme un bloc indistinct.
+ */
 function documentTipTap(paragraphes: readonly ParagrapheRendu[]) {
   return {
     type: 'doc',
     content: paragraphes.map((paragraphe) => ({
       type: 'paragraph',
+      attrs: { role: paragraphe.role },
       content: [{ type: 'text', text: paragraphe.texte }],
     })),
   }
@@ -299,7 +308,11 @@ export async function genererVariante(
     if (!resultat.ok) {
       throw new ErreurMetier('GENERATION_REFUSEE', resultat.detail)
     }
-    paragraphes.push({ texte: resultat.texte, references: resultat.referencesUtilisees })
+    paragraphes.push({
+      role: paragraphe.role,
+      texte: resultat.texte,
+      references: resultat.referencesUtilisees,
+    })
   }
 
   const texteComplet = paragraphes.map((paragraphe) => paragraphe.texte).join('\n')
@@ -478,6 +491,8 @@ export interface VarianteLue {
   score: number | null
   longueurMots: number
   texte: string
+  /** La communication elle-même, paragraphe par paragraphe, pour l'affichage. */
+  paragraphes: readonly { role: RoleParagraphe; texte: string }[]
   affirmations: readonly AffirmationLue[]
   /** Contrôles bloquants non résolus : ce qui empêche l'approbation. */
   blocages: readonly { id: string; message: string }[]
@@ -537,6 +552,7 @@ export async function chargerGeneration(
       score: variante.score,
       longueurMots: variante.longueurMots,
       texte: texteDuDocument(variante.contenu),
+      paragraphes: paragraphesDuDocument(variante.contenu),
       affirmations: variante.affirmations.map((affirmation) => ({
         id: affirmation.id,
         texte: affirmation.texte,

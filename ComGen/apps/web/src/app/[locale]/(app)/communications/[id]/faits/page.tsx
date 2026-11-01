@@ -109,7 +109,9 @@ export default async function FichePage({ params }: PageProps) {
                           <li key={f.id}>
                             <a
                               href={`#fait-${reference}`}
-                              className="block rounded-xs py-0.5 text-ink-primary underline focus-ring"
+                              // min-h-6 : 24 px, la cible minimale de WCAG 2.2 AA.
+                              // Sans elle, le lien fait 20 px et axe le refuse.
+                              className="flex min-h-6 items-center rounded-xs py-0.5 text-ink-primary underline focus-ring"
                             >
                               {t('fiche.contradictions.value', {
                                 valeur: f.valeur ?? '',

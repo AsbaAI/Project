@@ -31,6 +31,16 @@ export default defineConfig({
     trace: 'retain-on-failure',
     locale: 'fr-FR',
     timezoneId: 'Europe/Paris',
+    /*
+     * Chromium imposé quand la machine en fournit un hors de l'arbre de
+     * Playwright (conteneur préinstallé, paquet système). Sans cette
+     * variable, rien ne change : Playwright prend le navigateur de la
+     * version qu'il attend. On ne télécharge jamais : un `playwright
+     * install` ici n'aurait pas accès au réseau.
+     */
+    ...(process.env.PLAYWRIGHT_CHROMIUM_PATH === undefined
+      ? {}
+      : { launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } }),
   },
   webServer: {
     // Playwright lance le serveur avant `globalSetup` : la base est donc

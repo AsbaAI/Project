@@ -358,12 +358,19 @@ function faitsDuTexte(sourceId: string, contenuTexte: string): DescriptionFait[]
   return faits
 }
 
-/** Document TipTap minimal : un paragraphe par phrase retenue. */
+/*
+ * Document TipTap minimal : un paragraphe par phrase retenue, avec son
+ * rôle. Le premier est l'ouverture, le dernier la clôture, le reste le
+ * corps — c'est exactement la forme que compose le rédacteur, et l'écran
+ * la rend de la même façon.
+ */
 function documentDe(paragraphes: readonly string[]): Record<string, unknown> {
+  const dernier = paragraphes.length - 1
   return {
     type: 'doc',
-    content: paragraphes.map((texte) => ({
+    content: paragraphes.map((texte, indice) => ({
       type: 'paragraph',
+      attrs: { role: indice === 0 ? 'ouverture' : indice === dernier ? 'cloture' : 'corps' },
       content: [{ type: 'text', text: texte }],
     })),
   }

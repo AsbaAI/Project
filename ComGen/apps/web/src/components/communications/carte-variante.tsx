@@ -51,6 +51,30 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
         </p>
       ) : (
         <div className="flex flex-col gap-5">
+          {/*
+            La communication elle-même, lisible comme on la recevrait. Elle
+            vient avant le rapport : on juge un texte en le lisant, pas en
+            lisant son verdict.
+
+            Pas d'objet répété ici : le titre de la communication est déjà
+            l'en-tête de la page, et la source porte le sien quand elle en a un.
+          */}
+          <section aria-label={t('communication')}>
+            <article className="rounded-sm border-w border-line-default bg-surface-raised px-5 py-4">
+              {variante.paragraphes.map((paragraphe, indice) => (
+                <p
+                  key={`${paragraphe.role}-${String(indice)}`}
+                  className={cn(
+                    'text-sm leading-relaxed text-ink-primary first:mt-0',
+                    paragraphe.role === 'corps' ? 'mt-3' : 'mt-3 text-ink-secondary',
+                  )}
+                >
+                  {paragraphe.texte}
+                </p>
+              ))}
+            </article>
+          </section>
+
           {variante.blocages.length > 0 ? (
             <Notice level="blocking" title={t('blocages.title')}>
               <p>{t('blocages.description')}</p>

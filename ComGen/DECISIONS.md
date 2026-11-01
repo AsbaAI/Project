@@ -559,3 +559,39 @@ canaux affichés en constantes (`MESSAGERIE_INSTANTANEE`). Les trois sont
 corrigés à la source : dédoublonnage dans le seed **et** aux deux
 frontières de `generation.ts`, section masquée quand elle est vide,
 libellés de canal passés par `next-intl`.
+
+### La communication se lit, le rapport vient après
+
+L'écran de génération montrait le rapport de vérification, le score et les
+agents — mais jamais la communication produite. On générait sans voir ce
+qu'on avait généré. Le texte est désormais rendu en premier, comme on le
+recevrait, et le rapport passe après : on juge un texte en le lisant, pas
+en lisant son verdict.
+
+Pour cela, le rôle de chaque paragraphe (ouverture, corps, clôture) est
+**écrit dans le document** au lieu d'être jeté à l'écriture
+(`paragraphesDuDocument`). Un document ancien n'en porte pas : ses
+paragraphes sont rendus en corps, ce qui reste juste, seulement moins
+précis.
+
+Pas d'objet répété au-dessus de la lettre : le titre de la communication
+est déjà l'en-tête de la page, et la source porte le sien quand elle en a
+un. Un essai qui l'affichait a été retiré après lecture des captures.
+
+### L'audit d'accessibilité porte sur une page, pas sur un défilement
+
+Le test du volet d'amendement est devenu rouge sans qu'une ligne de
+l'écran change : la machine fournit désormais un Chromium plus récent, et
+`target-size` y signale comme « recouvert » tout élément passé sous la
+barre supérieure collante. Mesure faite, le lien incriminé faisait bien
+24 × 568 px ; il était simplement sous l'en-tête parce que le clic sur
+« Amender » avait fait défiler la page.
+
+Le test remonte donc en haut avant d'auditer. Ce n'est pas un contrôle
+affaibli : un contenu sous une barre collante n'est pas un défaut, c'est
+une position de défilement. Au passage, les liens de contradiction ont
+gagné leur cible de 24 px (`min-h-6`), qu'ils n'avaient pas.
+
+Le chemin du navigateur est devenu réglable (`PLAYWRIGHT_CHROMIUM_PATH`) :
+la machine en fournit un hors de l'arbre de Playwright, et on ne télécharge
+rien — il n'y a pas de réseau pour ça.

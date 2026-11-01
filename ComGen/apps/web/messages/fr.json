@@ -702,6 +702,7 @@
       "title": "Toutes les phrases sont appuyées",
       "description": "Cette version peut passer en approbation."
     },
+    "communication": "La communication",
     "rapport": "Rapport de vérification",
     "appuis": "Appuis : {references}",
     "sansAppui": "Aucun appui",
