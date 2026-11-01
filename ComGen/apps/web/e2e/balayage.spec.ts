@@ -1,3 +1,4 @@
+/* oxlint-disable eslint/no-await-in-loop -- une seule page visite les routes une à une : la navigation est séquentielle par nature. */
 import { expect, test } from '@playwright/test'
 
 import { COMPTES } from './environnement'

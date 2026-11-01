@@ -1036,3 +1036,20 @@ réglage de leurs prompts.
   exactement un `<h1>`, et n'émet ni erreur de console ni requête en échec.
   Les identifiants de communication diffèrent par compte — une ressource
   d'une autre organisation vaut 404, ce qui n'apprendrait rien de l'écran.
+
+## 2026-11-01 — L1 : sondes de vivacité et de disponibilité
+
+- **Deux routes, deux questions.** `/api/sante` dit que le processus
+  répond, sans sonder aucune dépendance : une base lente ne doit pas faire
+  redémarrer une instance saine. `/api/pret` dit si l'instance peut servir :
+  base (`SELECT 1` par `Connexion.verifier`) et stockage (lecture d'une clé
+  absente : rien n'est écrit, la réponse « absent » prouve que le dépôt
+  répond). 200 ou 503.
+- **Le verdict, jamais la cause.** La réponse nomme la dépendance en échec
+  et rien d'autre : le message d'une exception de pilote peut porter une
+  chaîne de connexion ou un hôte. Chaque sonde est bornée à 2 s ; une sonde
+  qui ne répond pas compte comme un échec.
+- **Sans session.** Les routes `/api/*` échappent au proxy d'authentification ;
+  ces deux-là n'exposent aucune donnée d'organisation.
+- Redis n'est pas sondé : il n'est pas encore utilisé. Il rejoindra
+  `/api/pret` avec les workers (L7).

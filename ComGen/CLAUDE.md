@@ -180,7 +180,8 @@ packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
   client : une ligne illisible fait échouer le flux. Un refus de service
   part en **code** traduisible, jamais en message technique : le motif d'un
   refus de droit et le message d'une exception étrangère ne sortent pas du
-  serveur.
+  serveur. Exceptions : les sondes `/api/sante` et `/api/pret`, sans
+  session, qui ne disent qu'un verdict (`server/sante.ts`).
 - **Consignes d'agent** : le texte vit en base (`ConsigneAgent`, une par
   organisation et par rôle), versionné par un déclencheur SQL ; seul
   l'identifiant `org/<role>@<version>` voyage dans une trace. Une consigne

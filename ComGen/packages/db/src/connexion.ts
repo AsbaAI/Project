@@ -23,6 +23,11 @@ export const CLIENT_BRUT: unique symbol = Symbol.for('comgen.client-brut')
  */
 export interface Connexion {
   readonly [CLIENT_BRUT]: PrismaClient
+  /**
+   * Sonde de disponibilité : la base répond-elle ? `SELECT 1`, aucune
+   * donnée métier lue ni écrite. Lève l'erreur du pilote si elle ne répond pas.
+   */
+  verifier(): Promise<void>
   fermer(): Promise<void>
 }
 
@@ -41,6 +46,9 @@ export function ouvrirConnexion(options: OptionsConnexion): Connexion {
   const client = new PrismaClient({ adapter })
   return {
     [CLIENT_BRUT]: client,
+    verifier: async () => {
+      await client.$queryRaw`SELECT 1`
+    },
     fermer: () => client.$disconnect(),
   }
 }

@@ -23,7 +23,7 @@ const connecte = { storageState: COMPTES.redactrice.etat }
  * Appels d'API sans écran : les quatre configurations n'y changent rien,
  * un seul projet les joue.
  */
-const APPELS_API = /generation-flux\.spec\.ts$/
+const APPELS_API = /(generation-flux|sante)\.spec\.ts$/
 
 export default defineConfig({
   testDir: './e2e',

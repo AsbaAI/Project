@@ -102,3 +102,11 @@ DATABASE_URL='<DATABASE_URL_UNPOOLED de Neon>' pnpm db:seed
   secondes de plus.
 - **Aucun modèle de langage** n'est configuré : aucune clé n'est déposée
   sur la démonstration.
+
+## Sondes d'hébergement
+
+- `GET /api/sante` : 200 tant que le processus répond (vivacité).
+- `GET /api/pret` : 200 si la base et le stockage répondent, 503 sinon,
+  avec le nom des dépendances en échec (disponibilité).
+
+Les deux répondent sans session et ne sont jamais mises en cache.
