@@ -3,6 +3,7 @@ import {
   type EtatCommunication,
   NIVEAUX,
   type Niveau,
+  type RoleAgent,
   type StatutFait,
   TYPES_VALEUR,
   type TypeSource,
@@ -18,6 +19,7 @@ import { exigerDroit, verifierDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
 import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelles } from './etat'
+import { lireParametre } from './executions'
 
 /**
  * Fiche de faits (spécification §11, §15) : revue fait par fait, citation en
@@ -35,6 +37,33 @@ import { ETATS_FICHE_OUVERTE, type TransitionEvaluee, evaluerTransitionsManuelle
 // Lecture
 // ---------------------------------------------------------------------------
 
+/** Un agent qui a lu la source, tel que son exécution l'a laissé. */
+export interface AgentDeLecture {
+  agent: RoleAgent
+  dureeMs: number
+  simule: boolean
+  succes: boolean
+  /** Pourquoi il a échoué ; `null` s'il a réussi. */
+  raison: string | null
+}
+
+/**
+ * Un point où la lecture du suggesteur ne rejoint pas le cadrage saisi,
+ * avec la phrase de la source qui la motive. Un écart informe : il n'est
+ * jamais appliqué, le cadrage reste ce que le rédacteur a décidé.
+ */
+export interface EcartDeCadrage {
+  champ: 'nature' | 'criticite'
+  cadrage: string
+  lecture: string
+  extrait: string
+}
+
+export interface LectureDeSource {
+  agents: AgentDeLecture[]
+  ecarts: EcartDeCadrage[]
+}
+
 export interface SourceDeFiche {
   id: string
   type: TypeSource
@@ -45,6 +74,7 @@ export interface SourceDeFiche {
   figeeLe: Date
   contenuTexte: string
   fichierConserve: boolean
+  lecture: LectureDeSource
 }
 
 export interface AmendementDeFiche {
@@ -90,6 +120,38 @@ export interface Fiche {
   modifiable: boolean
 }
 
+const schemaProposition = z.object({ valeur: z.string(), extrait: z.string() }).nullable()
+const schemaCadrageSuggere = z.object({
+  nature: schemaProposition,
+  criticite: schemaProposition,
+})
+
+/**
+ * Les points où la lecture du suggesteur diffère du cadrage. Une proposition
+ * absente n'est pas un désaccord : « pas d'avis » ne contredit rien. Un
+ * contenu illisible ne dit rien non plus, plutôt que de faire dire à
+ * l'agent ce qu'il n'a pas dit.
+ */
+function ecartsDeCadrage(
+  brut: unknown,
+  communication: { nature: string; criticite: string },
+): EcartDeCadrage[] {
+  const lu = schemaCadrageSuggere.safeParse(brut)
+  if (!lu.success) return []
+  return (['nature', 'criticite'] as const).flatMap((champ) => {
+    const proposition = lu.data[champ]
+    if (proposition === null || proposition.valeur === communication[champ]) return []
+    return [
+      {
+        champ,
+        cadrage: communication[champ],
+        lecture: proposition.valeur,
+        extrait: proposition.extrait,
+      },
+    ]
+  })
+}
+
 function lireLocalisation(brute: unknown): FaitDeFiche['localisation'] {
   const objet = (typeof brute === 'object' && brute !== null ? brute : {}) as Record<
     string,
@@ -113,11 +175,19 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
   exigerDroit(utilisateur, 'CONSULTER')
   const communication = await contexte.communication.findUnique({
     where: { id: communicationId },
-    select: { id: true, reference: true, titre: true, etat: true, langue: true, criticite: true },
+    select: {
+      id: true,
+      reference: true,
+      titre: true,
+      etat: true,
+      langue: true,
+      nature: true,
+      criticite: true,
+    },
   })
   if (!communication) throw introuvable('Communication', communicationId)
 
-  const [sources, faits, { transitions, contradictions }] = await Promise.all([
+  const [sources, faits, { transitions, contradictions }, executions] = await Promise.all([
     contexte.source.findMany({
       where: { communicationId },
       orderBy: [{ figeeLe: 'asc' }, { nom: 'asc' }],
@@ -133,6 +203,12 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
       },
     }),
     evaluerTransitionsManuelles(contexte, communication),
+    // Les exécutions qui ont lu une source n'appartiennent à aucune variante.
+    contexte.execution.findMany({
+      where: { communicationId, varianteId: null },
+      select: { agent: true, dureeMs: true, parametres: true, succes: true, erreur: true },
+      orderBy: { creeLe: 'asc' },
+    }),
   ])
 
   const indiceContradiction = new Map<string, number>()
@@ -158,6 +234,18 @@ export async function chargerFiche(acteur: Acteur, communicationId: string): Pro
       figeeLe: s.figeeLe,
       contenuTexte: s.contenuTexte ?? '',
       fichierConserve: s.cheminStockage !== null,
+      lecture: {
+        agents: executions
+          .filter((e) => lireParametre(e.parametres, 'sourceId') === s.id)
+          .map((e) => ({
+            agent: e.agent,
+            dureeMs: e.dureeMs,
+            simule: lireParametre(e.parametres, 'simule') === true,
+            succes: e.succes,
+            raison: e.erreur,
+          })),
+        ecarts: ecartsDeCadrage(s.cadrageSuggere, communication),
+      },
     })),
     faits: faits.map((f) => ({
       id: f.id,

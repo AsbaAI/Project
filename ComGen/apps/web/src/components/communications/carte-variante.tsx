@@ -2,10 +2,10 @@ import { Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { PanneauGeneration } from '@/components/communications/panneau-generation'
+import { PucesAgents } from '@/components/communications/puces-agents'
 import { Notice } from '@/components/ui/notice'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/cn'
-import type { RoleAgentAffiche } from '@/lib/cles-messages'
 import type { VarianteLue } from '@/server/services/generation'
 
 /*
@@ -33,10 +33,6 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
   const factuelles = variante.affirmations.filter((a) => a.verdict !== 'NON_FACTUELLE')
   const soutenues = factuelles.filter((a) => a.verdict === 'SOUTENUE')
   const vide = variante.etat === 'EN_GENERATION'
-  const libelleRole = (role: string): string => {
-    const cle = `roles.${role}` as `roles.${RoleAgentAffiche}`
-    return t.has(cle) ? t(cle) : role
-  }
 
   return (
     <PanneauGeneration
@@ -133,21 +129,16 @@ export function CarteVariante({ variante, peutGenerer }: CarteVarianteProps) {
           {variante.executions.length === 0 ? null : (
             <section>
               <h3 className="mb-2 text-sm font-semibold text-ink-primary">{t('agents')}</h3>
-              <ul className="flex flex-wrap gap-2">
-                {variante.executions.map((execution) => (
-                  <li
-                    key={execution.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border-w border-ai-line bg-ai-bg px-2.5 py-1 text-xs text-ai-ink"
-                  >
-                    <Sparkles aria-hidden="true" className="size-3" />
-                    {libelleRole(execution.agent)}
-                    <span className="text-ink-tertiary">
-                      {t('duree', { ms: execution.dureeMs })}
-                      {execution.simule ? ` · ${t('agentSimule')}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <PucesAgents
+                agents={variante.executions.map((execution) => ({
+                  id: execution.id,
+                  agent: execution.agent,
+                  dureeMs: execution.dureeMs,
+                  simule: execution.simule,
+                  succes: true,
+                  raison: null,
+                }))}
+              />
             </section>
           )}
         </div>

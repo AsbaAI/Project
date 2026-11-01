@@ -94,6 +94,23 @@ describe('ANALYSTE_IMPACT simulé', () => {
     }
   })
 
+  it('distingue les fournisseurs des partenaires : ce sont deux audiences', async () => {
+    // Les rassembler sous « Partenaires » empêcherait de rejoindre un persona
+    // « Fournisseurs », que la source nomme pourtant en toutes lettres.
+    const { contexte } = contexteRapide()
+    const { sortie } = await analyste.executer(
+      { texte: 'Les fournisseurs doivent mettre à jour leur certificat avant le 3 mars 2026.' },
+      contexte,
+    )
+    expect(sortie.suggestions.map((s) => s.dimension)).toEqual(['Fournisseurs'])
+
+    const { sortie: autre } = await analyste.executer(
+      { texte: 'Les partenaires intégrateurs recevront la nouvelle API le 3 mars 2026.' },
+      contexte,
+    )
+    expect(autre.suggestions.map((s) => s.dimension)).toEqual(['Partenaires'])
+  })
+
   it('ne propose rien plutôt que de deviner, quand la source ne nomme personne', async () => {
     const { contexte } = contexteRapide()
     const { sortie } = await analyste.executer(

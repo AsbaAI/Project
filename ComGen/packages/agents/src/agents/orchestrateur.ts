@@ -161,9 +161,12 @@ export async function orchestrer<D>(
       // eslint-disable-next-line no-await-in-loop -- la chaîne est séquentielle par définition : chaque étape lit ce que la précédente a écrit.
       const resultat = await etapePlan.executer(dossier, contexte)
       dossier = resultat.dossier
-      traces.push(resultat.trace)
       etat.etat = 'TERMINEE'
       etat.dureeMs = horloge() - debut
+      // La trace garde la durée MESURÉE : celle qu'un agent simulé annonce est
+      // celle qu'il joue, fictive s'il n'a rien attendu. L'orchestrateur est
+      // l'autorité sur le temps écoulé, pour un agent réel comme simulé.
+      traces.push({ ...resultat.trace, dureeMs: etat.dureeMs })
       annoncer()
     } catch (erreur) {
       const faute = enErreurAgent(erreur, etapePlan.role)

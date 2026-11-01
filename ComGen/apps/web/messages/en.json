@@ -422,11 +422,22 @@
         "frozenOn": "Frozen on {date}",
         "language": "Detected language",
         "file": "File kept",
-        "noText": "No text."
+        "noText": "No text.",
+        "readBy": "Read by"
       },
       "next": {
         "title": "Validate the fact sheet",
         "description": "The fact sheet is validated once every fact is reviewed and contradictions are resolved. Persona selection follows."
+      },
+      "ecarts": {
+        "title": "The framing and the reading of the source do not match",
+        "description": "The suggester proposes, it does not decide: the framing stays what you entered.",
+        "champs": {
+          "nature": "Nature",
+          "criticite": "Criticality"
+        },
+        "item": "{champ}: framing “{cadrage}”, reading “{lecture}”",
+        "extrait": "In the source: “{extrait}”"
       }
     },
     "motifs": {
@@ -435,7 +446,7 @@
       "AUCUN_FAIT_CONFIRME": "No fact is confirmed.",
       "FAIT_NON_REVU": "Some facts remain to be reviewed: confirm or remove them.",
       "CONTRADICTION_NON_TRANCHEE": "A contradiction between sources is not resolved.",
-      "AUCUN_PERSONA": "No persona is selected: persona selection is not available in this version yet.",
+      "AUCUN_PERSONA": "No recipient is selected: choose them in the “Recipients” step.",
       "PERSONA_SANS_TEMPLATE": "A persona has no template.",
       "AUCUNE_VARIANTE": "No variant has been generated.",
       "CONTROLE_BLOQUANT_NON_RESOLU": "A blocking check is not resolved.",
@@ -665,6 +676,13 @@
     "vide": {
       "title": "No audience",
       "description": "No active persona is defined for your organisation."
+    },
+    "suggere": "Suggested by the source",
+    "suggereExtrait": "The source says: “{extrait}”",
+    "sansPersona": {
+      "title": "The source names audiences with no matching recipient",
+      "description": "No active persona carries this name. You can carry on without them, or ask an administrator to create one.",
+      "item": "{dimension} — “{extrait}”"
     }
   },
   "engine": {
@@ -739,7 +757,8 @@
       },
       "secondes": "{secondes} s",
       "echec": "Generation stopped"
-    }
+    },
+    "agentEchec": "failed"
   },
   "generator": {
     "title": "Generator",

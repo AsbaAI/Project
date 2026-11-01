@@ -5,13 +5,14 @@ import { getTranslations } from 'next-intl/server'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
 import { FormulaireDestinataires } from '@/components/communications/formulaire-destinataires'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Notice } from '@/components/ui/notice'
 import { Panel } from '@/components/ui/panel'
 import { resolveLocale } from '@/i18n/params'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage, ou404 } from '@/server/pages'
 import { chargerAvancement } from '@/server/services/assistant'
 import { chargerCommunication } from '@/server/services/communications'
-import { listerPersonas } from '@/server/services/generation'
+import { listerAudiencesSansPersona, listerPersonas } from '@/server/services/generation'
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>
@@ -33,10 +34,11 @@ export default async function DestinatairesPage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('destinataires')
   const acteur = await acteurDePage()
-  const [detail, personas, avancement] = await Promise.all([
+  const [detail, personas, avancement, sansPersona] = await Promise.all([
     ou404(chargerCommunication(acteur, id)),
     listerPersonas(acteur, id),
     chargerAvancement(acteur, id),
+    listerAudiencesSansPersona(acteur, id),
   ])
   const c = detail.communication
   const modifiable =
@@ -52,6 +54,23 @@ export default async function DestinatairesPage({ params }: PageProps) {
         etat={c.etat}
         criticite={c.criticite}
       />
+
+      {/* La source parle de quelqu'un pour qui aucun destinataire n'existe : on le dit. */}
+      {sansPersona.length > 0 ? (
+        <Notice level="info" title={t('sansPersona.title')} className="mb-4">
+          <p>{t('sansPersona.description')}</p>
+          <ul className="mt-2 list-disc pl-5">
+            {sansPersona.map((audience) => (
+              <li key={audience.dimension}>
+                {t('sansPersona.item', {
+                  dimension: audience.dimension,
+                  extrait: audience.extrait,
+                })}
+              </li>
+            ))}
+          </ul>
+        </Notice>
+      ) : null}
 
       <Panel title={t('title')} description={t('description')}>
         {personas.length === 0 ? (

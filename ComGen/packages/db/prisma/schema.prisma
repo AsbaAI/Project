@@ -378,6 +378,10 @@ model Source {
   langue          String?
   confidentialite Niveau
   figeeLe         DateTime   @default(now())
+  /// Ce que le suggesteur propose pour le cadrage à partir de cette source :
+  /// `{ titre, nature, criticite }`, chacun `null` ou `{ valeur, extrait }`.
+  /// Écrit à l'insertion, avec la source figée dont il est la lecture.
+  cadrageSuggere  Json?
 
   communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
   faits         Fait[]

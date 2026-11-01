@@ -140,6 +140,37 @@ describe('orchestrer', () => {
     expect(vus.at(-1)?.termine).toBe(false)
   })
 
+  it('donne à la trace la durée mesurée, pas celle que l’agent déclare', async () => {
+    // Un agent simulé annonce la durée qu'il joue ; s'il n'attend pas, cette
+    // durée est fictive. L'orchestrateur est l'autorité sur le temps écoulé.
+    const vantard: Agent<string, { mots: number }> = {
+      ...compteur,
+      executer: () =>
+        Promise.resolve({ sortie: { mots: 2 }, trace: { ...trace('EXTRACTEUR'), dureeMs: 9999 } }),
+    }
+    let instant = 1000
+    const horloge = () => {
+      const maintenant = instant
+      instant += 250
+      return maintenant
+    }
+    const resultat = await orchestrer({
+      etapes: [
+        etape(
+          vantard,
+          (dossier: Dossier) => dossier.texte,
+          (dossier, sortie) => ({ ...dossier, mots: sortie.mots }),
+        ),
+      ],
+      dossier: { texte: 'un deux' },
+      contexte: {},
+      horloge,
+    })
+
+    expect(resultat.etapes[0]?.dureeMs).toBe(250)
+    expect(resultat.traces[0]?.dureeMs).toBe(250)
+  })
+
   it('n’expose pas le message d’une exception qui n’est pas la nôtre, mais garde sa cause', async () => {
     // Le message d'une exception étrangère n'a pas été écrit pour être lu :
     // il peut citer une adresse, un hôte, un fragment de requête. Il part au

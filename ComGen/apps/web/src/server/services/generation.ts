@@ -26,6 +26,7 @@ import {
   choisirGabarit,
   injecter,
   paragraphesDuDocument,
+  personasCorrespondants,
   texteDuDocument,
   verifierValeursInjectees,
 } from '@comgen/core'
@@ -34,6 +35,7 @@ import { z } from 'zod'
 import { exigerDroit } from '@/server/auth/droits'
 
 import { type Acteur, ErreurMetier, introuvable } from './erreurs'
+import { ligneEchouee, ligneReussie, lireParametre } from './executions'
 
 /**
  * Génération d'une variante (spécification §8, §12), et choix des
@@ -84,6 +86,54 @@ export interface PersonaDisponible {
   gabaritDisponible: boolean
   /** Vrai quand la communication le retient déjà. */
   retenu: boolean
+  /** La phrase de la source qui désigne ce persona, quand l'analyste en a trouvé une. */
+  suggestion: { justification: string; extrait: string } | null
+}
+
+/** Une audience que la source nomme, telle que l'analyste d'impact l'a rangée. */
+interface AudienceNommee {
+  id: string
+  dimension: string
+  justification: string
+  extrait: string
+}
+
+/**
+ * Les audiences que la source nomme, de la plus pertinente à la moins
+ * pertinente. Une suggestion sans dimension (elle viendrait d'un annuaire
+ * qu'aucun agent ne lit encore) n'a rien à rapprocher d'un persona.
+ */
+async function lireAudiencesNommees(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<AudienceNommee[]> {
+  const lignes = await acteur.contexte.suggestionAudience.findMany({
+    where: { communicationId, origine: 'MOT_CLE' },
+    orderBy: [{ pertinence: 'desc' }, { creeLe: 'asc' }],
+    select: { id: true, dimension: true, justification: true, extrait: true },
+  })
+  return lignes.flatMap((ligne) =>
+    ligne.dimension === null ? [] : [{ ...ligne, dimension: ligne.dimension }],
+  )
+}
+
+/**
+ * Les audiences que la source nomme et qu'aucun persona ne désigne : elles
+ * se disent, au lieu de disparaître. Le rédacteur apprend ainsi que la
+ * source parle de quelqu'un pour qui aucun destinataire n'existe.
+ */
+export async function listerAudiencesSansPersona(
+  acteur: Acteur,
+  communicationId: string,
+): Promise<{ dimension: string; justification: string; extrait: string }[]> {
+  exigerDroit(acteur.utilisateur, 'CONSULTER')
+  const [personas, audiences] = await Promise.all([
+    acteur.contexte.persona.findMany({ where: { actif: true }, select: { id: true, nom: true } }),
+    lireAudiencesNommees(acteur, communicationId),
+  ])
+  return audiences
+    .filter((audience) => personasCorrespondants(audience.dimension, personas).length === 0)
+    .map(({ dimension, justification, extrait }) => ({ dimension, justification, extrait }))
 }
 
 /** Personas de l'organisation, avec ce qui empêcherait de les retenir. */
@@ -92,7 +142,7 @@ export async function listerPersonas(
   communicationId: string,
 ): Promise<PersonaDisponible[]> {
   exigerDroit(acteur.utilisateur, 'CONSULTER')
-  const [personas, gabarits, variantes] = await Promise.all([
+  const [personas, gabarits, variantes, audiences] = await Promise.all([
     acteur.contexte.persona.findMany({
       where: { actif: true },
       select: { id: true, nom: true, canalDefaut: true },
@@ -106,8 +156,23 @@ export async function listerPersonas(
       where: { communicationId },
       select: { personaId: true },
     }),
+    lireAudiencesNommees(acteur, communicationId),
   ])
   const retenus = new Set(variantes.map((variante) => variante.personaId))
+
+  // Les audiences arrivent de la plus pertinente à la moins pertinente : si
+  // deux désignent un même persona, c'est la première qui parle pour lui.
+  const suggestions = new Map<string, { justification: string; extrait: string }>()
+  for (const audience of audiences) {
+    for (const personaId of personasCorrespondants(audience.dimension, personas)) {
+      if (!suggestions.has(personaId)) {
+        suggestions.set(personaId, {
+          justification: audience.justification,
+          extrait: audience.extrait,
+        })
+      }
+    }
+  }
 
   return personas.map((persona) => ({
     id: persona.id,
@@ -115,6 +180,7 @@ export async function listerPersonas(
     canal: persona.canalDefaut,
     gabaritDisponible: choisirGabarit(persona.canalDefaut, gabarits) !== null,
     retenu: retenus.has(persona.id),
+    suggestion: suggestions.get(persona.id) ?? null,
   }))
 }
 
@@ -198,6 +264,34 @@ export async function choisirDestinataires(
         },
       })
     }
+
+    // Chaque suggestion reçoit la décision que la liste enregistrée lui donne :
+    // acceptée si le persona qu'elle désigne est retenu, refusée sinon. Celle
+    // qui ne désigne aucun persona reste en attente — rien ne permet de dire
+    // qu'on l'a écartée.
+    const [tous, nommees] = await Promise.all([
+      tx.persona.findMany({ where: { actif: true }, select: { id: true, nom: true } }),
+      tx.suggestionAudience.findMany({
+        where: { communicationId, origine: 'MOT_CLE' },
+        select: { id: true, dimension: true },
+      }),
+    ])
+    const decisions = nommees.flatMap((suggestion) => {
+      if (suggestion.dimension === null) return []
+      const designes = personasCorrespondants(suggestion.dimension, tous)
+      if (designes.length === 0) return []
+      return [
+        {
+          id: suggestion.id,
+          decision: designes.some((id) => personaIds.includes(id)) ? 'ACCEPTEE' : 'REFUSEE',
+        } as const,
+      ]
+    })
+    await Promise.all(
+      decisions.map(({ id, decision }) =>
+        tx.suggestionAudience.update({ where: { id }, data: { decision } }),
+      ),
+    )
 
     return { retenus: personaIds.length }
   })
@@ -319,43 +413,23 @@ async function tracerEchec(
   mode: JeuAgents['mode'],
   serie: string,
 ): Promise<void> {
-  const base = {
-    organisationId: acteur.utilisateur.organisationId,
-    varianteId: variante.id,
-    communicationId: variante.communicationId,
-    coutCentimes: 0,
-  }
-  const terminees = echec.traces.map((trace) => ({
-    ...base,
-    agent: trace.role,
-    modele: trace.modele ?? 'simulation',
-    promptVersion: trace.prompt,
-    parametres: { simule: trace.simule, serie },
-    jetonsEntree: trace.jetonsEntree,
-    jetonsSortie: trace.jetonsSortie,
-    dureeMs: trace.dureeMs,
-    succes: true,
-  }))
   const echouee = echec.etapes.find((e) => e.etat === 'ECHOUEE')
-  const lignes =
-    echouee === undefined
-      ? terminees
-      : [
-          ...terminees,
-          {
-            ...base,
-            agent: echouee.role,
-            modele: mode === 'simulation' ? 'simulation' : 'inconnu',
-            promptVersion: echouee.version,
-            parametres: { simule: mode === 'simulation', serie },
-            jetonsEntree: 0,
-            jetonsSortie: 0,
-            dureeMs: echouee.dureeMs ?? 0,
-            succes: false,
-            erreur: echouee.message ?? echec.message,
-          },
-        ]
-  if (lignes.length > 0) await acteur.contexte.execution.createMany({ data: lignes })
+  const lignes = [
+    ...echec.traces.map((trace) => ligneReussie(trace, serie)),
+    ...(echouee === undefined
+      ? []
+      : [ligneEchouee(echouee, mode, serie, echouee.message ?? echec.message)]),
+  ]
+  if (lignes.length === 0) return
+  await acteur.contexte.execution.createMany({
+    data: lignes.map((ligne) =>
+      Object.assign({}, ligne, {
+        organisationId: acteur.utilisateur.organisationId,
+        varianteId: variante.id,
+        communicationId: variante.communicationId,
+      }),
+    ),
+  })
 }
 
 /** Qui répondra, et pourquoi : lu à la fabrique, jamais déduit ailleurs. */
@@ -564,20 +638,13 @@ export async function genererVariante(
     })
 
     await tx.execution.createMany({
-      data: resultat.traces.map((trace) => ({
-        organisationId: acteur.utilisateur.organisationId,
-        varianteId: variante.id,
-        communicationId: variante.communicationId,
-        agent: trace.role,
-        modele: trace.modele ?? 'simulation',
-        promptVersion: trace.prompt,
-        parametres: { simule: trace.simule, serie },
-        jetonsEntree: trace.jetonsEntree,
-        jetonsSortie: trace.jetonsSortie,
-        dureeMs: trace.dureeMs,
-        coutCentimes: 0,
-        succes: true,
-      })),
+      data: resultat.traces.map((trace) =>
+        Object.assign({}, ligneReussie(trace, serie), {
+          organisationId: acteur.utilisateur.organisationId,
+          varianteId: variante.id,
+          communicationId: variante.communicationId,
+        }),
+      ),
     })
 
     // L'état de la communication suit celui de ses variantes : tant qu'une
@@ -652,13 +719,6 @@ export interface EcranGeneration {
   resteARediger: boolean
   /** Vrai quand au moins un blocage subsiste : l'envoi est impossible. */
   bloquee: boolean
-}
-
-/** Un paramètre d'exécution, relu sans présumer de la forme du JSON. */
-function lireParametre(parametres: unknown, nom: string): unknown {
-  return typeof parametres === 'object' && parametres !== null && nom in parametres
-    ? (parametres as Record<string, unknown>)[nom]
-    : undefined
 }
 
 interface ExecutionLue {

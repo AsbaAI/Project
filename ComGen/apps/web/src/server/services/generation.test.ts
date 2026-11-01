@@ -18,6 +18,7 @@ import {
   chargerGeneration,
   choisirDestinataires,
   genererVariante,
+  listerAudiencesSansPersona,
   listerPersonas,
 } from './generation'
 import { saisirTexte } from './sources'
@@ -181,11 +182,11 @@ describe('genererVariante', () => {
   })
 
   it('trace chaque agent, en disant qu’il est simulé', async () => {
-    const { varianteId, communicationId } = await communicationPrete()
+    const { varianteId } = await communicationPrete()
     await genererVariante(org.redacteur, { varianteId })
 
     const executions = await clientDeTest(connexion).execution.findMany({
-      where: { communicationId },
+      where: { varianteId },
     })
     expect(executions.map((e) => e.agent).toSorted()).toEqual(['REDACTEUR', 'VERIFICATEUR'])
     for (const execution of executions) {
@@ -371,7 +372,7 @@ describe('genererVariante — orchestration des agents', () => {
 
     // L'échec est tracé : il a coûté du travail, l'historique doit le dire.
     const executions = await clientDeTest(connexion).execution.findMany({
-      where: { communicationId },
+      where: { varianteId },
     })
     expect(executions).toHaveLength(1)
     expect(executions[0]).toMatchObject({ agent: 'REDACTEUR', succes: false })
@@ -381,7 +382,7 @@ describe('genererVariante — orchestration des agents', () => {
   it('un rédacteur qui écrit une valeur à la main est refusé, et rien n’est écrit', async () => {
     // La contrainte cardinale vue du service : quoi que dise l'agent, une
     // date glissée dans un segment libre n'atteint jamais le texte.
-    const { varianteId, communicationId } = await communicationPrete()
+    const { varianteId } = await communicationPrete()
 
     const erreur = await erreurMetier(
       genererVariante(
@@ -429,13 +430,13 @@ describe('genererVariante — orchestration des agents', () => {
     expect(JSON.stringify(variante.contenu)).not.toContain('5 mai 2027')
     expect(await clientDeTest(connexion).affirmation.count({ where: { varianteId } })).toBe(0)
     const executions = await clientDeTest(connexion).execution.findMany({
-      where: { communicationId },
+      where: { varianteId },
     })
     expect(executions.map((e) => [e.agent, e.succes])).toEqual([['REDACTEUR', false]])
   })
 
   it('un vérificateur en panne laisse le texte non écrit, et trace les deux agents', async () => {
-    const { varianteId, communicationId } = await communicationPrete()
+    const { varianteId } = await communicationPrete()
     const avant = await clientDeTest(connexion).variante.findUniqueOrThrow({
       where: { id: varianteId },
     })
@@ -465,7 +466,7 @@ describe('genererVariante — orchestration des agents', () => {
     expect(apres.contenu).toEqual(avant.contenu)
 
     const executions = await clientDeTest(connexion).execution.findMany({
-      where: { communicationId },
+      where: { varianteId },
       orderBy: { creeLe: 'asc' },
     })
     expect(executions.map((e) => [e.agent, e.succes]).toSorted()).toEqual([
@@ -475,7 +476,7 @@ describe('genererVariante — orchestration des agents', () => {
   })
 
   it('une génération annulée n’écrit rien et ne trace aucun agent', async () => {
-    const { varianteId, communicationId } = await communicationPrete()
+    const { varianteId } = await communicationPrete()
     const controleur = new AbortController()
     controleur.abort()
     const evenements: EvenementOrchestration[] = []
@@ -491,7 +492,7 @@ describe('genererVariante — orchestration des agents', () => {
     expect(evenements.at(-1)?.etapes.map((e) => e.etat)).toEqual(['ANNULEE', 'ANNULEE'])
     expect(await clientDeTest(connexion).affirmation.count({ where: { varianteId } })).toBe(0)
     // Aucun agent n'a tourné : rien à tracer.
-    expect(await clientDeTest(connexion).execution.count({ where: { communicationId } })).toBe(0)
+    expect(await clientDeTest(connexion).execution.count({ where: { varianteId } })).toBe(0)
   })
 })
 
@@ -640,6 +641,89 @@ describe('chargerGeneration — agents affichés', () => {
       'VERIFICATEUR',
     ])
     // L'historique, lui, garde tout : quatre agents ont tourné, un a échoué.
-    expect(await clientDeTest(connexion).execution.count({ where: { communicationId } })).toBe(4)
+    expect(await clientDeTest(connexion).execution.count({ where: { varianteId } })).toBe(4)
+  })
+})
+
+async function personaNomme(nom: string) {
+  return clientDeTest(connexion).persona.create({
+    data: {
+      organisationId: org.organisationId,
+      regionId: org.regionId,
+      nom,
+      voix: {},
+      lexique: {},
+      gardeFous: {},
+      exemples: [],
+      canalDefaut: 'COURRIEL',
+      approbateurIds: [],
+    },
+  })
+}
+
+describe('audiences suggérées par la source', () => {
+  const TEXTE_AUDIENCES = [
+    'Les clients doivent renouveler leur clé avant le 12 mars 2026.',
+    'Les fournisseurs seront prévenus le 3 mars 2026.',
+  ].join('\n')
+
+  async function communicationAvecSource() {
+    const { id } = await creerCommunication(org.redacteur, CADRAGE)
+    await saisirTexte(org.redacteur, id, {
+      titre: 'Note',
+      texte: TEXTE_AUDIENCES,
+      confidentialite: 'INTERNE',
+    })
+    return id
+  }
+
+  it('désigne le persona que la source nomme, avec la phrase qui le nomme', async () => {
+    const clients = await personaNomme('Clients grands comptes')
+    const support = await personaNomme('Support client')
+    const id = await communicationAvecSource()
+
+    const personas = await listerPersonas(org.redacteur, id)
+    expect(personas.find((p) => p.id === clients.id)?.suggestion).toMatchObject({
+      extrait: 'Les clients doivent renouveler leur clé avant le 12 mars 2026.',
+    })
+    // « Support client » s'adresse à ceux qui soutiennent les clients.
+    expect(personas.find((p) => p.id === support.id)?.suggestion).toBeNull()
+  })
+
+  it('dit les audiences que la source nomme sans qu’aucun persona leur corresponde', async () => {
+    await personaNomme('Clients grands comptes')
+    const id = await communicationAvecSource()
+
+    const sansPersona = await listerAudiencesSansPersona(org.redacteur, id)
+    expect(sansPersona.map((a) => a.dimension)).toEqual(['Fournisseurs'])
+    expect(sansPersona[0]?.extrait).toBe('Les fournisseurs seront prévenus le 3 mars 2026.')
+  })
+
+  it('ne retient aucun persona d’office : l’agent suggère, l’humain décide', async () => {
+    await personaNomme('Clients grands comptes')
+    const id = await communicationAvecSource()
+    expect(await clientDeTest(connexion).variante.count({ where: { communicationId: id } })).toBe(0)
+  })
+
+  it('enregistre la décision : acceptée si le persona est retenu, refusée sinon', async () => {
+    const clients = await personaNomme('Clients grands comptes')
+    const autre = await personaNomme('Équipes techniques')
+    const id = await communicationAvecSource()
+    const decisions = async () =>
+      Object.fromEntries(
+        (
+          await clientDeTest(connexion).suggestionAudience.findMany({
+            where: { communicationId: id },
+          })
+        ).map((s) => [s.dimension, s.decision]),
+      )
+    expect(await decisions()).toEqual({ Clients: 'EN_ATTENTE', Fournisseurs: 'EN_ATTENTE' })
+
+    await choisirDestinataires(org.redacteur, { communicationId: id, personaIds: [clients.id] })
+    // « Fournisseurs » ne désigne aucun persona : elle ne peut être ni acceptée ni refusée.
+    expect(await decisions()).toEqual({ Clients: 'ACCEPTEE', Fournisseurs: 'EN_ATTENTE' })
+
+    await choisirDestinataires(org.redacteur, { communicationId: id, personaIds: [autre.id] })
+    expect(await decisions()).toEqual({ Clients: 'REFUSEE', Fournisseurs: 'EN_ATTENTE' })
   })
 })

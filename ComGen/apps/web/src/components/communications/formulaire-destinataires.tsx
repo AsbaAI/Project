@@ -7,6 +7,7 @@ import { useActionState } from 'react'
 
 import { actionChoisirDestinataires } from '@/app/[locale]/(app)/communications/actions'
 import { ETAT_INITIAL, cleFormulaire } from '@/app/[locale]/(app)/communications/etat-formulaire'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
 import type { CanalAffiche } from '@/lib/cles-messages'
@@ -82,6 +83,15 @@ export function FormulaireDestinataires({
                   ? t('canal', { canal: libelleCanal(persona.canal) })
                   : t('sansGabarit', { canal: libelleCanal(persona.canal) })}
               </span>
+              {/* L'agent suggère, avec la phrase qui le justifie ; il ne coche rien. */}
+              {persona.suggestion === null ? null : (
+                <span className="mt-1.5 flex flex-col items-start gap-1">
+                  <Badge tone="ai">{t('suggere')}</Badge>
+                  <span className="text-xs text-ink-secondary">
+                    {t('suggereExtrait', { extrait: persona.suggestion.extrait })}
+                  </span>
+                </span>
+              )}
             </span>
           </label>
         ))}

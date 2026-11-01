@@ -7,6 +7,7 @@ import { BoutonTransition } from '@/components/communications/bouton-transition'
 import { CarteFait } from '@/components/communications/carte-fait'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
 import { FormulaireAjoutFait } from '@/components/communications/formulaire-ajout-fait'
+import { PucesAgents } from '@/components/communications/puces-agents'
 import { TexteSource } from '@/components/communications/texte-source'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -16,6 +17,7 @@ import { Progress } from '@/components/ui/progress'
 import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
 import { formaterInstant } from '@/lib/dates'
+import type { CriticiteAffichee, NatureAffichee } from '@/lib/cles-messages'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage, ou404 } from '@/server/pages'
 import { chargerAvancement } from '@/server/services/assistant'
@@ -54,6 +56,25 @@ export default async function FichePage({ params }: PageProps) {
   const validation = transitions.find((tr) => tr.vers === 'PRETE_A_GENERER')
   const peutEditer = verifierDroit(acteur.utilisateur, 'EDITER').autorise
 
+  // Là où la lecture du suggesteur ne rejoint pas le cadrage saisi.
+  const ecarts = sources.flatMap((source) =>
+    source.lecture.ecarts.map((ecart) => ({
+      cle: `${source.id}-${ecart.champ}`,
+      champ: ecart.champ,
+      cadrage: ecart.cadrage,
+      lecture: ecart.lecture,
+      extrait: ecart.extrait,
+    })),
+  )
+  const libelleValeur = (champ: 'nature' | 'criticite', valeur: string): string => {
+    if (champ === 'nature') {
+      const cle = `natures.${valeur}` as `natures.${NatureAffichee}`
+      return t.has(cle) ? t(cle) : valeur
+    }
+    const cle = `criticites.${valeur}` as `criticites.${CriticiteAffichee}`
+    return t.has(cle) ? t(cle) : valeur
+  }
+
   return (
     <>
       <EnTeteCommunication
@@ -89,6 +110,27 @@ export default async function FichePage({ params }: PageProps) {
         </Panel>
       ) : (
         <div className="flex flex-col gap-4">
+          {ecarts.length > 0 ? (
+            <Notice level="info" title={t('fiche.ecarts.title')}>
+              <p>{t('fiche.ecarts.description')}</p>
+              <ul className="mt-2 flex flex-col gap-2">
+                {ecarts.map((ecart) => (
+                  <li key={ecart.cle}>
+                    <span className="font-medium text-ink-primary">
+                      {t('fiche.ecarts.item', {
+                        champ: t(`fiche.ecarts.champs.${ecart.champ}`),
+                        cadrage: libelleValeur(ecart.champ, ecart.cadrage),
+                        lecture: libelleValeur(ecart.champ, ecart.lecture),
+                      })}
+                    </span>
+                    <span className="block text-xs text-ink-secondary">
+                      {t('fiche.ecarts.extrait', { extrait: ecart.extrait })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Notice>
+          ) : null}
           {contradictions.length > 0 ? (
             <Notice
               level="blocking"
@@ -198,7 +240,18 @@ export default async function FichePage({ params }: PageProps) {
                       : t('entree.result.languageUnknown'),
                   ].join(' · ')}
                   footer={
-                    <div className="flex flex-col gap-1 text-xs text-ink-secondary">
+                    <div className="flex flex-col gap-2 text-xs text-ink-secondary">
+                      {source.lecture.agents.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          <p>{t('fiche.sourcePanel.readBy')}</p>
+                          <PucesAgents
+                            agents={source.lecture.agents.map((agent, rang) => ({
+                              id: `${source.id}-${String(rang)}`,
+                              ...agent,
+                            }))}
+                          />
+                        </div>
+                      ) : null}
                       <p>
                         {t('fiche.sourcePanel.frozenOn', {
                           date: formaterInstant(source.figeeLe, locale, fuseau),

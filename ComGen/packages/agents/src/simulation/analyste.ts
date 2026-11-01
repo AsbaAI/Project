@@ -57,11 +57,8 @@ const VOCABULAIRE: readonly { dimension: string; mots: readonly string[]; pertin
   },
   { dimension: 'Exploitation', mots: ['exploitation', 'production', 'ops'], pertinence: 0.7 },
   { dimension: 'Direction', mots: ['direction', 'comité', 'management'], pertinence: 0.6 },
-  {
-    dimension: 'Partenaires',
-    mots: ['partenaire', 'partenaires', 'fournisseur', 'fournisseurs'],
-    pertinence: 0.6,
-  },
+  { dimension: 'Partenaires', mots: ['partenaire', 'partenaires'], pertinence: 0.6 },
+  { dimension: 'Fournisseurs', mots: ['fournisseur', 'fournisseurs'], pertinence: 0.6 },
   { dimension: 'Conformité', mots: ['conformité', 'juridique', 'réglementaire'], pertinence: 0.7 },
   {
     dimension: 'Équipes techniques',

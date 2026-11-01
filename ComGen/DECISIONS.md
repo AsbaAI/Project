@@ -669,8 +669,67 @@ frontière de sécurité — le code du même processus peut lister les symboles
 d'un objet — mais une barrière contre l'usage par mégarde, que le typage
 continue d'assurer.
 
-### Reste à brancher
+### Les trois autres agents lisent la source au dépôt
 
-EXTRACTEUR, SUGGESTEUR et ANALYSTE_IMPACT ne sont toujours appelés par
-aucune route : l'extraction passe encore directement par
-`proposerFaitsCandidats` à la saisie de la source.
+EXTRACTEUR, ANALYSTE_IMPACT et SUGGESTEUR passent par la fabrique et
+l'orchestrateur à chaque source déposée, avant la transaction (on ne tient
+pas une transaction ouverte pendant qu'on attend un agent).
+
+**Chacun tourne seul, pas en chaîne.** Ils lisent la même source sans rien
+se transmettre ; en chaîne, l'échec de l'un annulerait les autres. Or une
+source sans aucune valeur fait légitimement échouer l'extracteur
+(`SOURCE_INEXPLOITABLE`) et l'analyste a encore quelque chose à en dire.
+
+**Seule l'extraction est indispensable.** Un extracteur en panne fait
+échouer le dépôt. Une source dont rien ne se laisse relever n'est pas une
+panne : elle se dépose sans fait, l'échec est tracé, et le rédacteur en
+ajoute à la main. L'analyste et le suggesteur ne font que proposer : leur
+échec est tracé, il ne bloque rien.
+
+**La sortie d'un agent est une proposition, pas une donnée de confiance.**
+Les faits venaient d'une fonction pure dont la valeur est dans sa citation
+par construction ; avec un agent au milieu, plus rien ne le garantit. La
+citation est donc relue dans le texte exact de la source (comme avant) et,
+nouveau, la valeur dans sa citation. Une citation inventée ou une valeur
+absente de sa citation annule tout le dépôt — source, faits, traces. Les
+deux gardes ont un test, et le second a été vérifié en le retirant.
+
+### L'agent suggère, l'humain décide — à trois endroits
+
+- **Audiences.** Chaque persona que la source désigne porte « Suggéré par
+  la source » et la phrase qui le désigne. Aucun n'est coché. Le
+  rapprochement est strict : la dimension doit correspondre au _début_ du
+  nom du persona (« Clients » désigne « Clients grands comptes », pas
+  « Support client », qui s'adresse à ceux qui soutiennent les clients).
+  Mieux vaut une suggestion qui n'allume rien qu'une fausse piste.
+  « Fournisseurs » et « Partenaires » sont deux audiences, pas une.
+- **Audiences sans persona.** Quand la source nomme quelqu'un pour qui
+  aucun destinataire n'existe, l'écran le dit au lieu de le taire.
+  Enregistrer la liste fixe la décision de chaque suggestion qui désigne un
+  persona (acceptée si retenu, refusée sinon) ; celle qui n'en désigne
+  aucun reste en attente, rien ne permet de dire qu'on l'a écartée.
+- **Cadrage.** La lecture du suggesteur est gardée avec la source qu'elle
+  a lue (`Source.cadrageSuggere`, colonne ajoutée par migration). Elle n'est
+  **jamais appliquée** : le cadrage reste ce que le rédacteur a saisi. La
+  fiche signale seulement un écart de nature ou de criticité, avec la
+  phrase qui le motive. « Pas d'avis » n'est pas un désaccord.
+
+### La durée d'une trace est mesurée
+
+Un agent simulé annonce la durée qu'il joue — la somme de ses paliers. À la
+saisie, où rien n'attend, « Extracteur 1 300 ms » était une fiction. La
+durée d'une trace est maintenant celle que l'orchestrateur mesure, pour un
+agent réel comme simulé : l'orchestrateur est l'autorité sur le temps
+écoulé. La fiche affiche « 1 ms · simulé », ce qui est vrai.
+
+### Ce qui reste hors de portée
+
+- **Pas de chronologie en direct à la saisie.** Elle suppose de passer la
+  saisie (téléversement de fichiers, résultat par fichier) en flux, ou
+  d'ajouter une étape d'analyse lancée à la main ; le dépôt reste donc
+  instantané, et ses agents ne se voient qu'après coup, sur la fiche.
+- **Les noms de dimension sont français.** Un persona anglais (« Customers »)
+  n'est jamais désigné ; l'audience tombe alors dans « sans destinataire
+  correspondant ».
+- Le seed des 156 communications ne passe pas par les agents : ses
+  sources n'ont ni trace de lecture ni suggestion.

@@ -309,3 +309,82 @@ describe('ajout manuel d’un fait', () => {
     expect(erreur.details.champs).toEqual({ sourceId: 'invalide' })
   })
 })
+
+async function ficheAvec(
+  cadrage: { nature: 'CHANGE' | 'RELEASE'; criticite: 'COURANTE' | 'IMPORTANTE' },
+  texte: string,
+) {
+  const { id } = await creerCommunication(org.redacteur, {
+    titre: 'Note',
+    nature: cadrage.nature,
+    criticite: cadrage.criticite,
+    portee: 'INTERNE',
+    langue: 'fr',
+    modeEntree: 'TEXTE_SAISI',
+  })
+  await saisirTexte(org.redacteur, id, { titre: 'Source', texte, confidentialite: 'INTERNE' })
+  return (await chargerFiche(org.redacteur, id)).sources[0]
+}
+
+describe('chargerFiche — lecture des sources par les agents', () => {
+  const MIGRATION = [
+    'Objet : migration du portail vers la version 4.2',
+    'La migration aura lieu le 12 mars 2026.',
+    'Le service sera indisponible pendant 45 minutes.',
+  ].join('\n')
+
+  it('dit quels agents ont lu la source, et qu’ils sont simulés', async () => {
+    const source = await ficheAvec({ nature: 'CHANGE', criticite: 'IMPORTANTE' }, MIGRATION)
+    expect(source?.lecture.agents.map((a) => a.agent).toSorted()).toEqual([
+      'ANALYSTE_IMPACT',
+      'EXTRACTEUR',
+      'SUGGESTEUR',
+    ])
+    for (const agent of source?.lecture.agents ?? []) {
+      expect(agent).toMatchObject({ simule: true, succes: true })
+    }
+  })
+
+  it('dit l’échec de l’extracteur sur une source sans valeur, avec sa raison', async () => {
+    const source = await ficheAvec(
+      { nature: 'CHANGE', criticite: 'COURANTE' },
+      'Le portail évolue pour mieux servir les clients.',
+    )
+    const extracteur = source?.lecture.agents.find((a) => a.agent === 'EXTRACTEUR')
+    expect(extracteur?.succes).toBe(false)
+    expect(extracteur?.raison).toBeTruthy()
+  })
+
+  it('ne rapporte aucun écart quand la lecture du suggesteur rejoint le cadrage', async () => {
+    const source = await ficheAvec({ nature: 'CHANGE', criticite: 'IMPORTANTE' }, MIGRATION)
+    expect(source?.lecture.ecarts).toEqual([])
+  })
+
+  it('rapporte chaque écart entre le cadrage saisi et la lecture, avec la phrase qui le motive', async () => {
+    const source = await ficheAvec({ nature: 'RELEASE', criticite: 'COURANTE' }, MIGRATION)
+    expect(source?.lecture.ecarts).toEqual([
+      {
+        champ: 'nature',
+        cadrage: 'RELEASE',
+        lecture: 'CHANGE',
+        extrait: 'Objet : migration du portail vers la version 4.2',
+      },
+      {
+        champ: 'criticite',
+        cadrage: 'COURANTE',
+        lecture: 'IMPORTANTE',
+        // La première phrase qui dit quelque chose décide : « migration » suffit.
+        extrait: 'Objet : migration du portail vers la version 4.2',
+      },
+    ])
+  })
+
+  it('ne rapporte pas d’écart quand le suggesteur n’a rien à proposer', async () => {
+    // Pas d'avis plutôt qu'un avis deviné : « rien » n'est pas un désaccord.
+    const source = await ficheAvec(
+      { nature: 'RELEASE', criticite: 'COURANTE' },
+      'La version 4.2 est disponible depuis le 12 mars 2026.',
+    )
+    expect(source?.lecture.ecarts).toEqual([])
+  })
+})

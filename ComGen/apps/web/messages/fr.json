@@ -422,11 +422,22 @@
         "frozenOn": "Figée le {date}",
         "language": "Langue détectée",
         "file": "Fichier conservé",
-        "noText": "Aucun texte."
+        "noText": "Aucun texte.",
+        "readBy": "Lue par"
       },
       "next": {
         "title": "Valider la fiche",
         "description": "La fiche est validée quand chaque fait est revu et que les contradictions sont tranchées. Le choix des personas suit."
+      },
+      "ecarts": {
+        "title": "Le cadrage et la lecture de la source ne se rejoignent pas",
+        "description": "Le suggesteur propose, il ne décide pas : le cadrage reste celui que vous avez saisi.",
+        "champs": {
+          "nature": "Nature",
+          "criticite": "Criticité"
+        },
+        "item": "{champ} : cadrage « {cadrage} », lecture « {lecture} »",
+        "extrait": "Dans la source : « {extrait} »"
       }
     },
     "motifs": {
@@ -435,7 +446,7 @@
       "AUCUN_FAIT_CONFIRME": "Aucun fait n'est confirmé.",
       "FAIT_NON_REVU": "Des faits restent à revoir : confirmez-les ou retirez-les.",
       "CONTRADICTION_NON_TRANCHEE": "Une contradiction entre sources n'est pas tranchée.",
-      "AUCUN_PERSONA": "Aucun persona n'est choisi : le choix des personas n'est pas encore disponible dans cette version.",
+      "AUCUN_PERSONA": "Aucun destinataire n'est retenu : choisissez-les à l'étape « Destinataires ».",
       "PERSONA_SANS_TEMPLATE": "Un persona n'a pas de template.",
       "AUCUNE_VARIANTE": "Aucune variante n'a été générée.",
       "CONTROLE_BLOQUANT_NON_RESOLU": "Un contrôle bloquant n'est pas résolu.",
@@ -665,6 +676,13 @@
     "vide": {
       "title": "Aucune audience",
       "description": "Aucun persona actif n'est défini pour votre organisation."
+    },
+    "suggere": "Suggéré par la source",
+    "suggereExtrait": "La source dit : « {extrait} »",
+    "sansPersona": {
+      "title": "La source nomme des audiences sans destinataire correspondant",
+      "description": "Aucun persona actif ne porte ce nom. Vous pouvez poursuivre sans eux, ou demander à un administrateur d'en créer un.",
+      "item": "{dimension} — « {extrait} »"
     }
   },
   "engine": {
@@ -739,7 +757,8 @@
       },
       "secondes": "{secondes} s",
       "echec": "La génération s'est arrêtée"
-    }
+    },
+    "agentEchec": "échec"
   },
   "generator": {
     "title": "Générateur",

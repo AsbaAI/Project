@@ -24,12 +24,13 @@ const TEXTE_SOURCE = [
 ].join('\n')
 
 /** `e2e/captures/<projet>/<nom>.png`, relu avant de déclarer l'écran fini. */
-async function capturer(page: Page, nom: string) {
+async function capturer(page: Page, nom: string, pleinePage = false) {
   await page.screenshot({
     path: fileURLToPath(
       new URL(`./captures/${test.info().project.name}/${nom}.png`, import.meta.url),
     ),
     animations: 'disabled',
+    fullPage: pleinePage,
   })
 }
 
@@ -130,6 +131,25 @@ test('de la source au texte généré : chaque valeur vient de la source, mot po
   await expect(page).toHaveURL(/\/faits$/)
   await attendreRendu(page)
 
+  // Trois agents ont lu la source, et la fiche le dit — simulés, et c'est écrit.
+  await expect(page.getByText('Lue par')).toBeVisible()
+  await expect(page.getByText('Extracteur').first()).toBeVisible()
+  await expect(page.getByText("Analyste d'impact").first()).toBeVisible()
+  await expect(page.getByText('Suggesteur').first()).toBeVisible()
+  await expect(page.getByText('simulé').first()).toBeVisible()
+
+  // Le suggesteur lit « fenêtre de maintenance » : un changement. Le cadrage
+  // dit « Livraison ». L'écart est signalé, avec la phrase qui le motive — et
+  // le cadrage, lui, n'a pas bougé.
+  await expect(
+    page.getByText('Le cadrage et la lecture de la source ne se rejoignent pas'),
+  ).toBeVisible()
+  await expect(
+    page.getByText(/Nature\s*: cadrage «\s*Livraison\s*», lecture «\s*Changement/),
+  ).toBeVisible()
+  await expect(page.getByText('Livraison').first()).toBeVisible()
+  await capturer(page, 'fiche-lecture-agents', true)
+
   // 3. La revue de la fiche de faits n'est pas sautable : tant qu'un fait
   // reste à revoir, l'étape suivante n'est pas atteignable.
   const assistant = page.getByRole('navigation', { name: 'Étapes de la génération' })
@@ -147,6 +167,17 @@ test('de la source au texte généré : chaque valeur vient de la source, mot po
   await assistant.getByRole('link', { name: /Destinataires/ }).click()
   await expect(page).toHaveURL(/\/destinataires$/)
   await attendreRendu(page)
+
+  // La source nomme « les clients » ; aucun persona de cette organisation ne
+  // porte ce nom. L'écran le dit au lieu de le taire, et ne coche rien.
+  await expect(
+    page.getByText('La source nomme des audiences sans destinataire correspondant'),
+  ).toBeVisible()
+  // La phrase citée est la première qui nomme l'audience.
+  await expect(page.getByText(/Clients — «\s*Pendant la mise à jour/)).toBeVisible()
+  await expect(page.getByRole('checkbox', { checked: true })).toHaveCount(0)
+  await capturer(page, 'destinataires-audiences', true)
+
   await page.getByRole('checkbox').first().check()
   await page.getByRole('button', { name: 'Enregistrer les destinataires' }).click()
   await attendreRendu(page)
