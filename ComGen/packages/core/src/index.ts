@@ -5,6 +5,7 @@
  * types partagés, machine à états, contrôles déterministes. Aucun appel
  * réseau, aucun modèle de langage, aucune base de données.
  */
+export * from './agents/consignes.ts'
 export * from './agents/roles.ts'
 export * from './agents/independance.ts'
 export * from './domaine/enumerations.ts'

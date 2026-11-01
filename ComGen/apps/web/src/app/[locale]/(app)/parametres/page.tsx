@@ -1,4 +1,12 @@
-import { Bot, LayoutTemplate, type LucideIcon, Mail, PlugZap, UsersRound } from 'lucide-react'
+import {
+  Bot,
+  LayoutTemplate,
+  type LucideIcon,
+  Mail,
+  PlugZap,
+  UsersRound,
+  Workflow,
+} from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
@@ -18,11 +26,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const SECTIONS: readonly {
-  cle: 'models' | 'personas' | 'lists' | 'templates'
+  cle: 'agentsCard' | 'models' | 'personas' | 'lists' | 'templates'
   icone: LucideIcon
   /** Absent : l'écran n'existe pas encore, la carte l'annonce sans lien. */
-  href?: '/parametres/modeles' | '/parametres/personas' | '/parametres/listes'
+  href?:
+    '/parametres/agents' | '/parametres/modeles' | '/parametres/personas' | '/parametres/listes'
 }[] = [
+  { cle: 'agentsCard', icone: Workflow, href: '/parametres/agents' },
   { cle: 'models', icone: Bot, href: '/parametres/modeles' },
   { cle: 'personas', icone: UsersRound, href: '/parametres/personas' },
   { cle: 'lists', icone: Mail, href: '/parametres/listes' },

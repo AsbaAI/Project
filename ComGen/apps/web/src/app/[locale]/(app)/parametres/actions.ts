@@ -3,6 +3,7 @@
 import { estErreurItsm } from '@comgen/connecteurs'
 
 import { coche, executer, lignes, prochainJeton, texte } from '@/server/actions-formulaire'
+import { enregistrerConsigne } from '@/server/services/agents'
 import { enregistrerConfigItsm, testerConfigItsm } from '@/server/services/itsm'
 import { modifierListe, modifierPersona } from '@/server/services/parametrage'
 
@@ -128,6 +129,20 @@ export async function actionModifierListe(
       acteur,
       texte(formulaire, 'listeId') ?? '',
       lignes(formulaire, 'destinataires'),
+    )
+  })
+}
+
+/** Consigne d'un agent. Le service refuse ce que la contrainte cardinale interdit. */
+export async function actionEnregistrerConsigne(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  return executer(formulaire, async (acteur) => {
+    await enregistrerConsigne(
+      acteur,
+      texte(formulaire, 'role') ?? '',
+      texte(formulaire, 'consigne') ?? '',
     )
   })
 }

@@ -1,4 +1,4 @@
-import type { MotifRefus } from '@comgen/core'
+import type { CodeConsigne, MotifRefus } from '@comgen/core'
 import type { UtilisateurConnecte, ContexteDonnees } from '@comgen/db'
 
 /**
@@ -33,11 +33,14 @@ export type CodeErreurMetier =
   | 'FICHIER_REFUSE'
   /** Le rédacteur, l'injection ou la relecture des valeurs a refusé de produire. */
   | 'GENERATION_REFUSEE'
+  /** Une consigne d'agent demande ce que la contrainte cardinale interdit. */
+  | 'CONSIGNE_REFUSEE'
 
 export interface DetailsErreurMetier {
   /** Champ de formulaire → code de message. */
   champs?: Readonly<Record<string, string>>
-  motifs?: readonly MotifRefus[]
+  /** Motifs de refus : ceux de la machine à états, ou d'une consigne refusée. */
+  motifs?: readonly (MotifRefus | CodeConsigne)[]
 }
 
 export class ErreurMetier extends Error {

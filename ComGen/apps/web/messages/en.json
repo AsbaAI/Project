@@ -1111,6 +1111,10 @@
         "title": "ITSM connector",
         "description": "ServiceNow instance, authentication and ticket masking."
       },
+      "agentsCard": {
+        "title": "Agents",
+        "description": "The agent workflow and each one's instruction."
+      },
       "models": {
         "title": "AI models",
         "description": "Provider and model, per agent. Keys stay in the vault."
@@ -1217,6 +1221,100 @@
     "restricted": {
       "title": "Administrators only",
       "description": "Only an administrator can change these settings. You can see their effect on the generation and approval screens."
+    },
+    "agents": {
+      "title": "Agents",
+      "description": "The agent workflow, step by step: who reads, who writes, who checks, and the instruction each one will receive.",
+      "legend": "Agent workflow",
+      "etapes": {
+        "entree": "At source entry",
+        "generation": "At generation",
+        "controle": "At checks"
+      },
+      "etats": {
+        "simule": "Simulated",
+        "code": "Deterministic code",
+        "absent": "Not delivered yet"
+      },
+      "etatsDetail": {
+        "simule": "This agent really runs in the workflow, but with no model: its output is produced by the simulation, and every trace says so.",
+        "code": "This role calls no model: it is applied by deterministic code, which can be read and tested. It therefore has no instruction.",
+        "absent": "This role is planned by the specification but no agent plays it today. Nothing is configurable until it exists."
+      },
+      "roles": {
+        "EXTRACTEUR": {
+          "nom": "Extractor",
+          "quoi": "Picks candidate facts out of the source, with their exact quotation.",
+          "entree": "Frozen source text",
+          "sortie": "Facts quoted word for word"
+        },
+        "ANALYSTE_IMPACT": {
+          "nom": "Impact analyst",
+          "quoi": "Names the audiences the source points to, with the sentence that points to them.",
+          "entree": "Frozen source text",
+          "sortie": "Suggested audiences"
+        },
+        "SUGGESTEUR": {
+          "nom": "Suggester",
+          "quoi": "Proposes a framing read from the source; it never applies it.",
+          "entree": "Frozen source text",
+          "sortie": "Suggested nature, criticality, title"
+        },
+        "REDACTEUR": {
+          "nom": "Writer",
+          "quoi": "Composes the text as segments and fact references: it writes no value.",
+          "entree": "Selected facts, persona voice",
+          "sortie": "Paragraphs and references"
+        },
+        "VERIFICATEUR": {
+          "nom": "Verifier",
+          "quoi": "Ties every sentence to its supporting facts, or flags it as unsupported.",
+          "entree": "Produced text, selected facts",
+          "sortie": "Verdict per statement"
+        },
+        "GARDIEN": {
+          "nom": "Guardian",
+          "quoi": "Applies the persona guardrails: forbidden lexicon, forbidden topics, confidentiality ceiling.",
+          "entree": "Produced text, persona",
+          "sortie": "Blocking checks"
+        },
+        "CORRECTEUR": {
+          "nom": "Corrector",
+          "quoi": "Will patch flagged segments, never the whole document.",
+          "entree": "Flagged segments",
+          "sortie": "Corrected segments"
+        },
+        "ARBITRE": {
+          "nom": "Arbiter",
+          "quoi": "Will settle disagreements between agents.",
+          "entree": "Diverging findings",
+          "sortie": "Traced decision"
+        }
+      },
+      "inspecteur": {
+        "title": "Agent",
+        "quoi": "What it does",
+        "entree": "Receives",
+        "sortie": "Returns",
+        "choisir": "Pick an agent in the workflow to see its sheet and its instruction."
+      },
+      "consigne": {
+        "title": "Instruction",
+        "hint": "The text sent to the model. Between 20 and 4000 characters.",
+        "effet": "The instruction is saved and versioned right now. It goes to no model while no real agent exists: simulated agents read none, and their trace says “simulation”, never your version.",
+        "save": "Save instruction",
+        "saved": "Instruction saved as version {version}.",
+        "version": "Version {version}",
+        "aucune": "No instruction saved.",
+        "modifiePar": "Changed by {nom} on {date}",
+        "refus": "Instruction refused: it asks for what the application forbids.",
+        "motifs": {
+          "VALEUR_ECRITE": "It asks the model to write a value (number, date, version, identifier). Values are injected by code, never written by a model.",
+          "INVENTION": "It asks to guess, estimate or fill in what the source does not say.",
+          "SOURCE_IGNOREE": "It asks to bypass the source or the facts.",
+          "TEXTE_LIBRE": "It asks for free-text output: an agent's output is a validated structure."
+        }
+      }
     }
   },
   "states": {

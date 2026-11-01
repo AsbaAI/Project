@@ -1111,6 +1111,10 @@
         "title": "Connecteur ITSM",
         "description": "Instance ServiceNow, authentification et masquage des tickets."
       },
+      "agentsCard": {
+        "title": "Agents",
+        "description": "Le parcours des agents et la consigne de chacun."
+      },
       "models": {
         "title": "Modèles d'IA",
         "description": "Fournisseur et modèle, par agent. Les clés restent dans le coffre."
@@ -1217,6 +1221,100 @@
     "restricted": {
       "title": "Réservé aux administrateurs",
       "description": "Seul un administrateur règle ces paramètres. Vous pouvez en lire l'effet sur les écrans de génération et d'approbation."
+    },
+    "agents": {
+      "title": "Agents",
+      "description": "Le parcours des agents, étape par étape : qui lit, qui rédige, qui vérifie, et la consigne que chacun recevra.",
+      "legend": "Parcours des agents",
+      "etapes": {
+        "entree": "À l'entrée des sources",
+        "generation": "À la génération",
+        "controle": "Aux contrôles"
+      },
+      "etats": {
+        "simule": "Simulé",
+        "code": "Code déterministe",
+        "absent": "Pas encore livré"
+      },
+      "etatsDetail": {
+        "simule": "Cet agent tourne réellement dans le parcours, mais sans modèle : sa sortie est fabriquée par la simulation, et chaque trace le dit.",
+        "code": "Ce rôle n'appelle aucun modèle : il est appliqué par du code déterministe, qui se lit et se teste. Il n'a donc pas de consigne.",
+        "absent": "Ce rôle est prévu par la spécification mais aucun agent ne le joue aujourd'hui. Rien ne se règle tant qu'il n'existe pas."
+      },
+      "roles": {
+        "EXTRACTEUR": {
+          "nom": "Extracteur",
+          "quoi": "Relève dans la source les faits candidats et leur citation exacte.",
+          "entree": "Texte figé de la source",
+          "sortie": "Faits cités mot pour mot"
+        },
+        "ANALYSTE_IMPACT": {
+          "nom": "Analyste d'impact",
+          "quoi": "Désigne les audiences que la source nomme, avec la phrase qui les désigne.",
+          "entree": "Texte figé de la source",
+          "sortie": "Audiences suggérées"
+        },
+        "SUGGESTEUR": {
+          "nom": "Suggesteur",
+          "quoi": "Propose un cadrage lu dans la source ; il ne l'applique jamais.",
+          "entree": "Texte figé de la source",
+          "sortie": "Nature, criticité, titre suggérés"
+        },
+        "REDACTEUR": {
+          "nom": "Rédacteur",
+          "quoi": "Compose le texte en segments et en références de faits : il n'écrit aucune valeur.",
+          "entree": "Faits retenus, voix du persona",
+          "sortie": "Paragraphes et références"
+        },
+        "VERIFICATEUR": {
+          "nom": "Vérificateur",
+          "quoi": "Rattache chaque phrase à ses faits d'appui, ou la signale sans appui.",
+          "entree": "Texte produit, faits retenus",
+          "sortie": "Verdict par affirmation"
+        },
+        "GARDIEN": {
+          "nom": "Gardien",
+          "quoi": "Applique les garde-fous du persona : lexique interdit, sujets interdits, plafond de confidentialité.",
+          "entree": "Texte produit, persona",
+          "sortie": "Contrôles bloquants"
+        },
+        "CORRECTEUR": {
+          "nom": "Correcteur",
+          "quoi": "Corrigera les segments signalés, jamais le document entier.",
+          "entree": "Segments signalés",
+          "sortie": "Segments corrigés"
+        },
+        "ARBITRE": {
+          "nom": "Arbitre",
+          "quoi": "Tranchera les désaccords entre agents.",
+          "entree": "Constats divergents",
+          "sortie": "Décision tracée"
+        }
+      },
+      "inspecteur": {
+        "title": "Agent",
+        "quoi": "Ce qu'il fait",
+        "entree": "Reçoit",
+        "sortie": "Rend",
+        "choisir": "Choisissez un agent dans le parcours pour voir sa fiche et sa consigne."
+      },
+      "consigne": {
+        "title": "Consigne",
+        "hint": "Le texte envoyé au modèle. Entre 20 et 4000 caractères.",
+        "effet": "La consigne est enregistrée et versionnée dès maintenant. Elle ne part vers aucun modèle tant qu'aucun agent réel n'existe : les agents simulés n'en lisent pas, et leur trace dit « simulation », jamais votre version.",
+        "save": "Enregistrer la consigne",
+        "saved": "Consigne enregistrée en version {version}.",
+        "version": "Version {version}",
+        "aucune": "Aucune consigne enregistrée.",
+        "modifiePar": "Modifiée par {nom} le {date}",
+        "refus": "Consigne refusée : elle demande ce que l'application interdit.",
+        "motifs": {
+          "VALEUR_ECRITE": "Elle demande au modèle d'écrire une valeur (nombre, date, version, identifiant). Les valeurs sont injectées par du code, jamais écrites par un modèle.",
+          "INVENTION": "Elle demande de deviner, d'estimer ou de combler ce que la source ne dit pas.",
+          "SOURCE_IGNOREE": "Elle demande de passer outre la source ou les faits.",
+          "TEXTE_LIBRE": "Elle demande une sortie en texte libre : la sortie d'un agent est une structure validée."
+        }
+      }
     }
   },
   "states": {

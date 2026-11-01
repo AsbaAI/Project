@@ -261,6 +261,7 @@ model Organisation {
   entites        Entite[]
   listes         ListeDiffusion[]
   connecteurItsm ConnecteurItsm?
+  consignesAgent ConsigneAgent[]
 }
 
 model Region {
@@ -319,6 +320,7 @@ model Utilisateur {
   communicationsRedigees Communication[]  @relation("AuteurCommunication")
   amendements            AmendementFait[]
   approbations           Approbation[]
+  consignesAgent         ConsigneAgent[]  @relation("ConsignesModifiees")
   versionsTexte          VersionTexte[]
 
   @@index([organisationId])
@@ -392,6 +394,31 @@ model ConnecteurItsm {
   modifieLe         DateTime  @updatedAt
 
   organisation Organisation @relation(fields: [organisationId], references: [id])
+}
+
+/// Consigne d'un agent, par organisation et par rôle (§8).
+///
+/// Le TEXTE de la consigne vit ici ; son identifiant versionné
+/// (`org/<role>@<version>`) est ce qui voyage dans la trace d'exécution.
+/// `version` s'incrémente à chaque texte différent : une trace renvoie
+/// toujours à ce qui a réellement été envoyé.
+model ConsigneAgent {
+  id             String   @id @default(cuid())
+  organisationId String
+  role           RoleAgent
+  consigne       String   @db.Text
+  /// Incrémentée à chaque modification du texte.
+  version        Int      @default(1)
+  actif          Boolean  @default(true)
+  modifieParId   String?
+  creeLe         DateTime @default(now())
+  modifieLe      DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  modifiePar   Utilisateur? @relation("ConsignesModifiees", fields: [modifieParId], references: [id])
+
+  @@unique([organisationId, role])
+  @@index([organisationId])
 }
 
 model Source {

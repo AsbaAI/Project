@@ -957,3 +957,33 @@ qui est réglable, et ce que chaque réglage FAIT réellement :
 Le seed écrivait `registre: 'professional'` et `personne: 'you'` sur les
 personas anglophones. Ces clés étant devenues des codes, le seed est aligné
 sur l'énumération ; le ton et le plan restent dans la langue de l'audience.
+
+## 2026-11-01 — Écran des agents : le parcours, et leurs consignes
+
+Le propriétaire a demandé un parcours d'agents visuel et cliquable, et le
+réglage de leurs prompts.
+
+- **Le graphe dit la vérité, pas une ambition.** Chaque rôle porte son état
+  réel : `simule` (il tourne, sans modèle), `code` (le GARDIEN, du code
+  déterministe, donc sans consigne), `absent` (déclaré par la spécification,
+  joué par personne). La table est écrite à la main dans
+  `services/agents.ts` et non déduite : un test vérifie qu'aucun rôle du
+  domaine n'y manque, et le jour où un agent réel arrivera, la table et la
+  fabrique devront bouger ensemble.
+- **La sélection vit dans l'adresse** (`?agent=`), pas dans un état de
+  composant : l'écran se partage, se recharge et marche sans script.
+- **La consigne est réelle, son effet est daté.** Elle est enregistrée,
+  versionnée (`ConsigneAgent`, version incrémentée par un déclencheur SQL
+  dès que le texte change) et attribuée. Elle ne part vers aucun modèle tant
+  qu'aucun agent réel n'existe, et l'écran l'écrit : les agents simulés n'en
+  lisent pas, et leur trace dit `simulation/…`, jamais la version de
+  l'organisation. Un champ qui ne ferait rien serait un faux bouton ; un
+  champ qui enregistre vraiment et dit quand il agira, non.
+- **Une consigne peut être refusée.** `verifierConsigne` (core, code pur)
+  cherche quatre demandes interdites : écrire une valeur, inventer, ignorer
+  la source, répondre en texte libre. Un seul constat suffit à refuser
+  l'enregistrement, avec la phrase fautive. Le programme ne peut pas
+  empêcher un modèle d'obéir à une telle consigne ; il peut refuser de la
+  garder.
+- **Limite assumée** : la détection est lexicale, en français. Une consigne
+  qui demande la même chose avec d'autres mots passera.

@@ -181,6 +181,11 @@ packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
   part en **code** traduisible, jamais en message technique : le motif d'un
   refus de droit et le message d'une exception étrangère ne sortent pas du
   serveur.
+- **Consignes d'agent** : le texte vit en base (`ConsigneAgent`, une par
+  organisation et par rôle), versionné par un déclencheur SQL ; seul
+  l'identifiant `org/<role>@<version>` voyage dans une trace. Une consigne
+  est refusée par `verifierConsigne` (core) si elle demande d'écrire une
+  valeur, d'inventer, d'ignorer la source ou de répondre en texte libre.
 - **Agents** : les services passent par `fabriqueAgents()` (jamais
   `agentsSimules()` en direct) et par `orchestrer()`. Les délais de la
   simulation sont injectés (`attendre`) au bord du serveur, pas dans
