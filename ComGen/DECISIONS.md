@@ -987,3 +987,26 @@ réglage de leurs prompts.
   garder.
 - **Limite assumée** : la détection est lexicale, en français. Une consigne
   qui demande la même chose avec d'autres mots passera.
+
+## 2026-11-01 — Gabarits : une bibliothèque, et des exemples à installer
+
+- **L'écran commence par les canaux servis.** Un gabarit n'est pas
+  décoratif : sans gabarit actif pour son canal, un persona fait refuser la
+  génération (`PERSONA_SANS_TEMPLATE`). La première ligne de l'écran dit
+  donc, pour chacun des quatre canaux, quel gabarit le sert — ou qu'aucun ne
+  le sert.
+- **Huit exemples prêts à l'emploi** (`core/domaine/gabarits.ts`) : courriel
+  HTML, courriel texte, newsletter, note PDF, message instantané, article de
+  portail, et deux équivalents anglais. Ce sont des DÉPARTS : aucun ne porte
+  de marque, de couleur ni de nom d'entreprise — une mise en page marquée
+  serait à refaire avant le premier envoi. Installer en COPIE le corps et
+  les emplacements : le catalogue n'est pas une dépendance vivante.
+- **Un gabarit se vérifie.** `verifierGabarit` constate les désaccords entre
+  le corps et ses emplacements : un emplacement obligatoire jamais appelé ne
+  sera jamais rempli, un `{{trou}}` non déclaré partirait tel quel dans un
+  message. Un test vérifie que chaque exemple du catalogue se tient.
+- **Le corps est montré, jamais rendu.** Afficher le HTML d'un gabarit comme
+  une page donnerait à croire que c'est le résultat final ; celui-ci
+  appartient à l'envoi. L'écran le dit.
+- **Hors périmètre** : l'édition du corps depuis l'interface (le
+  constructeur, demandé à part) et le rendu final HTML/PDF.

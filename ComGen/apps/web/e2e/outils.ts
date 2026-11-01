@@ -38,6 +38,7 @@ export const PAGES = [
 export const PAGES_ADMIN = [
   { nom: 'admin-itsm', chemin: '/parametres/itsm' },
   { nom: 'admin-agents', chemin: '/parametres/agents' },
+  { nom: 'admin-gabarits', chemin: '/gabarits' },
   { nom: 'admin-agent-redacteur', chemin: '/parametres/agents?agent=REDACTEUR' },
   { nom: 'admin-personas', chemin: '/parametres/personas' },
   { nom: 'admin-listes', chemin: '/parametres/listes' },

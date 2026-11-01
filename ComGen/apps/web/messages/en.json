@@ -1342,11 +1342,74 @@
   },
   "templates": {
     "title": "Templates",
-    "description": "The layouts a communication can inherit from.",
-    "empty": {
-      "title": "The library arrives at step 5",
-      "description": "The schema already holds templates and their slots, but no screen reads them yet. Rather than an empty list that would read as “no template exists”, this page says where things stand."
-    }
+    "description": "The layouts a communication inherits. A channel with no active template refuses generation.",
+    "canaux": {
+      "title": "Served channels",
+      "description": "The template chosen for each channel, in the domain's order of preference.",
+      "aucun": "No active template",
+      "sert": "Serves: {canaux}"
+    },
+    "bibliotheque": {
+      "title": "Your templates",
+      "empty": "No template yet. Install an example below.",
+      "version": "Version {version}",
+      "inactif": "Inactive",
+      "variantes": "{count, plural, =0 {No variant} one {# variant} other {# variants}}",
+      "emplacements": "{count, plural, one {# placeholder} other {# placeholders}}",
+      "activer": "Activate",
+      "desactiver": "Deactivate",
+      "apercu": "Template body",
+      "region": "Region: {nom}"
+    },
+    "constats": {
+      "title": "This template does not hold together",
+      "EMPLACEMENT_ABSENT": "The required placeholder “{cle}” is never called: it will never be filled.",
+      "APPEL_INCONNU": "The body calls “{cle}”, which is not declared: it would go out as written.",
+      "CLE_INVALIDE": "The key “{cle}” has an invalid shape (letters and digits, 40 characters at most).",
+      "CORPS_VIDE": "The body is empty."
+    },
+    "modeles": {
+      "title": "Ready-to-use examples",
+      "description": "Starting points, not a standard: install one, then change it. None carries a brand or a colour.",
+      "installe": "Already installed",
+      "installer": "Install",
+      "intitule": "Template name",
+      "region": "Region",
+      "formats": {
+        "MAIL_HTML": "HTML email",
+        "MAIL_TEXTE": "Plain-text email",
+        "PDF": "PDF note",
+        "NEWSLETTER": "Newsletter",
+        "MESSAGE_INSTANTANE": "Instant message",
+        "ARTICLE": "Portal article",
+        "UNE_PAGE": "One-pager"
+      },
+      "langues": {
+        "fr": "French",
+        "en": "English"
+      },
+      "noms": {
+        "courriel-html-fr": "Courriel HTML",
+        "courriel-texte-fr": "Courriel texte",
+        "newsletter-fr": "Newsletter mensuelle",
+        "note-interne-fr": "Note interne",
+        "message-instantane-fr": "Message instantané",
+        "article-portail-fr": "Article de portail",
+        "courriel-html-en": "HTML email",
+        "note-interne-en": "Internal note"
+      },
+      "quoi": {
+        "courriel-html-fr": "Subject, sender, body, signature and unsubscribe notice. The everyday email.",
+        "courriel-texte-fr": "The same in plain text, for clients that do not render HTML.",
+        "newsletter-fr": "Period, standfirst, articles and a “key points” box: a recurring edition.",
+        "note-interne-fr": "Reference, issuer, recipients and effective date up front: the note that stands as record.",
+        "message-instantane-fr": "Three sentences at most, for Teams or equivalent.",
+        "article-portail-fr": "Section, standfirst and body: the article published on the intranet.",
+        "courriel-html-en": "The everyday email, in English.",
+        "note-interne-en": "The internal note that stands as record, in English."
+      }
+    },
+    "rendu": "The template is attached to every produced version; its final rendering (HTML, PDF) comes with sending. Here, the body is shown as stored."
   },
   "theme": {
     "label": "Theme",

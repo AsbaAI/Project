@@ -1342,11 +1342,74 @@
   },
   "templates": {
     "title": "Gabarits",
-    "description": "Les mises en page dont une communication peut hériter.",
-    "empty": {
-      "title": "La bibliothèque arrive à l’étape 5",
-      "description": "Le schéma porte déjà les gabarits et leurs emplacements, mais aucun écran ne les lit encore. Plutôt qu’une liste vide qui se lirait comme « aucun gabarit n’existe », cette page dit où on en est."
-    }
+    "description": "Les mises en page dont une communication hérite. Un canal sans gabarit actif refuse la génération.",
+    "canaux": {
+      "title": "Canaux servis",
+      "description": "Le gabarit retenu pour chaque canal, dans l'ordre de préférence du domaine.",
+      "aucun": "Aucun gabarit actif",
+      "sert": "Sert : {canaux}"
+    },
+    "bibliotheque": {
+      "title": "Vos gabarits",
+      "empty": "Aucun gabarit pour l'instant. Installez un exemple ci-dessous.",
+      "version": "Version {version}",
+      "inactif": "Inactif",
+      "variantes": "{count, plural, =0 {Aucune variante} one {# variante} other {# variantes}}",
+      "emplacements": "{count, plural, one {# emplacement} other {# emplacements}}",
+      "activer": "Activer",
+      "desactiver": "Désactiver",
+      "apercu": "Corps du gabarit",
+      "region": "Région : {nom}"
+    },
+    "constats": {
+      "title": "Ce gabarit ne se tient pas",
+      "EMPLACEMENT_ABSENT": "L'emplacement obligatoire « {cle} » n'est appelé nulle part : il ne sera jamais rempli.",
+      "APPEL_INCONNU": "Le corps appelle « {cle} », qui n'est pas déclaré : il partirait tel quel.",
+      "CLE_INVALIDE": "La clé « {cle} » n'a pas une forme admise (lettres et chiffres, 40 signes au plus).",
+      "CORPS_VIDE": "Le corps est vide."
+    },
+    "modeles": {
+      "title": "Exemples prêts à l'emploi",
+      "description": "Des départs, pas une norme : installez-en un, puis modifiez-le. Aucun ne porte de marque ni de couleur.",
+      "installe": "Déjà installé",
+      "installer": "Installer",
+      "intitule": "Nom du gabarit",
+      "region": "Région",
+      "formats": {
+        "MAIL_HTML": "Courriel HTML",
+        "MAIL_TEXTE": "Courriel texte",
+        "PDF": "Note PDF",
+        "NEWSLETTER": "Newsletter",
+        "MESSAGE_INSTANTANE": "Message instantané",
+        "ARTICLE": "Article de portail",
+        "UNE_PAGE": "Une page"
+      },
+      "langues": {
+        "fr": "Français",
+        "en": "Anglais"
+      },
+      "noms": {
+        "courriel-html-fr": "Courriel HTML",
+        "courriel-texte-fr": "Courriel texte",
+        "newsletter-fr": "Newsletter mensuelle",
+        "note-interne-fr": "Note interne",
+        "message-instantane-fr": "Message instantané",
+        "article-portail-fr": "Article de portail",
+        "courriel-html-en": "HTML email",
+        "note-interne-en": "Internal note"
+      },
+      "quoi": {
+        "courriel-html-fr": "Objet, émetteur, corps, signature et mention de désinscription. Le courriel de tous les jours.",
+        "courriel-texte-fr": "La même chose en texte brut, pour les messageries qui n'affichent pas le HTML.",
+        "newsletter-fr": "Période, chapeau, articles et encadré « à retenir » : une édition récurrente.",
+        "note-interne-fr": "Référence, émetteur, destinataires et date d'effet en tête : la note qui fait foi.",
+        "message-instantane-fr": "Trois phrases au plus, pour Teams ou équivalent.",
+        "article-portail-fr": "Rubrique, chapeau et corps : l'article publié sur l'intranet.",
+        "courriel-html-en": "The everyday email, in English.",
+        "note-interne-en": "The internal note that stands as record, in English."
+      }
+    },
+    "rendu": "Le gabarit est rattaché à chaque version produite ; son rendu final (HTML, PDF) arrive avec l'envoi. Ici, le corps est montré tel qu'il est enregistré."
   },
   "theme": {
     "label": "Thème",
