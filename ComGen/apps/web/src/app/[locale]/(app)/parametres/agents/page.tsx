@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 
 import { FormulaireConsigne } from '@/components/parametres/formulaire-consigne'
 import { ParcoursAgents } from '@/components/parametres/parcours-agents'
+import { EcranRestreint } from '@/components/layout/ecran-restreint'
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -49,9 +50,12 @@ export default async function AgentsPage({ params, searchParams }: PageProps) {
   if (!verifierDroit(acteur.utilisateur, 'PARAMETRER').autorise) {
     const tr = await getTranslations('settings.restricted')
     return (
-      <Notice level="info" title={tr('title')}>
-        {tr('description')}
-      </Notice>
+      <EcranRestreint
+        titre={t('title')}
+        description={t('description')}
+        motifTitre={tr('title')}
+        motifDescription={tr('description')}
+      />
     )
   }
 

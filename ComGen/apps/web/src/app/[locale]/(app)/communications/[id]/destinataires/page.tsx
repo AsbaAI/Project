@@ -34,12 +34,14 @@ export default async function DestinatairesPage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('destinataires')
   const acteur = await acteurDePage()
-  const [detail, personas, avancement, sansPersona] = await Promise.all([
-    ou404(chargerCommunication(acteur, id)),
-    listerPersonas(acteur, id),
-    chargerAvancement(acteur, id),
-    listerAudiencesSansPersona(acteur, id),
-  ])
+  const [detail, personas, avancement, sansPersona] = await ou404(
+    Promise.all([
+      chargerCommunication(acteur, id),
+      listerPersonas(acteur, id),
+      chargerAvancement(acteur, id),
+      listerAudiencesSansPersona(acteur, id),
+    ]),
+  )
   const c = detail.communication
   const modifiable =
     verifierDroit(acteur.utilisateur, 'GENERER').autorise &&

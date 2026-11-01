@@ -46,11 +46,9 @@ export default async function FichePage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications')
   const acteur = await acteurDePage()
-  const [fiche, fuseau, avancement] = await Promise.all([
-    ou404(chargerFiche(acteur, id)),
-    fuseauDeSaisie(acteur),
-    chargerAvancement(acteur, id),
-  ])
+  const [fiche, fuseau, avancement] = await ou404(
+    Promise.all([chargerFiche(acteur, id), fuseauDeSaisie(acteur), chargerAvancement(acteur, id)]),
+  )
   const { communication: c, faits, sources, contradictions, transitions, modifiable } = fiche
   const nomSource = new Map(sources.map((s) => [s.id, s.nom]))
   const revus = faits.filter((f) => f.statut !== 'PROPOSE').length

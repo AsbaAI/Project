@@ -2,11 +2,11 @@ import { ArrowLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { EcranRestreint } from '@/components/layout/ecran-restreint'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
 import { resolveLocale } from '@/i18n/params'
-import { Notice } from '@/components/ui/notice'
 import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage } from '@/server/pages'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -31,9 +31,12 @@ export default async function PersonasPage({ params }: PageProps) {
   if (!verifierDroit(acteur.utilisateur, 'PARAMETRER').autorise) {
     const tr = await getTranslations('settings.restricted')
     return (
-      <Notice level="info" title={tr('title')}>
-        {tr('description')}
-      </Notice>
+      <EcranRestreint
+        titre={t('title')}
+        description={t('description')}
+        motifTitre={tr('title')}
+        motifDescription={tr('description')}
+      />
     )
   }
   const { personas, approbateurs } = await chargerPersonas(acteur)

@@ -324,7 +324,11 @@
       },
       "noParent": "None — new communication",
       "choose": "Choose…",
-      "submit": "Create and go to input"
+      "submit": "Create and go to input",
+      "refus": {
+        "title": "Creation not permitted",
+        "description": "Your role does not allow opening a communication. A writer in your organisation can create it; you will then find it in the list."
+      }
     },
     "detail": {
       "facts": "Facts",

@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
 import { FormulaireCadrage } from '@/components/communications/formulaire-cadrage'
+import { EcranRestreint } from '@/components/layout/ecran-restreint'
 import { PageHeader } from '@/components/layout/page-header'
 import { resolveLocale } from '@/i18n/params'
-import { exigerDroit } from '@/server/auth/droits'
+import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage } from '@/server/pages'
 import { itsmDisponible, lireEtatItsm } from '@/server/services/itsm'
 import {
@@ -27,7 +28,21 @@ export default async function NouvelleCommunicationPage({ params }: PageProps) {
   const locale = await resolveLocale(params)
   const t = await getTranslations('communications.cadrage')
   const acteur = await acteurDePage()
-  exigerDroit(acteur.utilisateur, 'CREER')
+  /*
+   * Sans le droit de créer, l'écran le dit plutôt que de rompre : le
+   * cadrage n'a rien à montrer, mais la page garde son titre et nomme ce
+   * qui manque.
+   */
+  if (!verifierDroit(acteur.utilisateur, 'CREER').autorise) {
+    return (
+      <EcranRestreint
+        titre={t('title')}
+        description={t('description')}
+        motifTitre={t('refus.title')}
+        motifDescription={t('refus.description')}
+      />
+    )
+  }
 
   const [fuseau, parents, region, etatItsm] = await Promise.all([
     fuseauDeSaisie(acteur),

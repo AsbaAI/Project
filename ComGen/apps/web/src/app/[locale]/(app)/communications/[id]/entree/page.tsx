@@ -36,11 +36,13 @@ export default async function EntreePage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications.entree')
   const acteur = await acteurDePage()
-  const [{ communication: c }, avancement, etatItsm] = await Promise.all([
-    ou404(chargerCommunication(acteur, id)),
-    chargerAvancement(acteur, id),
-    lireEtatItsm(acteur),
-  ])
+  const [{ communication: c }, avancement, etatItsm] = await ou404(
+    Promise.all([
+      chargerCommunication(acteur, id),
+      chargerAvancement(acteur, id),
+      lireEtatItsm(acteur),
+    ]),
+  )
   const ouverte = ETATS_ENTREE_OUVERTE.has(c.etat)
   const peutEditer = verifierDroit(acteur.utilisateur, 'EDITER').autorise
 

@@ -324,7 +324,11 @@
       },
       "noParent": "Aucune — nouvelle communication",
       "choose": "Choisir…",
-      "submit": "Créer et passer à l'entrée"
+      "submit": "Créer et passer à l'entrée",
+      "refus": {
+        "title": "Création non autorisée",
+        "description": "Votre rôle ne permet pas d'ouvrir une communication. Un rédacteur de votre organisation peut la créer ; vous la retrouverez ensuite dans la liste."
+      }
     },
     "detail": {
       "facts": "Faits",

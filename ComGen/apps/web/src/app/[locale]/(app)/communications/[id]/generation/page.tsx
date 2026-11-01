@@ -39,11 +39,13 @@ export default async function GenerationPage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('generation')
   const acteur = await acteurDePage()
-  const [detail, ecran, avancement] = await Promise.all([
-    ou404(chargerCommunication(acteur, id)),
-    chargerGeneration(acteur, id),
-    chargerAvancement(acteur, id),
-  ])
+  const [detail, ecran, avancement] = await ou404(
+    Promise.all([
+      chargerCommunication(acteur, id),
+      chargerGeneration(acteur, id),
+      chargerAvancement(acteur, id),
+    ]),
+  )
   const c = detail.communication
   const etatEnvoi =
     c.etat === 'APPROUVEE' || c.etat === 'ENVOI_PLANIFIE' || c.etat === 'ENVOYEE' ? c.etat : null

@@ -76,12 +76,14 @@ export default async function ChoisirTicketPage({ params, searchParams }: PagePr
   const recherche = await searchParams
   const t = await getTranslations('itsm')
   const acteur = await acteurDePage()
-  const [{ communication: c }, avancement, fuseau, etat] = await Promise.all([
-    ou404(chargerCommunication(acteur, id)),
-    chargerAvancement(acteur, id),
-    fuseauDeSaisie(acteur),
-    lireEtatItsm(acteur),
-  ])
+  const [{ communication: c }, avancement, fuseau, etat] = await ou404(
+    Promise.all([
+      chargerCommunication(acteur, id),
+      chargerAvancement(acteur, id),
+      fuseauDeSaisie(acteur),
+      lireEtatItsm(acteur),
+    ]),
+  )
 
   const base = `/communications/${c.id}/entree/itsm`
   const filtres: FiltresBruts = {

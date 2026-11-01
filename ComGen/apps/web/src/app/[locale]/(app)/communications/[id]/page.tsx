@@ -39,11 +39,13 @@ export default async function CommunicationPage({ params }: PageProps) {
   const { id } = await params
   const t = await getTranslations('communications')
   const acteur = await acteurDePage()
-  const [detail, fuseau, avancement] = await Promise.all([
-    ou404(chargerCommunication(acteur, id)),
-    fuseauDeSaisie(acteur),
-    chargerAvancement(acteur, id),
-  ])
+  const [detail, fuseau, avancement] = await ou404(
+    Promise.all([
+      chargerCommunication(acteur, id),
+      fuseauDeSaisie(acteur),
+      chargerAvancement(acteur, id),
+    ]),
+  )
   const { communication: c, compteurs, transitions, droits } = detail
   const date = (d: Date | null) => (d ? formaterInstant(d, locale, fuseau) : t('detail.notSet'))
   const entreeOuverte = ETATS_ENTREE_OUVERTE.has(c.etat)

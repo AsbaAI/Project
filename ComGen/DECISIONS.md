@@ -1010,3 +1010,29 @@ réglage de leurs prompts.
   appartient à l'envoi. L'écran le dit.
 - **Hors périmètre** : l'édition du corps depuis l'interface (le
   constructeur, demandé à part) et le rendu final HTML/PDF.
+
+## 2026-11-01 — Balayage de bout en bout : un refus est une réponse
+
+- **Un droit manquant ne casse plus l'écran.** `/communications/nouvelle`
+  appelait `exigerDroit('CREER')` en tête : une administratrice, qui ne
+  rédige pas, obtenait un 500 — une panne là où il n'y avait qu'un refus.
+  L'écran répond désormais par `EcranRestreint` : le titre de la page reste,
+  et un encart dit ce qui manque et qui peut le faire. Même composant pour
+  les quatre écrans de paramétrage, qui rendaient un encart SANS titre :
+  une page sans `<h1>` n'a ni repère de lecture, ni entrée dans le plan du
+  document.
+- **Une communication d'une autre organisation vaut 404, toujours.** Les
+  pages enveloppaient `chargerCommunication` dans `ou404`, mais lançaient à
+  côté, dans le même `Promise.all`, `chargerAvancement` — non enveloppé. Le
+  rejet qui gagnait la course décidait du code renvoyé : tantôt 404, tantôt
+  500, pour la même adresse. C'est désormais le `Promise.all` entier qui est
+  enveloppé, sur les six pages : la règle ne dépend plus d'un ordre
+  d'exécution.
+- **Un favicon manquant est une erreur visible.** Aucune icône n'était
+  servie : chaque page demandait `/favicon.ico` et récoltait un 404 dans la
+  console. `app/icon.svg` reprend le monogramme de la marque.
+- **Le balayage devient un test** (`e2e/balayage.spec.ts`) : pour chacun des
+  trois comptes et des quatre gabarits, chaque route répond 200, porte
+  exactement un `<h1>`, et n'émet ni erreur de console ni requête en échec.
+  Les identifiants de communication diffèrent par compte — une ressource
+  d'une autre organisation vaut 404, ce qui n'apprendrait rien de l'écran.
