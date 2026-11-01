@@ -142,6 +142,36 @@ describe('choisirDestinataires', () => {
 })
 
 describe('genererVariante', () => {
+  it('GARDIEN : un persona plafonné sous la confidentialité des faits bloque la variante', async () => {
+    const { varianteId, communicationId } = await communicationPrete()
+    const db = clientDeTest(connexion)
+    const variante = await db.variante.findUniqueOrThrow({ where: { id: varianteId } })
+    const original = await db.persona.findUniqueOrThrow({ where: { id: variante.personaId } })
+    // Les faits de la source sont INTERNE ; ce persona n'a droit qu'au PUBLIC.
+    await db.persona.update({
+      where: { id: original.id },
+      data: { gardeFous: { confidentialiteMax: 'PUBLIC', sujetsInterdits: [] } },
+    })
+    try {
+      const rapport = await genererVariante(org.redacteur, { varianteId })
+      expect(rapport.bloquant).toBe(false) // le vérificateur est satisfait…
+      const apres = await db.variante.findUniqueOrThrow({ where: { id: varianteId } })
+      expect(apres.etat).toBe('A_REVOIR') // …mais le GARDIEN bloque.
+      const controles = await db.controle.findMany({
+        where: { varianteId, type: 'CONFIDENTIALITE_PERSONA' },
+      })
+      expect(controles).toHaveLength(1)
+      expect(controles[0]).toMatchObject({ bloquant: true })
+      expect(controles[0]?.message).toContain('PUBLIC')
+    } finally {
+      await db.persona.update({
+        where: { id: original.id },
+        data: { gardeFous: original.gardeFous ?? {} },
+      })
+    }
+    expect(communicationId).toBeTruthy()
+  })
+
   it('écrit un texte dont chaque valeur vient de la source, mot pour mot', async () => {
     const { varianteId } = await communicationPrete()
     const rapport = await genererVariante(org.redacteur, { varianteId })

@@ -909,3 +909,26 @@ originaux, en `currentColor`, servis en ligne — aucune image externe.
   complet (il faudrait un compte approbateur dans les fixtures) — la
   logique et le déclencheur d'annulation sur écriture de contenu sont
   couverts par les tests de service.
+
+## 2026-11-01 — GARDIEN, envoi, analyses, paramétrage
+
+- **GARDIEN est du code, pas un modèle.** `core/domaine/gardien.ts` applique
+  les garde-fous du persona : terme du lexique interdit (mot entier, sans
+  casse ni accents), sujet interdit (littéral — une paraphrase n'est pas
+  reconnue, limite assumée), fait cité plus confidentiel que le plafond du
+  persona. Tout est bloquant. Une clé absente = pas de règle ; une clé
+  présente et mal formée = configuration illisible, qui BLOQUE.
+- **L'envoi est une simulation étiquetée.** Aucun connecteur de canal n'est
+  branché : `Envoi.etatRemise = {mode:'SIMULATION', remis:false}`, affiché
+  comme tel, compté à part dans les analyses. Ce qui est réel : la garde
+  (liste de diffusion résolue et non vide), le droit ENVOYER, l'annulation
+  dans la fenêtre. La base garde l'effectif et le nom des listes, pas les
+  adresses. Seule une liste STATIQUE se résout.
+- **Analyses** : comptées en base à chaque lecture ; sans donnée, « pas de
+  mesure », jamais zéro.
+- **Paramétrage** : personas (garde-fous, approbateurs) et listes statiques
+  s'éditent (PARAMETRER) ; les modèles sont en lecture seule — les clés
+  restent dans l'environnement (D2). Le service fusionne : voix, exemples et
+  préférences de lexique ne sont pas à l'écran et ne disparaissent pas.
+- **Hors périmètre** : constructeur de gabarits (demandé), connecteur de
+  canal réel, listes non statiques.

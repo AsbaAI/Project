@@ -20,7 +20,7 @@ export interface StatTileProps {
   meta?: ReactNode
   value: ReactNode
   /** Unité posée après la valeur, en petit (« sec », « % »). */
-  unit?: string
+  unit?: string | undefined
   caption?: ReactNode
   ton?: TonTuile
   className?: string

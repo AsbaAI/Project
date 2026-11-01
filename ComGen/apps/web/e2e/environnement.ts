@@ -34,6 +34,11 @@ export const COMPTES = {
     courriel: 'claire.fontaine@helvea.example',
     etat: path.join(import.meta.dirname, '.auth', 'redactrice.json'),
   },
+  /** Administratrice Helvea : écrans de paramétrage, lus sans jamais être modifiés. */
+  administratrice: {
+    courriel: 'nadia.benali@helvea.example',
+    etat: path.join(import.meta.dirname, '.auth', 'administratrice.json'),
+  },
   /** Rédactrice Kestrel : parcours qui écrivent, isolés des captures par l'organisation. */
   parcours: {
     courriel: 'olivia.hart@kestrel.example',

@@ -2,6 +2,7 @@ import { Sparkles, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { PanneauEnvoi } from '@/components/communications/panneau-envoi'
 import { BoutonSoumettre } from '@/components/communications/bouton-soumettre'
 import { CarteVariante } from '@/components/communications/carte-variante'
 import { EnTeteCommunication } from '@/components/communications/en-tete-communication'
@@ -13,6 +14,7 @@ import { verifierDroit } from '@/server/auth/droits'
 import { acteurDePage, ou404 } from '@/server/pages'
 import { chargerAvancement } from '@/server/services/assistant'
 import { chargerCommunication } from '@/server/services/communications'
+import { chargerEnvois } from '@/server/services/envoi'
 import { chargerGeneration } from '@/server/services/generation'
 
 interface PageProps {
@@ -43,6 +45,9 @@ export default async function GenerationPage({ params }: PageProps) {
     chargerAvancement(acteur, id),
   ])
   const c = detail.communication
+  const etatEnvoi =
+    c.etat === 'APPROUVEE' || c.etat === 'ENVOI_PLANIFIE' || c.etat === 'ENVOYEE' ? c.etat : null
+  const envois = etatEnvoi === null ? [] : await chargerEnvois(acteur, id)
   const peutGenerer =
     verifierDroit(acteur.utilisateur, 'GENERER').autorise &&
     (c.etat === 'PRETE_A_GENERER' || c.etat === 'EN_GENERATION')
@@ -73,6 +78,14 @@ export default async function GenerationPage({ params }: PageProps) {
           {ecran.variantes.map((variante) => (
             <CarteVariante key={variante.id} variante={variante} peutGenerer={peutGenerer} />
           ))}
+          {etatEnvoi === null ? null : (
+            <PanneauEnvoi
+              communicationId={c.id}
+              etat={etatEnvoi}
+              peutEnvoyer={verifierDroit(acteur.utilisateur, 'ENVOYER').autorise}
+              envois={envois}
+            />
+          )}
           {c.etat === 'EN_CONTROLE' && verifierDroit(acteur.utilisateur, 'SOUMETTRE').autorise ? (
             <BoutonSoumettre communicationId={c.id} />
           ) : null}

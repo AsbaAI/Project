@@ -31,6 +31,17 @@ export const PAGES = [
   { nom: 'design', chemin: '/design' },
 ] as const
 
+/**
+ * Écrans de paramétrage, vus par l'administratrice : la rédactrice n'y voit
+ * que la mention « réservé aux administrateurs », pas les formulaires.
+ */
+export const PAGES_ADMIN = [
+  { nom: 'admin-itsm', chemin: '/parametres/itsm' },
+  { nom: 'admin-personas', chemin: '/parametres/personas' },
+  { nom: 'admin-listes', chemin: '/parametres/listes' },
+  { nom: 'admin-modeles', chemin: '/parametres/modeles' },
+] as const
+
 /** Session vide : pages vues sans être connecté. */
 export const SANS_SESSION = { cookies: [], origins: [] }
 

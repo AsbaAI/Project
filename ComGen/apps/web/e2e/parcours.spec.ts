@@ -154,6 +154,13 @@ test('de la source au texte généré : chaque valeur vient de la source, mot po
     .getByRole('textbox', { name: 'Intitulé de la source obligatoire' })
     .fill('Annonce de déploiement')
   await page.getByRole('textbox', { name: 'Texte obligatoire' }).fill(TEXTE_SOURCE)
+  // Le persona de ce parcours est plafonné à PUBLIC : le GARDIEN bloquerait
+  // des faits INTERNE. C'est son rôle (testé à part) ; ici on vérifie
+  // l'ancrage, donc la source est publique.
+  await page
+    .locator('form', { has: page.getByRole('textbox', { name: 'Texte obligatoire' }) })
+    .getByRole('combobox', { name: /Confidentialité des sources/ })
+    .selectOption('PUBLIC')
   await page.getByRole('button', { name: 'Enregistrer la source' }).click()
   await expect(page).toHaveURL(/\/faits$/)
   await attendreRendu(page)

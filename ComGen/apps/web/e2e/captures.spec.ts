@@ -2,8 +2,10 @@ import { fileURLToPath } from 'node:url'
 
 import { type Page, type TestInfo, expect, test } from '@playwright/test'
 
+import { COMPTES } from './environnement'
 import {
   PAGES,
+  PAGES_ADMIN,
   SANS_SESSION,
   attendreRendu,
   estTelephone,
@@ -44,6 +46,15 @@ for (const { nom, chemin } of PAGES) {
     await capturer(page, testInfo, nom, chemin)
   })
 }
+
+test.describe('administratrice', () => {
+  test.use({ storageState: COMPTES.administratrice.etat })
+  for (const { nom, chemin } of PAGES_ADMIN) {
+    test(`capture — ${nom}`, async ({ page }, testInfo) => {
+      await capturer(page, testInfo, nom, chemin)
+    })
+  }
+})
 
 /*
  * Le tiroir du téléphone est un écran à part entière : il porte les six

@@ -20,10 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 const SECTIONS: readonly {
   cle: 'models' | 'personas' | 'lists' | 'templates'
   icone: LucideIcon
+  /** Absent : l'écran n'existe pas encore, la carte l'annonce sans lien. */
+  href?: '/parametres/modeles' | '/parametres/personas' | '/parametres/listes'
 }[] = [
-  { cle: 'models', icone: Bot },
-  { cle: 'personas', icone: UsersRound },
-  { cle: 'lists', icone: Mail },
+  { cle: 'models', icone: Bot, href: '/parametres/modeles' },
+  { cle: 'personas', icone: UsersRound, href: '/parametres/personas' },
+  { cle: 'lists', icone: Mail, href: '/parametres/listes' },
   { cle: 'templates', icone: LayoutTemplate },
 ]
 
@@ -57,7 +59,7 @@ export default async function ParametresPage({ params }: PageProps) {
             <p className="text-sm text-ink-secondary">{t('sections.itsm.description')}</p>
           </div>
         </li>
-        {SECTIONS.map(({ cle, icone: Icone }) => (
+        {SECTIONS.map(({ cle, icone: Icone, href }) => (
           <li
             key={cle}
             className="flex items-start gap-3 rounded-lg border-w border-line-default bg-surface-raised p-4"
@@ -71,9 +73,15 @@ export default async function ParametresPage({ params }: PageProps) {
             <div className="flex min-w-0 flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-base font-semibold text-ink-primary">
-                  {t(`sections.${cle}.title`)}
+                  {href === undefined ? (
+                    t(`sections.${cle}.title`)
+                  ) : (
+                    <Link href={href} className="rounded-xs focus-ring hover:text-ink-accent">
+                      {t(`sections.${cle}.title`)}
+                    </Link>
+                  )}
                 </h2>
-                <Badge tone="neutral">{t('soon')}</Badge>
+                {href === undefined ? <Badge tone="neutral">{t('soon')}</Badge> : null}
               </div>
               <p className="text-sm text-ink-secondary">{t(`sections.${cle}.description`)}</p>
             </div>

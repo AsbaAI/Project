@@ -2,10 +2,38 @@
   "analytics": {
     "title": "Analyses",
     "description": "Envois, attentes, rejets et taux d'approbation, par persona et par format.",
-    "empty": {
-      "title": "Les indicateurs viendront des envois réels",
-      "description": "Ils apparaîtront ici dès que des communications auront été approuvées et envoyées : aucun chiffre n'est estimé."
-    }
+    "tiles": {
+      "total": "Communications",
+      "totalCaption": "Dans l'organisation",
+      "rate": "Taux d'approbation",
+      "rateCaption": "{approuvees} approuvées · {rejetees} rejetées",
+      "noDecision": "Aucune décision prise",
+      "sent": "Envois enregistrés",
+      "sentCaption": "{remis} remis · {simules} simulés",
+      "delay": "Délai médian",
+      "delayCaption": "De la création à l'envoi",
+      "noMeasure": "Pas de mesure",
+      "hours": "h"
+    },
+    "byState": "Par état",
+    "byOrigin": "Par origine",
+    "blocking": "Contrôles bloquants",
+    "blockingEmpty": "Aucun contrôle bloquant relevé.",
+    "types": {
+      "ANCRAGE": "Ancrage dans la source",
+      "COMPARAISON_EXACTE": "Comparaison exacte",
+      "TOXICITE": "Toxicité",
+      "DONNEES_SENSIBLES": "Données sensibles",
+      "CONFIDENTIALITE_PERSONA": "Garde-fous du persona",
+      "TEMPLATE": "Gabarit",
+      "LISTE": "Liste de diffusion",
+      "TON": "Lexique et ton",
+      "LISIBILITE": "Lisibilité",
+      "LONGUEUR": "Longueur",
+      "COHERENCE_INTER_VARIANTES": "Cohérence entre variantes"
+    },
+    "count": "{count, plural, one {# communication} other {# communications}}",
+    "occurrences": "{count, plural, one {# occurrence} other {# occurrences}}"
   },
   "app": {
     "name": "ComGen",
@@ -796,7 +824,7 @@
     "duree": "{ms} ms",
     "blocages": {
       "title": "Envoi bloqué",
-      "description": "Tant qu'une phrase factuelle n'est pas appuyée par un fait, cette version ne peut pas être approuvée ni envoyée."
+      "description": "Tant qu'un contrôle bloquant est ouvert — phrase non appuyée par un fait, garde-fou du persona — cette version ne peut pas être approuvée ni envoyée."
     },
     "conforme": {
       "title": "Toutes les phrases sont appuyées",
@@ -1100,7 +1128,69 @@
         "description": "Formats et variantes de mise en page."
       }
     },
-    "open": "Configurer"
+    "open": "Ouvrir",
+    "personas": {
+      "title": "Personas",
+      "description": "Garde-fous, lexique interdit et approbateurs de chaque audience. Le GARDIEN les applique par du code à chaque génération.",
+      "back": "Retour aux paramètres",
+      "save": "Enregistrer le persona",
+      "saved": "Persona enregistré.",
+      "fields": {
+        "nom": "Nom",
+        "actif": "Persona actif",
+        "canal": "Canal par défaut",
+        "interditsFr": "Termes interdits (français)",
+        "interditsEn": "Termes interdits (anglais)",
+        "sujets": "Sujets interdits",
+        "listHint": "Un par ligne. Mot entier, sans tenir compte de la casse ni des accents.",
+        "sujetsHint": "Un par ligne. Détectés tels qu'écrits : une paraphrase n'est pas reconnue.",
+        "max": "Confidentialité maximale",
+        "maxHint": "Un fait plus confidentiel ne peut pas figurer dans le texte de ce persona.",
+        "approbateurs": "Approbateurs désignés",
+        "approbateursHint": "Aucun coché : tous les approbateurs de l'organisation, hors auteur."
+      },
+      "illisible": "Les garde-fous enregistrés pour ce persona sont illisibles : tant qu'ils ne sont pas corrigés ici, toute génération sera bloquée.",
+      "empty": "Aucun persona dans cette organisation."
+    },
+    "listes": {
+      "title": "Listes de diffusion",
+      "description": "Les destinataires de chaque audience. Un envoi est refusé tant qu'une liste n'est pas résolue ou si elle est vide.",
+      "destinataires": "Destinataires",
+      "destinatairesHint": "Une adresse par ligne, éventuellement « Nom, adresse ».",
+      "save": "Enregistrer la liste",
+      "effectif": "{count, plural, one {# destinataire} other {# destinataires}}",
+      "nonResolue": "Non résolue",
+      "readOnly": "Ce type de liste ne se modifie pas ici.",
+      "persona": "Persona : {nom}",
+      "noPersona": "Sans persona",
+      "empty": "Aucune liste de diffusion.",
+      "types": {
+        "STATIQUE": "Statique",
+        "GROUPE_ANNUAIRE": "Groupe d'annuaire",
+        "REGLE": "Règle",
+        "IMPORT": "Import"
+      }
+    },
+    "modeles": {
+      "title": "Modèles d'IA",
+      "description": "Le moteur de génération et ses agents. Les clés restent dans l'environnement du serveur : rien ne se saisit ici.",
+      "engine": "Moteur",
+      "reference": "Variable de la clé",
+      "state": {
+        "pret": "Clé présente : moteur prêt.",
+        "demonstration": "Clé absente : génération simulée et étiquetée comme telle."
+      },
+      "agents": "Agents",
+      "mode": {
+        "simulation": "Simulé",
+        "reel": "Réel"
+      },
+      "readOnly": "Lecture seule : le fournisseur et le modèle se règlent dans l'environnement du déploiement, jamais depuis l'interface."
+    },
+    "restricted": {
+      "title": "Réservé aux administrateurs",
+      "description": "Seul un administrateur règle ces paramètres. Vous pouvez en lire l'effet sur les écrans de génération et d'approbation."
+    }
   },
   "states": {
     "BROUILLON": "Brouillon",
@@ -1138,5 +1228,16 @@
     "system": "Système",
     "light": "Clair",
     "dark": "Sombre"
+  },
+  "envoi": {
+    "title": "Envoi",
+    "simulation": "Envoi simulé : aucun canal n'est connecté. Rien ne quitte l'application, et l'état « remis » reste faux.",
+    "approved": "La communication est approuvée. Planifier l'envoi vérifie les listes de diffusion ; vous pourrez encore l'annuler.",
+    "planned": "Envoi planifié. Confirmez pour l'enregistrer, ou annulez : la communication reste approuvée.",
+    "sent": "Envoi enregistré le {date}.",
+    "plan": "Planifier l'envoi",
+    "confirm": "Confirmer l'envoi",
+    "cancel": "Annuler l'envoi",
+    "item": "{canal} · {effectif, plural, one {# destinataire} other {# destinataires}} · {listes}"
   }
 }

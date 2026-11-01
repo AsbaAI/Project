@@ -17,7 +17,7 @@ import type { ContexteTransaction } from '@comgen/db'
  * qui écrit le nouvel état, pour que la décision porte sur ce qui est écrit.
  */
 
-type Lecteur = Pick<ContexteTransaction, 'fait' | 'source' | 'variante'>
+type Lecteur = Pick<ContexteTransaction, 'fait' | 'source' | 'variante' | 'listeDiffusion'>
 
 /**
  * Transitions qu'un humain déclenche depuis la fiche de la communication.
@@ -104,6 +104,13 @@ export async function construireContexteTransition(
       select: {
         id: true,
         personaId: true,
+        persona: {
+          select: {
+            listes: {
+              select: { id: true, nom: true, type: true, definition: true, exclusions: true },
+            },
+          },
+        },
         _count: {
           select: {
             controles: { where: { bloquant: true, resoluLe: null } },
@@ -134,8 +141,7 @@ export async function construireContexteTransition(
         id: v.id,
         controlesBloquantsNonResolus: v._count.controles,
         approbationsAccordees: v._count.approbations,
-        // Les listes de diffusion sont résolues au lot 6.
-        destinatairesResolus: null,
+        destinatairesResolus: resoudreListes(v.persona.listes).effectif,
       })),
     },
   }
@@ -162,4 +168,46 @@ export async function evaluerTransitionsManuelles(
       resultat: evaluerTransition(communication.etat, vers, contexte),
     })),
   }
+}
+
+/**
+ * Résout les listes de diffusion d'un persona en un effectif.
+ *
+ * Seule une liste STATIQUE se résout aujourd'hui (ses destinataires sont
+ * dans sa définition). Un autre type, ou une définition illisible, rend
+ * l'effectif `null` : la garde dit « liste non résolue » au lieu de
+ * supposer une audience. Zéro destinataire est un effectif — `0`, pas `null`.
+ */
+export interface ListeLue {
+  id: string
+  nom: string
+  type: string
+  definition: unknown
+  exclusions: readonly string[]
+}
+
+export function resoudreListes(listes: readonly ListeLue[]): {
+  effectif: number | null
+  noms: string[]
+} {
+  if (listes.length === 0) return { effectif: null, noms: [] }
+  const adresses = new Set<string>()
+  for (const liste of listes) {
+    if (liste.type !== 'STATIQUE') return { effectif: null, noms: [] }
+    const definition = liste.definition
+    const brut =
+      typeof definition === 'object' && definition !== null && !Array.isArray(definition)
+        ? (definition as Record<string, unknown>)['destinataires']
+        : undefined
+    if (!Array.isArray(brut)) return { effectif: null, noms: [] }
+    for (const entree of brut) {
+      const courriel =
+        typeof entree === 'object' && entree !== null
+          ? (entree as Record<string, unknown>)['courriel']
+          : undefined
+      if (typeof courriel !== 'string') return { effectif: null, noms: [] }
+      if (!liste.exclusions.includes(courriel)) adresses.add(courriel.toLowerCase())
+    }
+  }
+  return { effectif: adresses.size, noms: listes.map((l) => l.nom) }
 }

@@ -4,6 +4,7 @@ import { estErreurItsm } from '@comgen/connecteurs'
 
 import { coche, executer, lignes, prochainJeton, texte } from '@/server/actions-formulaire'
 import { enregistrerConfigItsm, testerConfigItsm } from '@/server/services/itsm'
+import { modifierListe, modifierPersona } from '@/server/services/parametrage'
 
 import type { EtatFormulaire } from '../communications/etat-formulaire'
 
@@ -89,5 +90,37 @@ export async function actionConfigurerItsm(
       throw erreur
     }
     return issueTest(formulaire, { ok: true, enregistre: true })
+  })
+}
+
+/** Persona : les listes se saisissent une par ligne ; le service valide tout. */
+export async function actionModifierPersona(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  return executer(formulaire, async (acteur) => {
+    await modifierPersona(acteur, texte(formulaire, 'personaId') ?? '', {
+      nom: texte(formulaire, 'nom') ?? '',
+      actif: coche(formulaire, 'actif'),
+      canalDefaut: texte(formulaire, 'canalDefaut') ?? '',
+      interditsFr: lignes(formulaire, 'interditsFr'),
+      interditsEn: lignes(formulaire, 'interditsEn'),
+      sujetsInterdits: lignes(formulaire, 'sujetsInterdits'),
+      confidentialiteMax: texte(formulaire, 'confidentialiteMax') ?? '',
+      approbateurIds: formulaire.getAll('approbateurIds').filter((v) => typeof v === 'string'),
+    })
+  })
+}
+
+export async function actionModifierListe(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  return executer(formulaire, async (acteur) => {
+    await modifierListe(
+      acteur,
+      texte(formulaire, 'listeId') ?? '',
+      lignes(formulaire, 'destinataires'),
+    )
   })
 }

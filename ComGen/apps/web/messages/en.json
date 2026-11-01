@@ -2,10 +2,38 @@
   "analytics": {
     "title": "Analytics",
     "description": "Sent, pending, rejected and approval rate, by persona and format.",
-    "empty": {
-      "title": "Indicators will come from real sends",
-      "description": "They will appear here once communications have been approved and sent: no figure is estimated."
-    }
+    "tiles": {
+      "total": "Communications",
+      "totalCaption": "In the organisation",
+      "rate": "Approval rate",
+      "rateCaption": "{approuvees} approved · {rejetees} rejected",
+      "noDecision": "No decision taken",
+      "sent": "Recorded sends",
+      "sentCaption": "{remis} delivered · {simules} simulated",
+      "delay": "Median delay",
+      "delayCaption": "From creation to send",
+      "noMeasure": "No measure",
+      "hours": "h"
+    },
+    "byState": "By state",
+    "byOrigin": "By origin",
+    "blocking": "Blocking checks",
+    "blockingEmpty": "No blocking check recorded.",
+    "types": {
+      "ANCRAGE": "Grounding in the source",
+      "COMPARAISON_EXACTE": "Exact comparison",
+      "TOXICITE": "Toxicity",
+      "DONNEES_SENSIBLES": "Sensitive data",
+      "CONFIDENTIALITE_PERSONA": "Persona guardrails",
+      "TEMPLATE": "Template",
+      "LISTE": "Distribution list",
+      "TON": "Lexicon and tone",
+      "LISIBILITE": "Readability",
+      "LONGUEUR": "Length",
+      "COHERENCE_INTER_VARIANTES": "Cross-variant consistency"
+    },
+    "count": "{count, plural, one {# communication} other {# communications}}",
+    "occurrences": "{count, plural, one {# occurrence} other {# occurrences}}"
   },
   "app": {
     "name": "ComGen",
@@ -1100,7 +1128,69 @@
         "description": "Formats and layout variants."
       }
     },
-    "open": "Configure"
+    "open": "Open",
+    "personas": {
+      "title": "Personas",
+      "description": "Guardrails, forbidden lexicon and approvers of each audience. The GUARDIAN applies them in code at every generation.",
+      "back": "Back to settings",
+      "save": "Save persona",
+      "saved": "Persona saved.",
+      "fields": {
+        "nom": "Name",
+        "actif": "Persona active",
+        "canal": "Default channel",
+        "interditsFr": "Forbidden terms (French)",
+        "interditsEn": "Forbidden terms (English)",
+        "sujets": "Forbidden topics",
+        "listHint": "One per line. Whole word, ignoring case and accents.",
+        "sujetsHint": "One per line. Matched as written: a paraphrase is not recognised.",
+        "max": "Maximum confidentiality",
+        "maxHint": "A more confidential fact cannot appear in this persona's text.",
+        "approbateurs": "Designated approvers",
+        "approbateursHint": "None ticked: every approver of the organisation, except the author."
+      },
+      "illisible": "The guardrails saved for this persona are unreadable: until they are fixed here, every generation will be blocked.",
+      "empty": "No persona in this organisation."
+    },
+    "listes": {
+      "title": "Distribution lists",
+      "description": "The recipients of each audience. A send is refused while a list is unresolved or empty.",
+      "destinataires": "Recipients",
+      "destinatairesHint": "One address per line, optionally “Name, address”.",
+      "save": "Save list",
+      "effectif": "{count, plural, one {# recipient} other {# recipients}}",
+      "nonResolue": "Unresolved",
+      "readOnly": "This list type cannot be edited here.",
+      "persona": "Persona: {nom}",
+      "noPersona": "No persona",
+      "empty": "No distribution list.",
+      "types": {
+        "STATIQUE": "Static",
+        "GROUPE_ANNUAIRE": "Directory group",
+        "REGLE": "Rule",
+        "IMPORT": "Import"
+      }
+    },
+    "modeles": {
+      "title": "AI models",
+      "description": "The generation engine and its agents. Keys stay in the server environment: nothing is typed here.",
+      "engine": "Engine",
+      "reference": "Key variable",
+      "state": {
+        "pret": "Key present: engine ready.",
+        "demonstration": "Key missing: generation is simulated and labelled as such."
+      },
+      "agents": "Agents",
+      "mode": {
+        "simulation": "Simulated",
+        "reel": "Real"
+      },
+      "readOnly": "Read-only: provider and model are set in the deployment environment, never from the interface."
+    },
+    "restricted": {
+      "title": "Administrators only",
+      "description": "Only an administrator can change these settings. You can see their effect on the generation and approval screens."
+    }
   },
   "states": {
     "BROUILLON": "Draft",
@@ -1138,5 +1228,16 @@
     "system": "System",
     "light": "Light",
     "dark": "Dark"
+  },
+  "envoi": {
+    "title": "Sending",
+    "simulation": "Simulated send: no channel is connected. Nothing leaves the application, and the “delivered” state stays false.",
+    "approved": "The communication is approved. Scheduling the send checks the distribution lists; you can still cancel it.",
+    "planned": "Send scheduled. Confirm to record it, or cancel: the communication stays approved.",
+    "sent": "Send recorded on {date}.",
+    "plan": "Schedule the send",
+    "confirm": "Confirm the send",
+    "cancel": "Cancel the send",
+    "item": "{canal} · {effectif, plural, one {# recipient} other {# recipients}} · {listes}"
   }
 }

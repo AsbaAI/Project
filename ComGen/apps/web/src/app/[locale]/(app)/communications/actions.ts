@@ -22,6 +22,7 @@ import { type ResultatDepot, deposerFichiers, saisirTexte } from '@/server/servi
 
 import { choisirDestinataires } from '@/server/services/generation'
 import { decider, soumettreALApprobation } from '@/server/services/approbation'
+import { annulerEnvoi, confirmerEnvoi, planifierEnvoi } from '@/server/services/envoi'
 import { importerTicketItsm } from '@/server/services/itsm'
 
 import { executer, prochainJeton, texte } from '@/server/actions-formulaire'
@@ -278,5 +279,20 @@ export async function actionDecider(
       decision: texte(formulaire, 'decision') ?? '',
       commentaire: texte(formulaire, 'commentaire'),
     })
+  })
+}
+
+/** Les trois gestes de l'envoi, portés par le bouton pressé (`intention`). */
+export async function actionEnvoi(
+  _precedent: EtatFormulaire,
+  formulaire: FormData,
+): Promise<EtatFormulaire> {
+  const id = texte(formulaire, 'communicationId') ?? ''
+  const intention = texte(formulaire, 'intention')
+  return executer(formulaire, async (acteur) => {
+    if (intention === 'planifier') await planifierEnvoi(acteur, id)
+    else if (intention === 'confirmer') await confirmerEnvoi(acteur, id)
+    else if (intention === 'annuler') await annulerEnvoi(acteur, id)
+    else throw new ErreurMetier('DONNEES_INVALIDES', 'Intention inconnue')
   })
 }

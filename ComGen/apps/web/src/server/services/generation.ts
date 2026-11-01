@@ -29,6 +29,8 @@ import {
   personasCorrespondants,
   texteDuDocument,
   verifierValeursInjectees,
+  gardien,
+  lireGardeFous,
 } from '@comgen/core'
 import { z } from 'zod'
 
@@ -465,7 +467,7 @@ export async function genererVariante(
     select: {
       id: true,
       communicationId: true,
-      persona: { select: { nom: true } },
+      persona: { select: { nom: true, lexique: true, gardeFous: true } },
       communication: { select: { id: true, etat: true, langue: true, criticite: true } },
     },
   })
@@ -626,13 +628,49 @@ export async function genererVariante(
       })
     }
 
+    /*
+     * GARDIEN : les garde-fous du persona, appliqués par du code après la
+     * vérification des affirmations. Une configuration illisible bloque
+     * aussi — on ne devine pas ce que le persona interdisait.
+     */
+    const garde = lireGardeFous(variante.persona.lexique, variante.persona.gardeFous, langue)
+    let constatsGardien: { type: 'TON' | 'CONFIDENTIALITE_PERSONA'; message: string }[]
+    if (garde === null) {
+      constatsGardien = [
+        {
+          type: 'CONFIDENTIALITE_PERSONA',
+          message:
+            'Les garde-fous de ce persona sont illisibles : le texte ne peut pas être contrôlé.',
+        },
+      ]
+    } else {
+      const referencesCitees = new Set(lignes.flatMap((ligne) => ligne.faitIds))
+      const niveaux = await tx.fait.findMany({
+        where: { id: { in: [...referencesCitees] } },
+        select: { reference: true, confidentialite: true },
+      })
+      constatsGardien = gardien(texteDuDocument(documentTipTap(paragraphes)), garde, niveaux)
+    }
+    if (constatsGardien.length > 0) {
+      await tx.controle.createMany({
+        data: constatsGardien.map((constat) => ({
+          organisationId: acteur.utilisateur.organisationId,
+          varianteId: variante.id,
+          type: constat.type,
+          bloquant: true,
+          gravite: 'ERREUR' as const,
+          message: constat.message,
+        })),
+      })
+    }
+
     // `longueurMots` est posé par la couche données depuis le document
     // lui-même : on ne le recompte pas ici, deux comptes finiraient par
     // diverger.
     await tx.variante.update({
       where: { id: variante.id },
       data: {
-        etat: verifie.sortie.bloquant ? 'A_REVOIR' : 'CONFORME',
+        etat: verifie.sortie.bloquant || constatsGardien.length > 0 ? 'A_REVOIR' : 'CONFORME',
         score: verifie.sortie.score,
       },
     })
