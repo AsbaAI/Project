@@ -26,14 +26,6 @@ test.describe('journal d’audit', () => {
       'true',
     )
 
-    await page.screenshot({
-      path: fileURLToPath(
-        new URL(`./captures/${test.info().project.name}/journal-audit.png`, import.meta.url),
-      ),
-      animations: 'disabled',
-      fullPage: true,
-    })
-
     await filtres.getByRole('link', { name: 'Approbation', exact: true }).click()
     await expect(page).toHaveURL(/objet=APPROBATION/)
     await expect(
@@ -58,12 +50,10 @@ test.describe('journal d’audit', () => {
 })
 
 test.describe('trace d’un geste réel', () => {
-  // Ce test écrit (il archive une communication) : le jouer dans les quatre
-  // configurations ferait quatre écritures concurrentes sur le même jeu.
-  test.beforeEach(({}, info) => {
-    test.skip(info.project.name !== 'bureau-clair', 'Écriture : une seule configuration.')
-  })
-
+  // Ce test écrit, et il tourne dans les quatre configurations : chacune
+  // crée **sa** communication, donc les passes ne se marchent pas dessus.
+  // C'est aussi lui qui capture l'écran, une fois le tableau rempli — une
+  // capture de l'état vide ne montrerait pas ce qu'il y a à relire.
   test('un changement d’état apparaît dans le journal', async ({ browser }) => {
     const redaction = await browser.newContext({ storageState: COMPTES.parcours.etat })
     const page = await redaction.newPage()
@@ -72,7 +62,9 @@ test.describe('trace d’un geste réel', () => {
     // transition manuelle, donc un geste que le journal doit retenir. Le
     // test ne dépend d'aucune ligne du jeu de démonstration.
     await page.goto('/communications/nouvelle')
-    await page.getByRole('textbox', { name: 'Titre obligatoire' }).fill('Trace d’audit')
+    await page
+      .getByRole('textbox', { name: 'Titre obligatoire' })
+      .fill(`Trace d’audit — ${test.info().project.name}`)
     await page
       .getByRole('combobox', { name: 'Nature obligatoire' })
       .selectOption({ label: 'Livraison' })
@@ -107,6 +99,16 @@ test.describe('trace d’un geste réel', () => {
     await expect(ligne).toContainText('Changement d’état')
     await expect(ligne).toContainText('ARCHIVEE')
     await expect(ligne).toContainText(COMPTES.parcours.courriel)
+
+    await lecture.goto('/parametres/journal')
+    await expect(lecture.getByRole('row').nth(1)).toBeVisible()
+    await lecture.screenshot({
+      path: fileURLToPath(
+        new URL(`./captures/${test.info().project.name}/journal-audit.png`, import.meta.url),
+      ),
+      animations: 'disabled',
+      fullPage: true,
+    })
     await audit.close()
   })
 })

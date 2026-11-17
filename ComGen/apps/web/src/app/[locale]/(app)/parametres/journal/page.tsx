@@ -107,10 +107,10 @@ export default async function JournalPage({ params, searchParams }: PageProps) {
             <TableHead>
               <TableRow>
                 <TableHeaderCell scope="col">{t('columns.when')}</TableHeaderCell>
-                <TableHeaderCell scope="col">{t('columns.who')}</TableHeaderCell>
                 <TableHeaderCell scope="col">{t('columns.what')}</TableHeaderCell>
                 <TableHeaderCell scope="col">{t('columns.object')}</TableHeaderCell>
                 <TableHeaderCell scope="col">{t('columns.change')}</TableHeaderCell>
+                <TableHeaderCell scope="col">{t('columns.who')}</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -122,7 +122,6 @@ export default async function JournalPage({ params, searchParams }: PageProps) {
                       timeStyle: 'short',
                     })}
                   </TableCell>
-                  <TableCell>{ligne.acteurCourriel}</TableCell>
                   <TableCell>
                     <Badge tone="neutral">{t(`actions.${ligne.action}`)}</Badge>
                   </TableCell>
@@ -139,6 +138,7 @@ export default async function JournalPage({ params, searchParams }: PageProps) {
                       ligne.resume
                     )}
                   </TableCell>
+                  <TableCell>{ligne.acteurCourriel}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -164,8 +164,8 @@ function FiltreLien({
       aria-current={actif ? 'true' : undefined}
       className={
         actif
-          ? 'rounded-md border-w border-accent-border bg-accent-bg px-3 py-1 text-sm text-ink-accent focus-ring'
-          : 'rounded-md border-w border-line-default px-3 py-1 text-sm text-ink-secondary hover:text-ink-accent focus-ring'
+          ? 'rounded-md border-w border-accent-border bg-accent-bg px-3 py-1 text-sm font-medium text-ink-accent no-underline focus-ring'
+          : 'rounded-md border-w border-line-default px-3 py-1 text-sm text-ink-secondary no-underline hover:text-ink-accent focus-ring'
       }
     >
       {libelle}
