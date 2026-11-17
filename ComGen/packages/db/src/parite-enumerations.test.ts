@@ -35,6 +35,8 @@ const CORRESPONDANCES: Record<string, readonly string[]> = {
   Decision: core.DECISIONS_APPROBATION,
   RoleAgent: core.ROLES_AGENT,
   RoleUtilisateur: core.ROLES_UTILISATEUR,
+  ActionAudit: core.ACTIONS_AUDIT,
+  ObjetAudit: core.OBJETS_AUDIT,
 }
 
 function enumerationsGenerees(): Record<string, readonly string[]> {

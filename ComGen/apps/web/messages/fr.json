@@ -1134,6 +1134,10 @@
       "templates": {
         "title": "Gabarits",
         "description": "Formats et variantes de mise en page."
+      },
+      "journal": {
+        "title": "Journal d’audit",
+        "description": "Qui a changé quoi, et quand."
       }
     },
     "open": "Ouvrir",
@@ -1318,6 +1322,44 @@
           "SOURCE_IGNOREE": "Elle demande de passer outre la source ou les faits.",
           "TEXTE_LIBRE": "Elle demande une sortie en texte libre : la sortie d'un agent est une structure validée."
         }
+      }
+    },
+    "journal": {
+      "title": "Journal d’audit",
+      "description": "Qui a changé quoi, et quand. Une ligne écrite ne se modifie pas et ne s’efface pas : la base elle-même le refuse.",
+      "back": "Retour aux paramètres",
+      "filterLabel": "Filtrer par type d’objet",
+      "all": "Tout",
+      "empty": "Aucune trace pour ce filtre",
+      "emptyHint": "Le journal se remplit au fil des changements de réglage et des décisions d’approbation.",
+      "noChange": "Aucun champ modifié",
+      "restricted": {
+        "title": "Réservé à l’audit",
+        "description": "La lecture du journal demande le droit d’audit. Demandez-le à un administrateur si votre fonction l’exige."
+      },
+      "columns": {
+        "when": "Quand",
+        "who": "Qui",
+        "what": "Action",
+        "object": "Objet",
+        "change": "Changement"
+      },
+      "actions": {
+        "CREATION": "Création",
+        "MODIFICATION": "Modification",
+        "SUPPRESSION": "Suppression",
+        "DECISION": "Décision",
+        "TRANSITION": "Changement d’état"
+      },
+      "objects": {
+        "CONSIGNE_AGENT": "Consigne d’agent",
+        "PERSONA": "Persona",
+        "LISTE_DIFFUSION": "Liste de diffusion",
+        "GABARIT": "Gabarit",
+        "CONNECTEUR_ITSM": "Connecteur ITSM",
+        "APPROBATION": "Approbation",
+        "ENVOI": "Envoi",
+        "COMMUNICATION": "Communication"
       }
     }
   },

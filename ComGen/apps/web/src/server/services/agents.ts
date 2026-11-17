@@ -2,6 +2,7 @@ import {
   CONSIGNE_LONGUEUR_MAX,
   CONSIGNE_LONGUEUR_MIN,
   type ConstatConsigne,
+  resumerChangement,
   ROLES_AGENT,
   type RoleAgent,
   verifierConsigne,
@@ -135,18 +136,34 @@ export async function enregistrerConsigne(
     })
   }
 
-  const ligne = await acteur.contexte.consigneAgent.upsert({
-    where: { organisationId_role: { organisationId: acteur.utilisateur.organisationId, role } },
-    create: {
-      organisationId: acteur.utilisateur.organisationId,
-      role,
-      consigne,
-      modifieParId: acteur.utilisateur.id,
-    },
-    // La version est incrémentée par le déclencheur SQL quand le texte
-    // change : deux chemins d'écriture ne peuvent pas diverger.
-    update: { consigne, modifieParId: acteur.utilisateur.id },
-    select: { version: true },
+  return acteur.contexte.$transaction(async (tx) => {
+    const avant = await tx.consigneAgent.findUnique({
+      where: { organisationId_role: { organisationId: acteur.utilisateur.organisationId, role } },
+      select: { consigne: true, version: true },
+    })
+    const ligne = await tx.consigneAgent.upsert({
+      where: { organisationId_role: { organisationId: acteur.utilisateur.organisationId, role } },
+      create: {
+        organisationId: acteur.utilisateur.organisationId,
+        role,
+        consigne,
+        modifieParId: acteur.utilisateur.id,
+      },
+      // La version est incrémentée par le déclencheur SQL quand le texte
+      // change : deux chemins d'écriture ne peuvent pas diverger.
+      update: { consigne, modifieParId: acteur.utilisateur.id },
+      select: { version: true },
+    })
+    await tx.journaliser({
+      action: avant ? 'MODIFICATION' : 'CREATION',
+      objet: 'CONSIGNE_AGENT',
+      objetId: role,
+      objetLibelle: role,
+      changements: resumerChangement(
+        { consigne: avant?.consigne, version: avant?.version },
+        { consigne, version: ligne.version },
+      ),
+    })
+    return { version: ligne.version }
   })
-  return { version: ligne.version }
 }

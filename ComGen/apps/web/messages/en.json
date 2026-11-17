@@ -1134,6 +1134,10 @@
       "templates": {
         "title": "Templates",
         "description": "Formats and layout variants."
+      },
+      "journal": {
+        "title": "Audit log",
+        "description": "Who changed what, and when."
       }
     },
     "open": "Open",
@@ -1318,6 +1322,44 @@
           "SOURCE_IGNOREE": "It asks to bypass the source or the facts.",
           "TEXTE_LIBRE": "It asks for free-text output: an agent's output is a validated structure."
         }
+      }
+    },
+    "journal": {
+      "title": "Audit log",
+      "description": "Who changed what, and when. A written line cannot be edited or deleted: the database itself refuses.",
+      "back": "Back to settings",
+      "filterLabel": "Filter by object type",
+      "all": "All",
+      "empty": "No entry for this filter",
+      "emptyHint": "The log fills up as settings change and approval decisions are taken.",
+      "noChange": "No field changed",
+      "restricted": {
+        "title": "Audit only",
+        "description": "Reading the log requires the audit right. Ask an administrator if your role calls for it."
+      },
+      "columns": {
+        "when": "When",
+        "who": "Who",
+        "what": "Action",
+        "object": "Object",
+        "change": "Change"
+      },
+      "actions": {
+        "CREATION": "Creation",
+        "MODIFICATION": "Change",
+        "SUPPRESSION": "Deletion",
+        "DECISION": "Decision",
+        "TRANSITION": "State change"
+      },
+      "objects": {
+        "CONSIGNE_AGENT": "Agent instruction",
+        "PERSONA": "Persona",
+        "LISTE_DIFFUSION": "Distribution list",
+        "GABARIT": "Template",
+        "CONNECTEUR_ITSM": "ITSM connector",
+        "APPROBATION": "Approval",
+        "ENVOI": "Delivery",
+        "COMMUNICATION": "Communication"
       }
     }
   },

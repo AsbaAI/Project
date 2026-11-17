@@ -1,5 +1,6 @@
 import {
   type EtatCommunication,
+  resumerChangement,
   type MotifRefus,
   approbationsRequises,
   evaluerTransition,
@@ -156,7 +157,7 @@ export async function decider(
   return acteur.contexte.$transaction(async (tx) => {
     const communication = await tx.communication.findUnique({
       where: { id: communicationId },
-      select: { id: true, etat: true, criticite: true, auteurId: true },
+      select: { id: true, etat: true, criticite: true, auteurId: true, reference: true },
     })
     if (!communication) throw introuvable('Communication', communicationId)
     exigerDroit(acteur.utilisateur, decision === 'APPROUVEE' ? 'APPROUVER' : 'REJETER', {
@@ -216,6 +217,18 @@ export async function decider(
         })
       }
     }
+    // Le commentaire de rejet ne va pas au journal : c'est du texte libre
+    // sur le fond de la communication, pas une trace de gouvernance.
+    await tx.journaliser({
+      action: 'DECISION',
+      objet: 'APPROBATION',
+      objetId: communicationId,
+      objetLibelle: communication.reference,
+      changements: resumerChangement(
+        { decision: 'EN_ATTENTE', etat: communication.etat },
+        { decision, etat },
+      ),
+    })
     return { etat }
   })
 }

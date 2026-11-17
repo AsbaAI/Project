@@ -10,6 +10,7 @@ import {
   type Personne,
   REGISTRES,
   type Registre,
+  resumerChangement,
   lireGardeFous,
   lireJargon,
   lireVoix,
@@ -202,6 +203,28 @@ export async function modifierPersona(
         approbateurIds: [...new Set(saisi.approbateurIds)],
       },
     })
+    await tx.journaliser({
+      action: 'MODIFICATION',
+      objet: 'PERSONA',
+      objetId: persona.id,
+      objetLibelle: saisi.nom,
+      // Le journal retient ce qui se décide à l'écran, pas les objets JSON
+      // recomposés : une relecture doit pouvoir se lire d'un coup d'œil.
+      changements: resumerChangement(
+        {
+          nom: persona.nom,
+          actif: persona.actif,
+          canalDefaut: persona.canalDefaut,
+          approbateurIds: persona.approbateurIds.toSorted(),
+        },
+        {
+          nom: saisi.nom,
+          actif: saisi.actif,
+          canalDefaut: saisi.canalDefaut,
+          approbateurIds: [...new Set(saisi.approbateurIds)].toSorted(),
+        },
+      ),
+    })
   })
 }
 
@@ -210,6 +233,16 @@ export async function modifierPersona(
 // ---------------------------------------------------------------------------
 
 const COURRIEL = z.string().trim().toLowerCase().email().max(254)
+
+/** Nombre d'adresses distinctes d'une liste statique, d'après sa définition. */
+function effectifDe(definition: unknown): number {
+  const brut = objet(definition)['destinataires']
+  if (!Array.isArray(brut)) return 0
+  const courriels = brut
+    .map((entree) => objet(entree)['courriel'])
+    .filter((courriel): courriel is string => typeof courriel === 'string')
+  return new Set(courriels).size
+}
 
 export interface ListeParametre {
   id: string
@@ -286,6 +319,19 @@ export async function modifierListe(
     await tx.listeDiffusion.update({
       where: { id: listeId },
       data: { definition: { destinataires } },
+    })
+    // Les adresses elles-mêmes ne vont pas au journal : un effectif et un
+    // horodatage suffisent à dire qui a touché quelle liste, et ça évite
+    // d'y recopier des données personnelles.
+    await tx.journaliser({
+      action: 'MODIFICATION',
+      objet: 'LISTE_DIFFUSION',
+      objetId: liste.id,
+      objetLibelle: liste.nom,
+      changements: resumerChangement(
+        { effectif: effectifDe(liste.definition) },
+        { effectif: new Set(destinataires.map((d) => d.courriel)).size },
+      ),
     })
   })
   return { effectif: new Set(destinataires.map((d) => d.courriel)).size }

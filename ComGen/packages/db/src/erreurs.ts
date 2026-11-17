@@ -9,6 +9,8 @@ export type CodeErreurDonnees =
   | 'INTROUVABLE'
   | 'AMENDEMENT_SANS_APPUI'
   | 'OPERATION_NON_PRISE_EN_CHARGE'
+  | 'MODIFICATION_INTERDITE'
+  | 'AUDIT_SANS_ACTEUR'
 
 export class ErreurDonnees extends Error {
   readonly code: CodeErreurDonnees

@@ -4,6 +4,7 @@ import {
   type LucideIcon,
   Mail,
   PlugZap,
+  ScrollText,
   UsersRound,
   Workflow,
 } from 'lucide-react'
@@ -26,17 +27,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const SECTIONS: readonly {
-  cle: 'agentsCard' | 'models' | 'personas' | 'lists' | 'templates'
+  cle: 'agentsCard' | 'models' | 'personas' | 'lists' | 'templates' | 'journal'
   icone: LucideIcon
   /** Absent : l'écran n'existe pas encore, la carte l'annonce sans lien. */
   href?:
-    '/parametres/agents' | '/parametres/modeles' | '/parametres/personas' | '/parametres/listes'
+    | '/parametres/agents'
+    | '/parametres/modeles'
+    | '/parametres/personas'
+    | '/parametres/listes'
+    | '/parametres/journal'
 }[] = [
   { cle: 'agentsCard', icone: Workflow, href: '/parametres/agents' },
   { cle: 'models', icone: Bot, href: '/parametres/modeles' },
   { cle: 'personas', icone: UsersRound, href: '/parametres/personas' },
   { cle: 'lists', icone: Mail, href: '/parametres/listes' },
   { cle: 'templates', icone: LayoutTemplate },
+  { cle: 'journal', icone: ScrollText, href: '/parametres/journal' },
 ]
 
 /*

@@ -31,6 +31,7 @@ export async function acteur(connexion: Connexion, utilisateurId: string): Promi
     contexte: creerContexte(connexion, {
       organisationId: utilisateur.organisationId,
       utilisateurId: utilisateur.id,
+      utilisateurCourriel: utilisateur.courriel,
     }),
   }
 }

@@ -182,6 +182,14 @@ packages/connecteurs  outils ITSM : interface `ConnecteurItsm`, adaptateur
   refus de droit et le message d'une exception étrangère ne sortent pas du
   serveur. Exceptions : les sondes `/api/sante` et `/api/pret`, sans
   session, qui ne disent qu'un verdict (`server/sante.ts`).
+- **Journal d'audit** : `JournalAudit` est en **ajout seul** — deux
+  déclencheurs SQL refusent `UPDATE` et `DELETE`, sans exception. Le
+  modèle n'est pas atteignable depuis un contexte cloisonné : on écrit par
+  `tx.journaliser` (dans la transaction du changement) et on lit par
+  `contexte.listerAudit`. Le résumé passe par `resumerChangement` (core),
+  qui masque la valeur de tout champ dont le nom évoque un secret. Un
+  `TRUNCATE` n'est admis qu'après `SET LOCAL "comgen.maintenance_audit"`,
+  réservé à la remise à zéro des tests.
 - **Consignes d'agent** : le texte vit en base (`ConsigneAgent`, une par
   organisation et par rôle), versionné par un déclencheur SQL ; seul
   l'identifiant `org/<role>@<version>` voyage dans une trace. Une consigne

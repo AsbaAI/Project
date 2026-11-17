@@ -240,6 +240,25 @@ enum RoleUtilisateur {
   AUDITEUR
 }
 
+enum ActionAudit {
+  CREATION
+  MODIFICATION
+  SUPPRESSION
+  DECISION
+  TRANSITION
+}
+
+enum ObjetAudit {
+  CONSIGNE_AGENT
+  PERSONA
+  LISTE_DIFFUSION
+  GABARIT
+  CONNECTEUR_ITSM
+  APPROBATION
+  ENVOI
+  COMMUNICATION
+}
+
 // ---------------------------------------------------------------------------
 // Organisation, régions, sites, utilisateurs (§13.2, §16)
 // ---------------------------------------------------------------------------
@@ -262,6 +281,7 @@ model Organisation {
   listes         ListeDiffusion[]
   connecteurItsm ConnecteurItsm?
   consignesAgent ConsigneAgent[]
+  journalAudit   JournalAudit[]
 }
 
 model Region {
@@ -322,6 +342,7 @@ model Utilisateur {
   approbations           Approbation[]
   consignesAgent         ConsigneAgent[]  @relation("ConsignesModifiees")
   versionsTexte          VersionTexte[]
+  ecrituresAudit         JournalAudit[]   @relation("EcrituresAudit")
 
   @@index([organisationId])
 }
@@ -802,4 +823,33 @@ model Execution {
 model CompteurReference {
   annee   Int @id
   dernier Int @default(0)
+}
+
+/// Journal d'audit : une ligne par changement de configuration et par
+/// décision humaine. Un déclencheur SQL refuse `UPDATE` et `DELETE` : rien
+/// ne s'efface depuis l'application, pas même par le contexte cloisonné.
+/// Les écritures passent par `contexte.journaliser`, jamais par le modèle.
+model JournalAudit {
+  id             String      @id @default(cuid())
+  organisationId String
+  /// Auteur du changement. Conservé même si le compte est désactivé.
+  acteurId       String?
+  /// Courriel au moment du geste : l'audit ne dépend pas d'une jointure
+  /// qui pourrait changer de valeur après coup.
+  acteurCourriel String
+  action         ActionAudit
+  objet          ObjetAudit
+  /// Identifiant de l'objet touché, tel qu'il existe dans sa propre table.
+  objetId        String
+  /// Libellé lisible de l'objet au moment du geste.
+  objetLibelle   String
+  /// Champs modifiés, valeurs avant/après, secrets masqués (`core/audit`).
+  changements    Json
+  creeLe         DateTime    @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  acteur       Utilisateur? @relation("EcrituresAudit", fields: [acteurId], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, creeLe])
+  @@index([organisationId, objet, objetId])
 }

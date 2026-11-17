@@ -1,5 +1,6 @@
 import {
   CRITICITES,
+  resumerChangement,
   type Contradiction,
   type Criticite,
   type EtatCommunication,
@@ -381,7 +382,7 @@ export async function changerEtat(
   await contexte.$transaction(async (tx) => {
     const communication = await tx.communication.findUnique({
       where: { id },
-      select: { id: true, etat: true, criticite: true },
+      select: { id: true, etat: true, criticite: true, reference: true },
     })
     if (!communication) throw introuvable('Communication', id)
     if (!estTransitionManuelle(communication.etat, vers)) {
@@ -407,6 +408,13 @@ export async function changerEtat(
       data: { etat: vers },
     })
     if (count !== 1) throw new ErreurMetier('CONFLIT', `Communication ${id} modifiée entre-temps`)
+    await tx.journaliser({
+      action: 'TRANSITION',
+      objet: 'COMMUNICATION',
+      objetId: id,
+      objetLibelle: communication.reference,
+      changements: resumerChangement({ etat: communication.etat }, { etat: vers }),
+    })
   })
 }
 

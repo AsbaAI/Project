@@ -1,5 +1,6 @@
 import {
   type Canal,
+  resumerChangement,
   CANAUX,
   type ConstatGabarit,
   type EmplacementGabarit,
@@ -209,9 +210,21 @@ export async function changerActivationGabarit(
   actif: boolean,
 ): Promise<void> {
   exigerDroit(acteur.utilisateur, 'PARAMETRER')
-  const { count } = await acteur.contexte.template.updateMany({
-    where: { id: gabaritId },
-    data: { actif },
+  await acteur.contexte.$transaction(async (tx) => {
+    const gabarit = await tx.template.findUnique({
+      where: { id: gabaritId },
+      select: { id: true, nom: true, actif: true },
+    })
+    if (!gabarit) throw introuvable('Gabarit', gabaritId)
+    if (gabarit.actif === actif) return
+
+    await tx.template.update({ where: { id: gabarit.id }, data: { actif } })
+    await tx.journaliser({
+      action: 'MODIFICATION',
+      objet: 'GABARIT',
+      objetId: gabarit.id,
+      objetLibelle: gabarit.nom,
+      changements: resumerChangement({ actif: gabarit.actif }, { actif }),
+    })
   })
-  if (count !== 1) throw introuvable('Gabarit', gabaritId)
 }

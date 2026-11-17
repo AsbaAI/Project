@@ -1074,3 +1074,53 @@ réglage de leurs prompts.
 - **Écart avec le plan.** Le plan prévoyait une ligne `Execution` par
   tentative ; seul le compte est tenu, dans l'état de l'étape. La trace
   détaillée par tentative viendra avec le journal structuré (L6).
+
+## 2026-11-17 — L3 : journal d'audit en ajout seul
+
+**La garantie est posée dans la base, pas dans le code.** Deux
+déclencheurs refusent `UPDATE` et `DELETE` sur `JournalAudit`, sans
+exception et sans condition : une ligne écrite ne se retouche pas, même
+par SQL direct, même pour le propriétaire de la table. Un garde purement
+applicatif aurait tenu tant que personne n'écrit une requête à la main.
+
+**`TRUNCATE` garde une porte, nommée.** Remettre une base de test à zéro
+est un geste légitime ; le déclencheur l'admet si la session a posé
+`comgen.maintenance_audit = 'oui'`. L'application ne peut pas l'ouvrir :
+le contexte cloisonné lui refuse tout SQL brut. L'alternative — interdire
+`TRUNCATE` tout court — cassait la remise à zéro des tests sans rien
+ajouter à la sûreté réelle.
+
+**Deux listes orthogonales plutôt que des verbes composés.** `ActionAudit`
+(création, modification, suppression, décision, transition) et
+`ObjetAudit` (persona, gabarit, consigne, connecteur, approbation, envoi,
+communication, liste) grandissent séparément. Une liste unique de verbes
+composés aurait pris le produit des deux.
+
+**Le résumé est construit dans `core`, pas dans la base ni dans l'écran.**
+`resumerChangement` ne regarde que les champs que l'appelant lui soumet,
+coupe à 120 caractères, et remplace par `(masqué)` la valeur de tout champ
+dont le nom évoque un secret — le changement reste visible, la valeur ne
+sort pas. `refSecret` (ITSM) ne porte pourtant qu'un **nom** de variable
+d'environnement : on le masque quand même, parce qu'une liste d'exceptions
+est exactement l'endroit où une fuite finit par passer.
+
+**Ce qui ne va pas au journal.** Les adresses d'une liste de diffusion
+(seul l'effectif est retenu) et le commentaire d'un rejet : du texte libre
+sur le fond d'une communication n'est pas une trace de gouvernance, et
+pourrait porter du confidentiel.
+
+**Écrit dans la transaction du changement.** `tx.journaliser` existe sur le
+client de transaction : la trace et le changement tombent ensemble. Un
+geste refusé n'écrit donc rien — vérifié par un test.
+
+**Le journal ne se lit pas par jointure.** `acteurCourriel` est recopié au
+moment du geste. Un compte renommé ou supprimé ne réécrit pas l'histoire.
+
+**Un auditeur par organisation dans le jeu de démonstration.** Owen Hale
+(Kestrel) s'ajoute à Paul Girard (Helvea) : sans auditeur côté Kestrel,
+l'écran ne se démontrait pas là où les tests ont le droit d'écrire.
+
+**Le journal démarre vide.** Le seed n'invente aucune ligne d'audit, alors
+qu'il fabrique des communications et des approbations. Un journal d'audit
+qui contiendrait des traces inventées ne vaudrait rien ; l'écran vide dit
+ce qu'il attend.

@@ -53,6 +53,7 @@ export function contextePour(utilisateur: UtilisateurConnecte): ContexteDonnees 
   return creerContexte(connexion(), {
     organisationId: utilisateur.organisationId,
     utilisateurId: utilisateur.id,
+    utilisateurCourriel: utilisateur.courriel,
   })
 }
 

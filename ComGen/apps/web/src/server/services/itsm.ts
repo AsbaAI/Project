@@ -16,6 +16,7 @@ import {
   verifierUrlInstance,
 } from '@comgen/connecteurs'
 import { fabriqueAgents } from '@comgen/agents'
+import { resumerChangement } from '@comgen/core'
 import {
   CONFIG_MASQUAGE_PAR_DEFAUT,
   type ConfigMasquage,
@@ -214,10 +215,40 @@ export async function enregistrerConfigItsm(
     actif: config.actif,
     testeLe: (dep.maintenant ?? (() => new Date()))(),
   }
-  await acteur.contexte.connecteurItsm.upsert({
-    where: { organisationId: acteur.utilisateur.organisationId },
-    create: donnees,
-    update: donnees,
+  await acteur.contexte.$transaction(async (tx) => {
+    const avant = await tx.connecteurItsm.findUnique({
+      where: { organisationId: acteur.utilisateur.organisationId },
+      select: {
+        systeme: true,
+        urlInstance: true,
+        methodeAuth: true,
+        identifiantPublic: true,
+        refSecret: true,
+        actif: true,
+      },
+    })
+    await tx.connecteurItsm.upsert({
+      where: { organisationId: acteur.utilisateur.organisationId },
+      create: donnees,
+      update: donnees,
+    })
+    // La base ne garde que le NOM de la variable d'environnement (§19) ;
+    // `resumerChangement` masque quand même sa valeur, parce qu'un champ
+    // qui parle de secret ne sort pas d'ici, même quand il est anodin.
+    await tx.journaliser({
+      action: avant ? 'MODIFICATION' : 'CREATION',
+      objet: 'CONNECTEUR_ITSM',
+      objetId: acteur.utilisateur.organisationId,
+      objetLibelle: config.systeme,
+      changements: resumerChangement(avant ?? {}, {
+        systeme: config.systeme,
+        urlInstance: config.urlInstance,
+        methodeAuth: config.methodeAuth,
+        identifiantPublic: config.identifiantPublic,
+        refSecret: config.refSecret,
+        actif: config.actif,
+      }),
+    })
   })
 }
 

@@ -62,6 +62,7 @@ function routes({ coms }: Cas): readonly string[] {
     '/parametres/personas',
     '/parametres/listes',
     '/parametres/itsm',
+    '/parametres/journal',
     '/design',
   ]
 }

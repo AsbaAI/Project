@@ -1,4 +1,4 @@
-import { evaluerTransition } from '@comgen/core'
+import { evaluerTransition, resumerChangement } from '@comgen/core'
 
 import { exigerDroit } from '@/server/auth/droits'
 
@@ -30,7 +30,7 @@ async function communicationPour(
 ) {
   const communication = await tx.communication.findUnique({
     where: { id },
-    select: { id: true, etat: true, criticite: true },
+    select: { id: true, etat: true, criticite: true, reference: true },
   })
   if (!communication) throw introuvable('Communication', id)
   return communication
@@ -93,6 +93,16 @@ export async function planifierEnvoi(
       data: { etat: 'ENVOI_PLANIFIE' },
     })
     if (count !== 1) throw new ErreurMetier('CONFLIT', `Communication ${communicationId} modifiée`)
+    await tx.journaliser({
+      action: 'DECISION',
+      objet: 'ENVOI',
+      objetId: communicationId,
+      objetLibelle: communication.reference,
+      changements: resumerChangement(
+        { etat: 'APPROUVEE' },
+        { etat: 'ENVOI_PLANIFIE', envois: variantes.length },
+      ),
+    })
     return { envois: variantes.length }
   })
 }

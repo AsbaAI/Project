@@ -1,7 +1,10 @@
 import {
   compterMotsDocument,
   formaterReferenceCommunication,
+  type ActionAudit,
+  type ChangementAudit,
   type EtatCommunication,
+  type ObjetAudit,
   type OrigineTexte,
 } from '@comgen/core'
 
@@ -27,6 +30,12 @@ export interface IdentiteContexte {
   organisationId: string
   /** Utilisateur au nom duquel les écritures sont faites, s'il y en a un. */
   utilisateurId?: string
+  /**
+   * Courriel de cet utilisateur, recopié dans le journal d'audit. L'audit
+   * ne se lit pas par jointure : il dit qui a agi au moment du geste, même
+   * si le compte est renommé ou supprimé ensuite.
+   */
+  utilisateurCourriel?: string
 }
 
 const OPERATIONS_AVEC_FILTRE = new Set([
@@ -52,6 +61,16 @@ const MODELES_RESERVES: ReadonlySet<Prisma.ModelName> = new Set<Prisma.ModelName
   'CompteurReference',
 ])
 
+/**
+ * Modèles en ajout seul : on ajoute et on lit, jamais autre chose. Le
+ * verrou qui compte est le déclencheur SQL ; celui-ci s'arrête plus tôt,
+ * avec un message qui nomme la règle plutôt qu'une erreur de PostgreSQL.
+ */
+const MODELES_AJOUT_SEUL: ReadonlySet<Prisma.ModelName> = new Set<Prisma.ModelName>([
+  'JournalAudit',
+])
+const OPERATIONS_AJOUT_SEUL = new Set(['create', 'findMany', 'findFirst', 'count'])
+
 const MEMBRES_INTERDITS = new Set([
   '$queryRaw',
   '$executeRaw',
@@ -63,6 +82,7 @@ const MEMBRES_INTERDITS = new Set([
   '$connect',
   '$disconnect',
   'compteurReference',
+  'journalAudit',
 ])
 
 /** États dans lesquels le contenu d'une communication ne se modifie plus. */
@@ -117,6 +137,12 @@ function cloisonner(
     throw new ErreurDonnees(
       'ACCES_INTERDIT',
       `Le modèle ${model} n'est accessible que par les fonctions dédiées du contexte`,
+    )
+  }
+  if (MODELES_AJOUT_SEUL.has(model) && !OPERATIONS_AJOUT_SEUL.has(operation)) {
+    throw new ErreurDonnees(
+      'MODIFICATION_INTERDITE',
+      `${model} est en ajout seul : ${operation} refusé`,
     )
   }
   if (model === 'Organisation' && !operation.startsWith('find') && operation !== 'count') {
@@ -183,9 +209,18 @@ type MembresInterdits =
   | '$connect'
   | '$disconnect'
   | 'compteurReference'
+  | 'journalAudit'
 
-/** Le client tel qu'il est exposé dans une transaction interactive. */
-export type ContexteTransaction = Omit<ClientTransaction, MembresInterdits>
+/**
+ * Le client tel qu'il est exposé dans une transaction interactive.
+ *
+ * Il porte `journaliser` : une trace d'audit s'écrit dans la **même**
+ * transaction que le changement qu'elle décrit, sinon l'une des deux peut
+ * manquer et le journal ment par omission.
+ */
+export type ContexteTransaction = Omit<ClientTransaction, MembresInterdits> & {
+  journaliser(ecriture: EcritureAudit): Promise<void>
+}
 
 export interface EcritureContenuVariante {
   varianteId: string
@@ -206,6 +241,38 @@ export interface AmendementDeFait {
   auteurId: string
 }
 
+export interface EcritureAudit {
+  action: ActionAudit
+  objet: ObjetAudit
+  /** Identifiant de l'objet touché, dans sa propre table. */
+  objetId: string
+  /** Libellé lisible de l'objet au moment du geste. */
+  objetLibelle: string
+  /** Produit par `resumerChangement` (core) : secrets déjà masqués. */
+  changements: readonly ChangementAudit[]
+}
+
+export interface FiltresAudit {
+  objet?: ObjetAudit
+  action?: ActionAudit
+  /** Nombre maximal de lignes rendues ; borné par `LIGNES_AUDIT_MAX`. */
+  limite?: number
+}
+
+export interface LigneAudit {
+  id: string
+  acteurCourriel: string
+  action: ActionAudit
+  objet: ObjetAudit
+  objetId: string
+  objetLibelle: string
+  changements: ChangementAudit[]
+  creeLe: Date
+}
+
+/** Un écran de consultation pagine ; il ne tire jamais le journal entier. */
+export const LIGNES_AUDIT_MAX = 200
+
 export interface FonctionsContexte {
   readonly organisationId: string
   readonly utilisateurId: string | undefined
@@ -215,6 +282,14 @@ export interface FonctionsContexte {
   amenderFait(amendement: AmendementDeFait): Promise<{ amendementId: string }>
   /** Réserve la prochaine référence `COM-AAAA-NNNN`. */
   prochaineReference(annee: number): Promise<string>
+  /**
+   * Ajoute une ligne au journal d'audit. Hors transaction : à n'employer
+   * que si le changement décrit a déjà abouti. Dans une transaction, passer
+   * par `tx.journaliser` pour que trace et changement tombent ensemble.
+   */
+  journaliser(ecriture: EcritureAudit): Promise<void>
+  /** Lit le journal, de la ligne la plus récente à la plus ancienne. */
+  listerAudit(filtres?: FiltresAudit): Promise<LigneAudit[]>
   /** Transaction interactive ; le client reçu est lui aussi cloisonné. */
   $transaction<R>(fn: (tx: ContexteTransaction) => Promise<R>): Promise<R>
 }
@@ -330,8 +405,71 @@ export function creerContexte(connexion: Connexion, identite: IdentiteContexte):
     return formaterReferenceCommunication(annee, compteur.dernier)
   }
 
+  /**
+   * Le journal d'audit se remplit par le client cloisonné (qui pose
+   * l'organisation) mais jamais depuis le code appelant : le membre
+   * `journalAudit` lui est refusé par le proxy. Dans une transaction, c'est
+   * le client de cette transaction qui écrit, donc la trace tombe avec le
+   * changement qu'elle décrit.
+   */
+  const journaliserAvec = async (
+    client: { journalAudit: { create(args: { data: Enregistrement }): Promise<unknown> } },
+    ecriture: EcritureAudit,
+  ): Promise<void> => {
+    const { utilisateurId, utilisateurCourriel } = identite
+    if (!utilisateurId || !utilisateurCourriel) {
+      throw new ErreurDonnees(
+        'AUDIT_SANS_ACTEUR',
+        "Une ligne d'audit nomme son acteur : contexte ouvert sans utilisateur",
+      )
+    }
+    await client.journalAudit.create({
+      data: {
+        organisationId,
+        acteurId: utilisateurId,
+        acteurCourriel: utilisateurCourriel,
+        action: ecriture.action,
+        objet: ecriture.objet,
+        objetId: ecriture.objetId,
+        objetLibelle: ecriture.objetLibelle,
+        changements: [...ecriture.changements],
+      },
+    })
+  }
+
+  type ClientAudit = Parameters<typeof journaliserAvec>[0]
+
+  const listerAudit = async (filtres: FiltresAudit = {}): Promise<LigneAudit[]> => {
+    const lignes = await etendu.journalAudit.findMany({
+      where: {
+        ...(filtres.objet === undefined ? {} : { objet: filtres.objet }),
+        ...(filtres.action === undefined ? {} : { action: filtres.action }),
+      },
+      orderBy: { creeLe: 'desc' },
+      take: Math.min(filtres.limite ?? LIGNES_AUDIT_MAX, LIGNES_AUDIT_MAX),
+    })
+    return lignes.map((ligne) => ({
+      id: ligne.id,
+      acteurCourriel: ligne.acteurCourriel,
+      action: ligne.action,
+      objet: ligne.objet,
+      objetId: ligne.objetId,
+      objetLibelle: ligne.objetLibelle,
+      changements: Array.isArray(ligne.changements)
+        ? (ligne.changements as unknown as ChangementAudit[])
+        : [],
+      creeLe: ligne.creeLe,
+    }))
+  }
+
   const $transaction = <R>(fn: (tx: ContexteTransaction) => Promise<R>): Promise<R> =>
-    etendu.$transaction((tx) => fn(proxifier(tx, {}) as ContexteTransaction))
+    etendu.$transaction((tx) => {
+      const extrasTransaction = {
+        journaliser: (ecriture: EcritureAudit) =>
+          journaliserAvec(tx as unknown as ClientAudit, ecriture),
+      }
+      return fn(proxifier(tx, extrasTransaction) as unknown as ContexteTransaction)
+    })
 
   const extras: FonctionsContexte = {
     organisationId,
@@ -339,6 +477,8 @@ export function creerContexte(connexion: Connexion, identite: IdentiteContexte):
     ecrireContenuVariante,
     amenderFait,
     prochaineReference,
+    journaliser: (ecriture) => journaliserAvec(etendu as unknown as ClientAudit, ecriture),
+    listerAudit,
     $transaction,
   }
 

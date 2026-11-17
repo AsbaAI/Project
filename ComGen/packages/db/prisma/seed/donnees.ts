@@ -120,6 +120,7 @@ export const USR_LEA_MOREAU = 'usr_lea_moreau'
 export const USR_OLIVIA_HART = 'usr_olivia_hart'
 export const USR_JAMES_WHITAKER = 'usr_james_whitaker'
 export const USR_PRIYA_NAIR = 'usr_priya_nair'
+export const USR_OWEN_HALE = 'usr_owen_hale'
 
 function utilisateur(
   id: string,
@@ -234,6 +235,17 @@ export const UTILISATEURS: Prisma.UtilisateurCreateManyInput[] = [
     'Priya Nair',
     'priya.nair@kestrel.example',
     ['ADMINISTRATEUR'],
+  ),
+  // Un auditeur par organisation : sans lui, le journal d'audit n'a
+  // personne pour le lire, et l'écran ne se démontre pas.
+  utilisateur(
+    USR_OWEN_HALE,
+    ORG_KESTREL,
+    REG_KESTREL_UK,
+    SITE_KESTREL_LONDON,
+    'Owen Hale',
+    'owen.hale@kestrel.example',
+    ['AUDITEUR'],
   ),
 ]
 

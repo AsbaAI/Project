@@ -398,8 +398,8 @@ une sortie en texte libre, un repli silencieux sur un autre modèle.
 ## 4. Ordre proposé pour commencer
 
 1. **L1 Santé** puis **L2 Retries** : courts, sans dépendance, ils
-   sécurisent tout ce qui suit.
-2. **L3 Audit** et **L4 Sauvegarde**.
+   sécurisent tout ce qui suit. _(livrés)_
+2. **L3 Audit** _(livré)_ et **L4 Sauvegarde**.
 3. **L9 Banc de qualité**, en parallèle de la réponse à D1.
 4. **L5**, **L6**, puis **L7** et **L8**.
 5. Phase 4 dès que la clé de TEST est disponible.

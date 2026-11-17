@@ -39,6 +39,11 @@ export const COMPTES = {
     courriel: 'nadia.benali@helvea.example',
     etat: path.join(import.meta.dirname, '.auth', 'administratrice.json'),
   },
+  /** Auditeur Kestrel : lit le journal d'audit, n'écrit jamais rien. */
+  auditeur: {
+    courriel: 'owen.hale@kestrel.example',
+    etat: path.join(import.meta.dirname, '.auth', 'auditeur.json'),
+  },
   /** Rédactrice Kestrel : parcours qui écrivent, isolés des captures par l'organisation. */
   parcours: {
     courriel: 'olivia.hart@kestrel.example',

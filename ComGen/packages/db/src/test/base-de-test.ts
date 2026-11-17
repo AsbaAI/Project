@@ -17,18 +17,29 @@ export function ouvrirConnexionDeTest(): Connexion {
   return ouvrirConnexion({ url: URL_BASE_DE_TEST, connexionsMax: 4 })
 }
 
-/** Vide toutes les tables métier, dans l'ordre des dépendances. */
+/**
+ * Vide toutes les tables métier, dans l'ordre des dépendances.
+ *
+ * `JournalAudit` est en ajout seul : son déclencheur refuse `TRUNCATE` tant
+ * que la session n'a pas ouvert la porte de maintenance. On l'ouvre ici,
+ * dans une transaction (`SET LOCAL`), donc pour cette remise à zéro
+ * seulement — l'application, elle, n'a pas accès au SQL brut.
+ */
 export async function viderBase(connexion: Connexion): Promise<void> {
   const client = clientDeTest(connexion)
-  await client.$executeRawUnsafe(`
-    TRUNCATE TABLE
-      "Execution", "Envoi", "Approbation", "Mention", "SuggestionAudience",
-      "VersionTexte", "Controle", "Affirmation", "Variante",
-      "AmendementFait", "Fait", "Source", "Communication",
-      "ListeDiffusion", "Entite", "Canevas", "Template", "Persona",
-      "Utilisateur", "Site", "Region", "Organisation", "CompteurReference"
-    CASCADE
-  `)
+  await client.$transaction([
+    client.$executeRawUnsafe(`SET LOCAL "comgen.maintenance_audit" = 'oui'`),
+    client.$executeRawUnsafe(`
+      TRUNCATE TABLE
+        "JournalAudit", "Execution", "Envoi", "Approbation", "Mention",
+        "SuggestionAudience", "VersionTexte", "Controle", "Affirmation",
+        "Variante", "AmendementFait", "Fait", "Source", "Communication",
+        "ListeDiffusion", "Entite", "Canevas", "Template", "Persona",
+        "ConsigneAgent", "ConnecteurItsm",
+        "Utilisateur", "Site", "Region", "Organisation", "CompteurReference"
+      CASCADE
+    `),
+  ])
 }
 
 export interface JeuMinimal {
